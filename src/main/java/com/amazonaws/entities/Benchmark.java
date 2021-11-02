@@ -1,6 +1,6 @@
 package com.amazonaws.entities;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Benchmark {
 	private String benchmarkID;
