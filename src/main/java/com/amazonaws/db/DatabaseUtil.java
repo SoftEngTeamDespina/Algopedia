@@ -24,7 +24,7 @@ public class DatabaseUtil {
 	public final static String rdsMySqlDatabasePort = "3306";
 	public final static String multiQueries = "?allowMultiQueries=true";
 	   
-	public final static String dbName = "calc";           // Whatever Schema you created in tutorial.
+	public final static String dbName = "algopedia";           // Whatever Schema you created in tutorial.
 	public final static String testingName = "tmp";       // used for testing (also default created)
 	
 	// pooled across all usages.
