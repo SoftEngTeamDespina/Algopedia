@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.amazonaws.db.UserDAO;
 import com.amazonaws.http.RegisterUserResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -28,14 +29,14 @@ public class HandleRegisterUser implements RequestStreamHandler {
 		PrintWriter writer = new PrintWriter(
 				new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
-		UserDao userDao = new UserDao();
+		UserDAO userDao = new UserDAO();
 		RegisterUserResponse response = new RegisterUserResponse();
 		logger.log(event.toString());
 		if (event.get("username") != null) {
             String username = new Gson().fromJson(event.get("username"), Integer.class);
             try {
-				UserDao user = userDao.getUser(id);
-				response.setUser(user.getUser());
+				UserDAO user = userDao.getUser(username);
+				response.setUser(user.getUser(username));
 				response.setLogMsg("Registration succesful");
 				response.setHttpStatusCode(200);
 				writer.write(new Gson().toJson(response));
