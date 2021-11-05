@@ -47,7 +47,7 @@ public class UserDAO{
     public boolean addUser(User user) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE name = ?;");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE username = ?;");
             ps.setString(1, user.getUsername());
             ResultSet resultSet = ps.executeQuery();
             
