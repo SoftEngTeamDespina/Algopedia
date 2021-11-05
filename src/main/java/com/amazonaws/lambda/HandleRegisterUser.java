@@ -4,12 +4,19 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+
 import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.User;
 import com.amazonaws.http.RegisterUserResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -33,10 +40,13 @@ public class HandleRegisterUser implements RequestStreamHandler {
 		RegisterUserResponse response = new RegisterUserResponse();
 		logger.log(event.toString());
 		if (event.get("username") != null) {
-            String username = new Gson().fromJson(event.get("username"), Integer.class);
+            String username = new Gson().fromJson(event.get("username"), String.class);
+            String password = new Gson().fromJson(event.get("password"), String.class);
             try {
-				UserDAO user = userDao.getUser(username);
-				response.setUser(user.getUser(username));
+            	User u = new User(username, password, false);
+				boolean ret = userDao.addUser(u);
+				if(!ret) {throw new Exception("User Failed to register");}
+				response.setUser(u);
 				response.setLogMsg("Registration succesful");
 				response.setHttpStatusCode(200);
 				writer.write(new Gson().toJson(response));

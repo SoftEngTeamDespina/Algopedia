@@ -57,9 +57,9 @@ public class UserDAO{
             }
 
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,username,passwordHash,isAdmin) values(UUID(),?,?,?);");
-            ps.setString(1,user.getUsername());
-            ps.setString(2,  user.getPasswordHash());
-            ps.setBoolean(3,user.getIsAdmin());
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
+            ps.setBoolean(3, user.getIsAdmin());
             ps.execute();
             return true;
 
