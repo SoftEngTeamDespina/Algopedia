@@ -6,6 +6,13 @@ public class User {
 	private Boolean isAdmin;
 	
 	
+	public User(String uname,String passwordHash,Boolean isAdmin) {
+		this.username = uname;
+		this.passwordHash = passwordHash;
+		this.isAdmin = isAdmin;
+	}
+	
+	
 	public String getUsername() {
 		return username;
 	}
