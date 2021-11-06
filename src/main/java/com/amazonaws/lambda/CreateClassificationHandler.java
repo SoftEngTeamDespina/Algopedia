@@ -2,7 +2,6 @@ package com.amazonaws.lambda;
 
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.entities.Classification;
-import com.amazonaws.http.CreateClassificationRequest;
 import com.amazonaws.http.CreateClassificationResponse;
 
 import java.io.BufferedReader;
@@ -42,6 +41,7 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 		logger.log(event.toString());
 		
 		ClassificationDAO db = new ClassificationDAO();
+		CreateClassificationResponse response;
 		
 		if (event.get("name") != null) {
             String name = new Gson().fromJson(event.get("name"), String.class);
@@ -53,13 +53,13 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 			Classification newCl = new Classification();
 			db.addClassification(newCl);
 			String classID = db.getClassification(name).getClassificationID();
-			CreateClassificationResponse response = new CreateClassificationResponse(classID, 200);
+			response = new CreateClassificationResponse(classID, 200);
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			CreateClassificationResponse response = new CreateClassificationResponse(500, "Failed to create classification");
+			response = new CreateClassificationResponse(500, "Failed to create classification");
 			writer.write(new Gson().toJson(response));
 			
 		}finally {

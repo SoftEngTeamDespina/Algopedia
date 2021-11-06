@@ -39,6 +39,7 @@ public class CreateAlgorithmHandler implements RequestStreamHandler {
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 
 		logger.log(event.toString());
+		CreateAlgorithmResponse response;
 		
 		AlgorithmDAO db = new AlgorithmDAO();
 		
@@ -48,17 +49,17 @@ public class CreateAlgorithmHandler implements RequestStreamHandler {
             String ClassificationID = new Gson().fromJson(event.get("id"), String.class);
 		
 		try {
-			//Add Classification constructor
+			//Add algo constructor
 			Algorithm newAlgo = new Algorithm();
 			db.addAlgorithm(newAlgo);
 			String algoID = db.getAlgorithm(name).getAlgorithmID();
-			CreateAlgorithmResponse response = new CreateAlgorithmResponse(algoID, 200);
+			response = new CreateAlgorithmResponse(algoID, 200);
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			CreateAlgorithmResponse response = new CreateAlgorithmResponse(500, "Failed to create algorithm");
+			response = new CreateAlgorithmResponse(500, "Failed to create algorithm");
 			writer.write(new Gson().toJson(response));
 			
 		}finally {
