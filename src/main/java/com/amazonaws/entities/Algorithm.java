@@ -6,12 +6,17 @@ public class Algorithm {
 	private String algorithmID;
 	private String name;
 	private String description;
+	private String classificationID;
 	private LinkedList<Implementation> implementations;
 	private LinkedList<ProblemInstance> problemInstances;
 	
 	
 	
-	public Algorithm() {
+	public Algorithm(String algorithmID, String name, String description, String classificationID) {
+		this.algorithmID = algorithmID;
+		this.name = name;
+		this.description = description;
+		this.classificationID = classificationID;
 		
 	}
 	
@@ -37,6 +42,13 @@ public class Algorithm {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public String getClassificationID() {
+		return classificationID;
+	}
+	public void setClassificationID(String algorithmID) {
+		this.classificationID = algorithmID;
+	}
 
 	public LinkedList<Implementation> getImplementations() {
 		return implementations;
@@ -53,6 +65,8 @@ public class Algorithm {
 	public void setProblemInstances(LinkedList<ProblemInstance> problemInstances) {
 		this.problemInstances = problemInstances;
 	}
+	
+	
 
 	
 	

@@ -7,7 +7,15 @@ public class Implementation {
 	private String implementationID;
 	private Language language;
 	private LinkedList<Benchmark> benchmarks;
-	private File code;
+	private String filename;
+	private String algorithmID;
+	
+	public Implementation(Language language, String filename, String algorithmID) {
+		this.language = language;
+		this.filename = filename;
+		this.algorithmID = algorithmID;
+		
+	}
 	
 	
 	public String getImplementationID() {
@@ -28,11 +36,18 @@ public class Implementation {
 	public void setBenchmarks(LinkedList<Benchmark> benchmarks) {
 		this.benchmarks = benchmarks;
 	}
-	public File getCode() {
-		return code;
+	public String getFileName() {
+		return filename;
 	}
-	public void setCode(File code) {
-		this.code = code;
+	public void setFileName(String filename) {
+		this.filename = filename;
+	}
+	
+	public String getAlgorithmID() {
+		return algorithmID;
+	}
+	public void setAlgorithmID(String algorithmID) {
+		this.algorithmID = algorithmID;
 	}
 	
 }

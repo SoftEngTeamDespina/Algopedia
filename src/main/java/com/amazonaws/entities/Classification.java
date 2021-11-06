@@ -6,8 +6,14 @@ public class Classification {
 	private String classificationID;
 	private String name;
 	private String description;
-	private Classification superClassification;
+	private String superClassification;
 	private LinkedList<Algorithm> algorithms;
+	
+	public Classification(String name, String description, String superClassification) {
+		this.name = name;
+		this.description = description;
+		this.superClassification = superClassification;
+	}
 	
 	public String getClassificationID() {
 		return classificationID;
@@ -27,10 +33,10 @@ public class Classification {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Classification getSuperClassification() {
+	public String getSuperClassification() {
 		return superClassification;
 	}
-	public void setSuperClassification(Classification superClassification) {
+	public void setSuperClassification(String superClassification) {
 		this.superClassification = superClassification;
 	}
 	public LinkedList<Algorithm> getAlgorithms() {
