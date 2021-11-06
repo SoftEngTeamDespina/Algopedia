@@ -1,9 +1,8 @@
 package com.amazonaws.lambda;
 
-import com.amazonaws.db.ClassificationDAO;
-import com.amazonaws.entities.Classification;
-import com.amazonaws.http.CreateClassificationRequest;
-import com.amazonaws.http.CreateClassificationResponse;
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.http.CreateAlgorithmResponse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,7 +24,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 
-public class CreateClassificationHandler implements RequestStreamHandler {
+public class CreateAlgorithmHandler implements RequestStreamHandler {
 	LambdaLogger logger;
 	
 
@@ -41,25 +40,25 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 
 		logger.log(event.toString());
 		
-		ClassificationDAO db = new ClassificationDAO();
+		AlgorithmDAO db = new AlgorithmDAO();
 		
 		if (event.get("name") != null) {
             String name = new Gson().fromJson(event.get("name"), String.class);
             String description = new Gson().fromJson(event.get("description"), String.class);
-            String superClassification = new Gson().fromJson(event.get("superClassification"), String.class);
+            String ClassificationID = new Gson().fromJson(event.get("id"), String.class);
 		
 		try {
 			//Add Classification constructor
-			Classification newCl = new Classification();
-			db.addClassification(newCl);
-			String classID = db.getClassification(name).getClassificationID();
-			CreateClassificationResponse response = new CreateClassificationResponse(classID, 200);
+			Algorithm newAlgo = new Algorithm();
+			db.addAlgorithm(newAlgo);
+			String algoID = db.getAlgorithm(name).getAlgorithmID();
+			CreateAlgorithmResponse response = new CreateAlgorithmResponse(algoID, 200);
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			CreateClassificationResponse response = new CreateClassificationResponse(500, "Failed to create classification");
+			CreateAlgorithmResponse response = new CreateAlgorithmResponse(500, "Failed to create algorithm");
 			writer.write(new Gson().toJson(response));
 			
 		}finally {
