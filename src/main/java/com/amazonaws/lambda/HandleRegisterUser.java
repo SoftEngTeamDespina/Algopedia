@@ -38,6 +38,7 @@ public class HandleRegisterUser implements RequestStreamHandler {
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 		UserDAO userDao = new UserDAO();
 		RegisterUserResponse response = new RegisterUserResponse();
+		
 		logger.log(event.toString());
 		if (event.get("username") != null) {
             String username = new Gson().fromJson(event.get("username"), String.class);

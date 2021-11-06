@@ -38,12 +38,12 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 				new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 
-		logger.log(event.toString());
-
 		ClassificationDAO db = new ClassificationDAO();
-		CreateClassificationResponse response;
-
+		CreateClassificationResponse response =  new CreateClassificationResponse(400,"Fail");
+		logger.log(event.toString());
+		
 		if (event.get("name") != null) {
+			
             String name = new Gson().fromJson(event.get("name"), String.class);
             String description = new Gson().fromJson(event.get("description"), String.class);
             String superClassification = new Gson().fromJson(event.get("superClassification"), String.class);
@@ -51,6 +51,7 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 		try {
 			Classification newCl = new Classification(name, description, superClassification);
 			if (db.addClassification(newCl)){
+				logger.log("inserting the new classification");
 				String classID = db.getClassification(name).getClassificationID();
 				response = new CreateClassificationResponse(classID, 200);
 			}
