@@ -49,11 +49,14 @@ public class CreateClassificationHandler implements RequestStreamHandler {
             String superClassification = new Gson().fromJson(event.get("superClassification"), String.class);
 
 		try {
-			//Add Classification constructor
-			Classification newCl = new Classification();
-			db.addClassification(newCl);
-			String classID = db.getClassification(name).getClassificationID();
-			response = new CreateClassificationResponse(classID, 200);
+			Classification newCl = new Classification(name, description, superClassification);
+			if (db.addClassification(newCl)){
+				String classID = db.getClassification(name).getClassificationID();
+				response = new CreateClassificationResponse(classID, 200);
+			}
+			else {
+				response = new CreateClassificationResponse(400, "Failed to create classification");
+			}
 			writer.write(new Gson().toJson(response));
 
 		} catch (Exception e){

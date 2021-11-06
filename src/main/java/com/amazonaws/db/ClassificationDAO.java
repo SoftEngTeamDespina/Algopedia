@@ -32,8 +32,7 @@ public class ClassificationDAO{
             ResultSet resultSet = ps.executeQuery();
             
             while (resultSet.next()) {
-            	//need to set constructors for Classification
-                //cl = new Classification(resultSet.getString("username"),resultSet.getString("passwordHash"),resultSet.getBoolean("isAdmin"));
+                cl = new Classification(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"),resultSet.getString("clasificationcol"));
             }
             resultSet.close();
             ps.close();
@@ -58,11 +57,10 @@ public class ClassificationDAO{
                 return false;
             }
             
-            //typo in clasificationcol
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,name,description,clasificationcol) values(UUID(),?,?,?);");
             ps.setString(1, cl.getName());
             ps.setString(2, cl.getDescription());
-            ps.setString(3, cl.getSuperClassification().getName());
+            ps.setString(3, cl.getSuperClassification());
             ps.execute();
             return true;
 

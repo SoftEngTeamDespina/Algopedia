@@ -15,6 +15,13 @@ public class Classification {
 		this.superClassification = superClassification;
 	}
 	
+	public Classification(String classificationID, String name, String description, String superClassification) {
+		this.classificationID = classificationID;
+		this.name = name;
+		this.description = description;
+		this.superClassification = superClassification;
+	}
+	
 	public String getClassificationID() {
 		return classificationID;
 	}

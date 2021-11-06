@@ -1,4 +1,4 @@
-ackage com.amazonaws.http;
+package com.amazonaws.http;
 
 public class CreateImplementationResponse {
 	String implemantationID;
