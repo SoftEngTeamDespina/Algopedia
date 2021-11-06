@@ -30,8 +30,7 @@ public class ImplementationDAO{
             ResultSet resultSet = ps.executeQuery();
             
             while (resultSet.next()) {
-            	//need to set constructors for Implementation
-                //imp = new Implementation(resultSet.getString("username"),resultSet.getString("passwordHash"),resultSet.getBoolean("isAdmin"));
+                imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
             }
             resultSet.close();
             ps.close();
@@ -58,9 +57,8 @@ public class ImplementationDAO{
 
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,language,filename,algorithm) values(UUID(),?,?,?);");
             ps.setString(1, imp.getLanguage().toString());
-            ps.setString(2, imp.getCode().toString());
-            //do we want our entities to have the same structure as the db?
-            //ps.setString(3, imp.getAlgorithm());
+            ps.setString(2, imp.getFileName().toString());
+            ps.setString(3, imp.getAlgorithmID());
             ps.execute();
             return true;
 

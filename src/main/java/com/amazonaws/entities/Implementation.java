@@ -17,6 +17,14 @@ public class Implementation {
 		
 	}
 	
+	public Implementation(String implementationID, Language language, String filename, String algorithmID) {
+		this.implementationID = implementationID;
+		this.language = language;
+		this.filename = filename;
+		this.algorithmID = algorithmID;
+		
+	}
+	
 	
 	public String getImplementationID() {
 		return implementationID;
