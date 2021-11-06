@@ -16,7 +16,7 @@ public class DatabaseUtil {
 	// https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html
 	//
 	// The above link shows how to do that.
-	public static String rdsMySqlDatabaseUrl = "";
+	public static String rdsMySqlDatabaseUrl = "database-1.czstbtxguo8c.us-east-2.rds.amazonaws.com";
 	public static String dbUsername = "despina";
 	public static String dbPassword = "despina2021";
 		
@@ -24,7 +24,7 @@ public class DatabaseUtil {
 	public final static String rdsMySqlDatabasePort = "3306";
 	public final static String multiQueries = "?allowMultiQueries=true";
 	   
-	public final static String dbName = "calc";           // Whatever Schema you created in tutorial.
+	public final static String dbName = "algopedia";           // Whatever Schema you created in tutorial.
 	public final static String testingName = "tmp";       // used for testing (also default created)
 	
 	// pooled across all usages.
@@ -36,7 +36,7 @@ public class DatabaseUtil {
 	protected static Connection connect() throws Exception {
 		if (conn != null) { return conn; }
 		
-		boolean useTestDB = System.getenv("TESTING") != null;
+		boolean useTestDB = false;
 		
 		// this is resistant to any SQL-injection attack since we choose one of two possible ones.
 		String schemaName = dbName;
@@ -45,27 +45,27 @@ public class DatabaseUtil {
 			System.out.println("USE TEST DB:" + useTestDB);
 		}
 		
-		dbUsername = System.getenv("dbUsername");
-		if (dbUsername == null) {
-			System.err.println("Environment variable dbUsername is not set!");
-		}
-		dbPassword = System.getenv("dbPassword");
-		if (dbPassword == null) {
-			System.err.println("Environment variable dbPassword is not set!");
-		}
-		rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
-		if (rdsMySqlDatabaseUrl == null) {
-			System.err.println("Environment variable rdsMySqlDatabaseUrl is not set!");
-		}
-		
+//		dbUsername = System.getenv("dbUsername");
+//		if (dbUsername == null) {
+//			System.err.println("Environment variable dbUsername is not set!");
+//		}
+//		dbPassword = System.getenv("dbPassword");
+//		if (dbPassword == null) {
+//			System.err.println("Environment variable dbPassword is not set!");
+//		}
+//		rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
+//		if (rdsMySqlDatabaseUrl == null) {
+//			System.err.println("Environment variable rdsMySqlDatabaseUrl is not set!");
+//		}
+//		
 		try {
-			//System.out.println("start connecting......");
+			System.out.println("start connecting......");
 			Class.forName("com.mysql.cj.jdbc.Driver"); 
 			conn = DriverManager.getConnection(
 					jdbcTag + rdsMySqlDatabaseUrl + ":" + rdsMySqlDatabasePort + "/" + schemaName + multiQueries,
 					dbUsername,
 					dbPassword);
-			//System.out.println("Database has been connected successfully.");
+			System.out.println("Database has been connected successfully.");
 			return conn;
 		} catch (Exception ex) {
 			ex.printStackTrace();
