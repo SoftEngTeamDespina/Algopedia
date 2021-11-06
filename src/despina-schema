@@ -1,7 +1,7 @@
 
 /* Users table */
-CREATE TABLE `users` (
-  `UID` varchar(100) NOT NULL DEFAULT '(uuid())',
+ CREATE TABLE `users` (
+  `UID` varchar(100) NOT NULL DEFAULT '',
   `username` varchar(45) NOT NULL,
   `passwordHash` varchar(100) NOT NULL,
   `isAdmin` tinyint NOT NULL,
@@ -15,30 +15,32 @@ CREATE TABLE `users` (
   `UID` varchar(45) NOT NULL,
   `name` varchar(45) NOT NULL,
   `description` varchar(300) DEFAULT NULL,
-  `clasificationcol` varchar(45) DEFAULT NULL,
+  `classificationcol` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`UID`),
   UNIQUE KEY `UID_UNIQUE` (`UID`),
   UNIQUE KEY `name_UNIQUE` (`name`),
-  KEY `ParentClasification_idx` (`clasificationcol`),
-  CONSTRAINT `classificationKey` FOREIGN KEY (`clasificationcol`) REFERENCES `classification` (`UID`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `ParentClasification_idx` (`classificationcol`),
+  CONSTRAINT `classificationKey` FOREIGN KEY (`classificationcol`) REFERENCES `classification` (`UID`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 
 
 
 /* algorithms table */
 CREATE TABLE `algorithm` (
-  `UID` varchar(45) NOT NULL,
+  `UID` varchar(45) NOT NULL DEFAULT 'UUID()',
   `name` varchar(45) NOT NULL,
   `description` varchar(300) DEFAULT NULL,
   `classification` varchar(45) NOT NULL,
-  PRIMARY KEY (`classification`),
+  PRIMARY KEY (`classification`,`UID`),
   UNIQUE KEY `UID_UNIQUE` (`UID`),
-  CONSTRAINT `classification` FOREIGN KEY (`classification`) REFERENCES `clasification` (`UID`) ON UPDATE CASCADE
+  CONSTRAINT `classification` FOREIGN KEY (`classification`) REFERENCES `classification` (`UID`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 
+
 /* implementation table */
- CREATE TABLE `implementation` (
+CREATE TABLE `implementation` (
   `UID` varchar(45) NOT NULL,
   `language` varchar(45) NOT NULL,
   `filename` varchar(100) NOT NULL,
@@ -49,13 +51,23 @@ CREATE TABLE `algorithm` (
   CONSTRAINT `algorithm` FOREIGN KEY (`algorithm`) REFERENCES `algorithm` (`classification`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE `benchmark` (
+
+ CREATE TABLE `benchmark` (
   `UID` varchar(45) NOT NULL,
   `date` datetime NOT NULL,
   `runtime` float NOT NULL,
   `observations` varchar(300) DEFAULT NULL,
-  PRIMARY KEY (`UID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  `machine_config` varchar(45) NOT NULL,
+  `implementation` varchar(45) NOT NULL,
+  `problem_instance` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`UID`),
+  KEY `machine_config_idx` (`machine_config`),
+  KEY `implementation_idx` (`implementation`),
+  KEY `problem_instance_idx` (`problem_instance`),
+  CONSTRAINT `implementation` FOREIGN KEY (`implementation`) REFERENCES `implementation` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `machine_config` FOREIGN KEY (`machine_config`) REFERENCES `mahcine_config` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `problem_instance` FOREIGN KEY (`problem_instance`) REFERENCES `problem_instance` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE
+)
 
  CREATE TABLE `problem_instance` (
   `UID` varchar(45) NOT NULL,
@@ -72,7 +84,8 @@ CREATE TABLE `benchmark` (
   CONSTRAINT `benchmark_key` FOREIGN KEY (`benchmark`) REFERENCES `benchmark` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-mahcine_config, CREATE TABLE `mahcine_config` (
+
+ CREATE TABLE `machine_config` (
   `UID` varchar(45) NOT NULL,
   `cpu` varchar(45) NOT NULL,
   `cores` int NOT NULL,
@@ -80,11 +93,9 @@ mahcine_config, CREATE TABLE `mahcine_config` (
   `cacheL1` varchar(45) DEFAULT NULL,
   `cacheL2` varchar(45) DEFAULT NULL,
   `cache_smart` varchar(45) DEFAULT NULL,
-  `benchmark` varchar(45) NOT NULL,
   PRIMARY KEY (`UID`),
-  UNIQUE KEY `UID_UNIQUE` (`UID`),
-  KEY `benchmark_key_idx` (`benchmark`),
-  CONSTRAINT `benchmark` FOREIGN KEY (`benchmark`) REFERENCES `benchmark` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `UID_UNIQUE` (`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 
 

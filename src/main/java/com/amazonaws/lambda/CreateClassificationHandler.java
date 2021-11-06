@@ -39,7 +39,7 @@ public class CreateClassificationHandler implements RequestStreamHandler {
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 
 		ClassificationDAO db = new ClassificationDAO();
-		CreateClassificationResponse response =  new CreateClassificationResponse(400,"Fail");
+		CreateClassificationResponse response;
 		logger.log(event.toString());
 		
 		if (event.get("name") != null) {
