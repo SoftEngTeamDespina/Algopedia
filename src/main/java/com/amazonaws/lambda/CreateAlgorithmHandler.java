@@ -46,14 +46,18 @@ public class CreateAlgorithmHandler implements RequestStreamHandler {
 		if (event.get("name") != null) {
             String name = new Gson().fromJson(event.get("name"), String.class);
             String description = new Gson().fromJson(event.get("description"), String.class);
-            String ClassificationID = new Gson().fromJson(event.get("id"), String.class);
+            String classificationID = new Gson().fromJson(event.get("id"), String.class);
 		
 		try {
-			//Add algo constructor
-			Algorithm newAlgo = new Algorithm();
-			db.addAlgorithm(newAlgo);
-			String algoID = db.getAlgorithm(name).getAlgorithmID();
-			response = new CreateAlgorithmResponse(algoID, 200);
+			
+			Algorithm newAlgo = new Algorithm(name, description, classificationID);
+			if (db.addAlgorithm(newAlgo)) {
+				String algoID = db.getAlgorithm(name).getAlgorithmID();
+				response = new CreateAlgorithmResponse(algoID, 200);
+			}
+			else {
+				response = new CreateAlgorithmResponse(400, "Failed to create algorithm");
+			}
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){

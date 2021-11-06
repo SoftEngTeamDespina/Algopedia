@@ -32,8 +32,7 @@ public class AlgorithmDAO{
             ResultSet resultSet = ps.executeQuery();
             
             while (resultSet.next()) {
-            	//need to set constructors for Algorithm
-                //algo = new Algorithm(resultSet.getString("username"),resultSet.getString("passwordHash"),resultSet.getBoolean("isAdmin"));
+                algo = new Algorithm(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"), resultSet.getString("classification"));
             }
             resultSet.close();
             ps.close();
@@ -61,8 +60,7 @@ public class AlgorithmDAO{
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,name,description,classification) values(UUID(),?,?,?);");
             ps.setString(1, algo.getName());
             ps.setString(2, algo.getDescription());
-            //do we want our entities to have the same structure as the db?
-            //ps.setString(3, algo.getClassification());
+            ps.setString(3, algo.getClassificationID());
             ps.execute();
             return true;
 

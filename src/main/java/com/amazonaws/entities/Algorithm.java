@@ -12,6 +12,13 @@ public class Algorithm {
 	
 	
 	
+	public Algorithm(String name, String description, String classificationID) {
+		this.name = name;
+		this.description = description;
+		this.classificationID = classificationID;
+		
+	}
+	
 	public Algorithm(String algorithmID, String name, String description, String classificationID) {
 		this.algorithmID = algorithmID;
 		this.name = name;
