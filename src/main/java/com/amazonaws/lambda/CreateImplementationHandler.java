@@ -2,7 +2,6 @@ package com.amazonaws.lambda;
 
 import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.entities.Implementation;
-import com.amazonaws.entities.Language;
 import com.amazonaws.http.CreateImplementationResponse;
 import com.amazonaws.regions.Regions;
 
@@ -25,7 +24,6 @@ import com.google.gson.JsonObject;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -42,7 +40,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 	
 	
 	//RDS
-	boolean createImplementation(Language language, String filename, String algoID) throws Exception{
+	boolean createImplementation(String language, String filename, String algoID) throws Exception{
 		if (logger != null) { logger.log("in createImplementation"); }
 		ImplementationDAO dao = new ImplementationDAO();
 		
@@ -52,7 +50,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 	}
 	
 	//S3 bucket
-	boolean createSystemImplementation(String UID, String code) throws Exception{
+	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
 		if (logger != null) { logger.log("in createSystemImplementation"); }
 		
 		if (s3 == null) {
@@ -63,13 +61,14 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		String bucket = REAL_BUCKET;
 		
-		byte[] file = new BigInteger(code, 2).toByteArray();
-		ByteArrayInputStream bais = new ByteArrayInputStream(file);
+//		byte[] file = new code.toByteArray();
+		ByteArrayInputStream bais = new ByteArrayInputStream(code);
 		ObjectMetadata omd = new ObjectMetadata();
-		omd.setContentLength(file.length);
+		omd.setContentLength(code.length);
 		
 		
-		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + UID, bais, omd)
+		
+		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", filename, bais, omd)
 				.withCannedAcl(CannedAccessControlList.PublicRead));
 		
 		return true;
@@ -95,35 +94,40 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
-            String file = new Gson().fromJson(event.get("code"), String.class);
+            byte[] code = new Gson().fromJson(event.get("code"), byte[].class);
             String algorithmID = new Gson().fromJson(event.get("id"), String.class);
+            String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
             
-
 		
 		try {
-			//Add Classification constructor
-			Implementation newImp = new Implementation();
-			String impID = db.getImplementation(language).getImplementationID();
+
+			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
+			if(!db.addImplementation(newImplementation)) {throw new Exception("Failed to insert to table.");}
+			logger.log("Storing implementation...");
+			response = new CreateImplementationResponse(200, db.getImplementation(fileName).getImplementationID()); 
 			
-			//to fix
-			if (createImplementation(newImp.getLanguage(),newImp.getImplementationID(),newImp.getImplementationID())) {
-				response = new CreateImplementationResponse(impID, 200));
-			}
-			else {
-				response = new CreateImplementationResponse(400, "Failed to create implementation RDS");
-			}
-			if (createSystemImplementation(newImp.getImplementationID(), file)){
-				response = new CreateImplementationResponse(impID, 200);
-			}
-			else {
-				response = new CreateImplementationResponse(400, "Failed to create implementation S3 bucket");
-			}
+			
+//			String impID = db.getImplementation(language).getImplementationID();
+//			
+//			//to fix
+//			if (createImplementation(newImp.getLanguage(),newImp.getImplementationID(),newImp.getImplementationID())) {
+//				response = new CreateImplementationResponse(impID, 200);
+//			}
+//			else {
+//				response = new CreateImplementationResponse(400, "Failed to create implementation RDS");
+//			}
+//			if (createSystemImplementation(newImp.getImplementationID(), file)){
+//				response = new CreateImplementationResponse(impID, 200);
+//			}
+//			else {
+//				response = new CreateImplementationResponse(400, "Failed to create implementation S3 bucket");
+//			}
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			response = new CreateImplementationResponse(500, "Failed to create implementation");
+			response = new CreateImplementationResponse(500, e.getMessage());
 			writer.write(new Gson().toJson(response));
 			
 		}finally {

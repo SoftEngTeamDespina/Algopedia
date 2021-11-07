@@ -5,19 +5,21 @@ import java.util.LinkedList;
 
 public class Implementation {
 	private String implementationID;
-	private Language language;
+	private String language;
 	private LinkedList<Benchmark> benchmarks;
 	private String filename;
 	private String algorithmID;
 	
-	public Implementation(Language language, String filename, String algorithmID) {
+	public Implementation() {}
+	
+	public Implementation(String language, String filename, String algorithmID) {
 		this.language = language;
 		this.filename = filename;
 		this.algorithmID = algorithmID;
 		
 	}
 	
-	public Implementation(String implementationID, Language language, String filename, String algorithmID) {
+	public Implementation(String implementationID, String language, String filename, String algorithmID) {
 		this.implementationID = implementationID;
 		this.language = language;
 		this.filename = filename;
@@ -32,10 +34,10 @@ public class Implementation {
 	public void setImplementationID(String implementationID) {
 		this.implementationID = implementationID;
 	}
-	public Language getLanguage() {
+	public String getLanguage() {
 		return language;
 	}
-	public void setLanguage(Language language) {
+	public void setLanguage(String language) {
 		this.language = language;
 	}
 	public LinkedList<Benchmark> getBenchmarks() {

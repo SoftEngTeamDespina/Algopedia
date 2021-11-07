@@ -25,7 +25,7 @@ public class ImplementationDAO{
         
         try {
         	Implementation imp = null;
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID=?;");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE filename=?;");
             ps.setString(1,  UID);
             ResultSet resultSet = ps.executeQuery();
             
