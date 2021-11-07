@@ -1,0 +1,206 @@
+---
+swagger: "2.0"
+info:
+  description: This is a simple API
+  version: "1.1"
+  title: Despina API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: virtserver.swaggerhub.com
+basePath: /cbennet/CS509-Despina/1.1
+tags:
+- name: admins
+  description: Secured Admin-Only Calls
+- name: researchers
+  description: Secured researchers-Only Calls
+- name: contributors
+  description: Secured contributors-Only Calls
+schemes:
+- https
+paths:
+  /user:
+    get:
+      tags:
+      - admin
+      summary: get user
+      operationId: getUser
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: query
+        description: identifier
+        required: true
+        type: string
+      responses:
+        "200":
+          description: user successfully requested
+          schema:
+            type: object
+        "400":
+          description: bad input parameter
+    post:
+      tags:
+      - contributors
+      summary: create user
+      operationId: addUser
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: User
+        description: register user
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        "200":
+          description: id of created user
+          schema:
+            type: String
+        "400":
+          description: bad input parameter
+definitions:
+  Classification:
+    type: object
+    required:
+    - description
+    - id
+    - name
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+      description:
+        type: string
+      superClassification:
+        type: string
+      algorithms:
+        type: array
+        items:
+          type: string
+  Algorithm:
+    required:
+    - ProblemInstances
+    - description
+    - id
+    - implementations
+    - name
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      implementations:
+        type: array
+        items:
+          type: string
+      ProblemInstances:
+        type: array
+        items:
+          type: string
+      id:
+        type: string
+  Implementation:
+    required:
+    - benchmarks
+    - code
+    - id
+    - language
+    properties:
+      language:
+        type: string
+      benchmarks:
+        type: array
+        items:
+          type: string
+      code:
+        type: string
+        format: binary
+      id:
+        type: string
+  Benchmark:
+    required:
+    - ProblemInstance
+    - configuration
+    - date
+    - id
+    - observations
+    - runtime
+    properties:
+      id:
+        type: string
+      date:
+        type: string
+        format: date
+      configuration:
+        type: string
+      ProblemInstance:
+        type: string
+      runtime:
+        type: number
+      observations:
+        type: string
+  ProblemInstance:
+    required:
+    - dataset
+    - id
+    - name
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+      dataset:
+        type: string
+        format: binary
+      description:
+        type: string
+  MachineConfiguration:
+    required:
+    - CPUProcessor
+    - cacheL1
+    - cacheL2
+    - cacheL3
+    - cacheSmart
+    - cores
+    - id
+    - threads
+    properties:
+      CPUProcessor:
+        type: string
+      cores:
+        type: integer
+      threads:
+        type: integer
+      cacheL1:
+        type: string
+      cacheL2:
+        type: string
+      cacheL3:
+        type: string
+      cacheSmart:
+        type: string
+      id:
+        type: string
+  User:
+    required:
+    - password
+    - username
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+  Activity:
+    required:
+    - user
+    properties:
+      user:
+        type: string
+      edits:
+        type: string
