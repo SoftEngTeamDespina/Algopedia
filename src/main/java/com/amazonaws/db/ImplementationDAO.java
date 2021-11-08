@@ -1,6 +1,8 @@
 package com.amazonaws.db;
 
 import java.sql.*;
+import java.util.ArrayList;
+
 import com.amazonaws.entities.Implementation;
 
 
@@ -67,6 +69,30 @@ public class ImplementationDAO{
         }
     }
     
+    public ArrayList<Implementation> getAllImplementations(String algoID) throws Exception {
+        
+        try {
+        	Implementation imp = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm=?;");
+            ps.setString(1,  algoID);
+            ResultSet resultSet = ps.executeQuery();
+            
+            ArrayList<Implementation> imps = new ArrayList<Implementation>();
+            while (resultSet.next()) {
+                imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
+                imps.add(imp);
+            }
+            
+            resultSet.close();
+            ps.close();
+            
+            return imps;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting implementations: " + e.getMessage());
+        }
+    }
     
     
    
