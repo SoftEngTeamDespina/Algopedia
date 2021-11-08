@@ -45,9 +45,11 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
 		if (event.get("algorithm") != null) {
             String algorithmName = new Gson().fromJson(event.get("algorithm"), String.class);
             try {
+            	logger.log("Getting algorithm id...");
             	Algorithm algorithm = aDao.getAlgorithm(algorithmName);
             	String algorithmID = algorithm.getAlgorithmID();
             	try {
+            		logger.log("Getting implementations...");
                 	ArrayList<Implementation> implementations = db.getAllImplementations(algorithmID);
                 	response = new GetImplementationsAllResponse(implementations,200);
                 	writer.write(new Gson().toJson(response));
