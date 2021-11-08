@@ -20,26 +20,6 @@ schemes:
 - https
 paths:
   /user:
-    get:
-      tags:
-      - admin
-      summary: get user
-      operationId: getUser
-      produces:
-      - application/json
-      parameters:
-      - name: id
-        in: query
-        description: identifier
-        required: true
-        type: string
-      responses:
-        "200":
-          description: user successfully requested
-          schema:
-            type: object
-        "400":
-          description: bad input parameter
     post:
       tags:
       - contributors
@@ -62,13 +42,101 @@ paths:
             type: String
         "400":
           description: bad input parameter
+
+  /classification:
+    post:
+      tags:
+      - contributors
+      summary: create classification
+      operationId: addClassification
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: Classification
+        description: add classification
+        schema:
+          $ref: '#/definitions/Classification'
+      responses:
+        "200":
+          description: id of created classification
+          schema:
+            type: String
+        "400":
+          description: bad input parameter
+  /algorithm:
+    post:
+      tags:
+      - contributors
+      summary: create algorithm
+      operationId: addAlgorithm
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: Algorithm
+        description: add algorithm
+        schema:
+          $ref: '#/definitions/Algorithm'
+      responses:
+        "200":
+          description: id of created Algorithm
+          schema:
+            type: String
+        "400":
+          description: bad input parameter
+
+  /Implementation:
+    post:
+      tags:
+      - contributors
+      summary: create Implementation
+      operationId: addImplementation
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: Implementation
+        description: add implementation
+        schema:
+          $ref: '#/definitions/Implementation'
+      responses:
+        "200":
+          description: id of created Implementation
+          schema:
+            type: String
+        "400":
+          description: bad input parameter
+
+  /allClassifications:
+	get:
+	  tags:
+	  - contributors
+	  summary: get all classifications
+	  operationID: getAllClassifications
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: list of all classification
+          schema:
+            type: Array
+        "400":
+          description: bad input parameter
+
 definitions:
   Classification:
     type: object
     required:
-    - description
-    - id
-    - name
+	- name
+	- description
+	- superClassification
     properties:
       name:
         type: string
@@ -84,11 +152,9 @@ definitions:
           type: string
   Algorithm:
     required:
-    - ProblemInstances
-    - description
-    - id
-    - implementations
-    - name
+	- name
+	- description
+	- id
     properties:
       name:
         type: string
@@ -106,10 +172,9 @@ definitions:
         type: string
   Implementation:
     required:
-    - benchmarks
-    - code
-    - id
-    - language
+	- language
+	- code
+	- id
     properties:
       language:
         type: string
