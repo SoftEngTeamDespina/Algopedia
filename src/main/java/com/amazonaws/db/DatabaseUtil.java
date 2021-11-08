@@ -9,16 +9,13 @@ public class DatabaseUtil {
 	// demonstration code. The appropriate solution is to store these values in environment
 	// variables that are accessed by the Lambda function at run time like this
 	//
-	//  dbUsername = System.getenv("dbUsername");
-	//  dbPassword = System.getenv("dbPassword");
-	//  rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
+	 public final static String  dbUsername = System.getenv("dbUsername");
+	 public final static String dbPassword = System.getenv("dbPassword");
+	 public final static String rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
 	//
 	// https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html
 	//
-	// The above link shows how to do that.
-	public static String rdsMySqlDatabaseUrl = "database-1.czstbtxguo8c.us-east-2.rds.amazonaws.com";
-	public static String dbUsername = "despina";
-	public static String dbPassword = "despina2021";
+//	// The above link shows how to do that.
 		
 	public final static String jdbcTag = "jdbc:mysql://";
 	public final static String rdsMySqlDatabasePort = "3306";
@@ -45,19 +42,19 @@ public class DatabaseUtil {
 			System.out.println("USE TEST DB:" + useTestDB);
 		}
 		
-//		dbUsername = System.getenv("dbUsername");
-//		if (dbUsername == null) {
-//			System.err.println("Environment variable dbUsername is not set!");
-//		}
-//		dbPassword = System.getenv("dbPassword");
-//		if (dbPassword == null) {
-//			System.err.println("Environment variable dbPassword is not set!");
-//		}
-//		rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
-//		if (rdsMySqlDatabaseUrl == null) {
-//			System.err.println("Environment variable rdsMySqlDatabaseUrl is not set!");
-//		}
-//		
+
+		if (dbUsername == null) {
+			System.err.println("Environment variable dbUsername is not set!");
+		}
+	
+		if (dbPassword == null) {
+			System.err.println("Environment variable dbPassword is not set!");
+		}
+	
+		if (rdsMySqlDatabaseUrl == null) {
+			System.err.println("Environment variable rdsMySqlDatabaseUrl is not set!");
+		}
+		
 		try {
 			System.out.println("start connecting......");
 			Class.forName("com.mysql.cj.jdbc.Driver"); 
