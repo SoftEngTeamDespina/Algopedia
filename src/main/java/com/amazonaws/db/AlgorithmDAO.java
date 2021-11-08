@@ -1,6 +1,7 @@
 package com.amazonaws.db;
 
 import java.sql.*;
+import java.util.LinkedList;
 
 import com.amazonaws.entities.Algorithm;
 
@@ -38,6 +39,30 @@ public class AlgorithmDAO{
             ps.close();
             
             return algo;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting algorithm: " + e.getMessage());
+        }
+    }
+    
+public LinkedList<Algorithm> getAlgorithms(String ClassificationID) throws Exception {
+        
+        try {
+            
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE classification=?;");
+            ps.setString(1,  ClassificationID);
+            ResultSet resultSet = ps.executeQuery();
+            LinkedList<Algorithm> algos = new LinkedList<Algorithm>();
+            
+            while (resultSet.next()) {
+                Algorithm a = new Algorithm(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"), resultSet.getString("classification"));
+                algos.add(a);
+            }
+            resultSet.close();
+            ps.close();
+            
+            return algos;
 
         } catch (Exception e) {
         	e.printStackTrace();
