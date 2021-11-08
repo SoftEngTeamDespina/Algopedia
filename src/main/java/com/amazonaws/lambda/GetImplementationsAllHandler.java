@@ -11,7 +11,9 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.http.GetImplementationsAllResponse;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -37,13 +39,14 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
 		
 		
 		ImplementationDAO db = new ImplementationDAO();
+		AlgorithmDAO aDao = new AlgorithmDAO();
 		GetImplementationsAllResponse response;
 		
 		if (event.get("algorithm") != null) {
-            String algorithm = new Gson().fromJson(event.get("algorithm"), String.class);
+            String algorithmName = new Gson().fromJson(event.get("algorithm"), String.class);
             try {
-            	
-            	String algorithmID = "abc";
+            	Algorithm algorithm = aDao.getAlgorithm(algorithmName);
+            	String algorithmID = algorithm.getAlgorithmID();
             	try {
                 	ArrayList<Implementation> implementations = db.getAllImplementations(algorithmID);
                 	response = new GetImplementationsAllResponse(implementations,200);
