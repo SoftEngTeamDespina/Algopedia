@@ -21,12 +21,12 @@ public class ImplementationDAO{
     
 
     //to fix
-    public Implementation getImplementation(String UID) throws Exception {
+    public Implementation getImplementation(String filename) throws Exception {
         
         try {
         	Implementation imp = null;
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE filename=?;");
-            ps.setString(1,  UID);
+            ps.setString(1,  filename);
             ResultSet resultSet = ps.executeQuery();
             
             while (resultSet.next()) {
