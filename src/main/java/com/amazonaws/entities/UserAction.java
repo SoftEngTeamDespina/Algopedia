@@ -5,10 +5,17 @@ import java.sql.Date;
 public class UserAction {
 	
 	private String userActionID;
-	private User authorID;
+	private String authorID;
 	private String action;
-	private Date timeStamp;
+	private String timeStamp;
 	
+	public UserAction(String userActionID, String authorID, String action, String timeStamp) {
+		this.userActionID = userActionID;
+		this.authorID = authorID;
+		this.action = action;
+		this.timeStamp = timeStamp;
+		
+	}
 	
 	public String getUserActionID() {
 		return userActionID;
@@ -16,10 +23,10 @@ public class UserAction {
 	public void setUserActionID(String userActionID) {
 		this.userActionID = userActionID;
 	}
-	public User getAuthorID() {
+	public String getAuthorID() {
 		return authorID;
 	}
-	public void setAuthorID(User authorID) {
+	public void setAuthorID(String authorID) {
 		this.authorID = authorID;
 	}
 	public String getAction() {
@@ -28,10 +35,10 @@ public class UserAction {
 	public void setAction(String action) {
 		this.action = action;
 	}
-	public Date getTimeStamp() {
+	public String getTimeStamp() {
 		return timeStamp;
 	}
-	public void setTimeStamp(Date timeStamp) {
+	public void setTimeStamp(String timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 	
