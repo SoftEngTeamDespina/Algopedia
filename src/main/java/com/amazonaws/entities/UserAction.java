@@ -17,6 +17,13 @@ public class UserAction {
 		
 	}
 	
+	public UserAction(String authorID, String action, String timeStamp) {
+		this.authorID = authorID;
+		this.action = action;
+		this.timeStamp = timeStamp;
+		
+	}
+	
 	public String getUserActionID() {
 		return userActionID;
 	}
