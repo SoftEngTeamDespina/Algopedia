@@ -23,7 +23,6 @@ public class ImplementationDAO{
     }
     
 
-    //to fix
     public Implementation getImplementation(String filename) throws Exception {
         
         try {
@@ -46,6 +45,7 @@ public class ImplementationDAO{
         }
     }
     
+
  public Implementation getImplementationByID(String UID) throws Exception {
         
         try {
@@ -67,6 +67,8 @@ public class ImplementationDAO{
             throw new Exception("Failed in getting implementation: " + e.getMessage());
         }
     }
+
+
     
     public boolean addImplementation(Implementation imp) throws Exception {
         
@@ -116,6 +118,25 @@ public class ImplementationDAO{
             throw new Exception("Failed in getting implementations: " + e.getMessage());
         }
     }
+    
+    
+    public boolean deleteImplementation(String implementationID) throws Exception {
+        
+        try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID=?;");
+            ps.setString(1,  implementationID);
+            int result = ps.executeUpdate();
+            ps.close();
+            
+            return (result==1);
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in deleting implementation: " + e.getMessage());
+        }
+    }
+    
+    
     
     
    

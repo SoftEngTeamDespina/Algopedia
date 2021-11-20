@@ -10,8 +10,9 @@ public class GetImplementationsAllResponse {
 	int statusCode;
 	String errorMessage;
 	
-	public GetImplementationsAllResponse(LinkedList<Implementation> implementations2, int statusCode){
-		this.implementations = implementations2;
+
+	public GetImplementationsAllResponse(LinkedList<Implementation> implementations, int statusCode){
+		this.implementations = implementations;
 		this.statusCode = statusCode;
 		this.errorMessage = "";
 
