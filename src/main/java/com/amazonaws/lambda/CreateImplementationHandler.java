@@ -1,7 +1,9 @@
 package com.amazonaws.lambda;
 
 import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateImplementationResponse;
 import com.amazonaws.regions.Regions;
 
@@ -17,6 +19,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -61,14 +65,13 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		String bucket = REAL_BUCKET;
 		
-//		byte[] file = new code.toByteArray();
 		ByteArrayInputStream bais = new ByteArrayInputStream(code);
 		ObjectMetadata omd = new ObjectMetadata();
 		omd.setContentLength(code.length);
 		
 		
 		
-		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", filename, bais, omd)
+		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + filename, bais, omd)
 				.withCannedAcl(CannedAccessControlList.PublicRead));
 		
 		return true;
@@ -89,8 +92,10 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 
 		logger.log(event.toString());
 		
-		ImplementationDAO db = new ImplementationDAO();
+		ImplementationDAO iDAO = new ImplementationDAO();
 		CreateImplementationResponse response;
+		
+		UserActionDAO uaDAO =  new UserActionDAO();
 		
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
@@ -98,30 +103,24 @@ public class CreateImplementationHandler implements RequestStreamHandler {
             String algorithmID = new Gson().fromJson(event.get("id"), String.class);
             String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
             
+            String userID = new Gson().fromJson(event.get("user"), String.class);
+            
 		
 		try {
 
 			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
-			if(!db.addImplementation(newImplementation)) {throw new Exception("Failed to insert to table.");}
+			if(!iDAO.addImplementation(newImplementation)) {throw new Exception("Failed to insert to table.");}
 			logger.log("Storing implementation...");
-			response = new CreateImplementationResponse(200, db.getImplementation(fileName).getImplementationID()); 
+			response = new CreateImplementationResponse(200, iDAO.getImplementation(fileName).getImplementationID()); 
 			
+				
+			if (!createSystemImplementation(fileName, code)){throw new Exception("Failed to insert to S3 bucket.");}
+			response = new CreateImplementationResponse(iDAO.getImplementation(fileName).getImplementationID(), 200);
 			
-//			String impID = db.getImplementation(language).getImplementationID();
-//			
-//			//to fix
-//			if (createImplementation(newImp.getLanguage(),newImp.getImplementationID(),newImp.getImplementationID())) {
-//				response = new CreateImplementationResponse(impID, 200);
-//			}
-//			else {
-//				response = new CreateImplementationResponse(400, "Failed to create implementation RDS");
-//			}
-//			if (createSystemImplementation(newImp.getImplementationID(), file)){
-//				response = new CreateImplementationResponse(impID, 200);
-//			}
-//			else {
-//				response = new CreateImplementationResponse(400, "Failed to create implementation S3 bucket");
-//			}
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			UserAction action = new UserAction(userID,"Add Implementation",timestamp.toString());
+			uaDAO.addUserAction(action);
+			
 			writer.write(new Gson().toJson(response));
 			
 		} catch (Exception e){

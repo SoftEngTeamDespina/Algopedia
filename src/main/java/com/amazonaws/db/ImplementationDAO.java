@@ -2,6 +2,7 @@ package com.amazonaws.db;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import com.amazonaws.entities.Implementation;
 
@@ -22,7 +23,6 @@ public class ImplementationDAO{
     }
     
 
-    //to fix
     public Implementation getImplementation(String filename) throws Exception {
         
         try {
@@ -44,6 +44,7 @@ public class ImplementationDAO{
             throw new Exception("Failed in getting implementation: " + e.getMessage());
         }
     }
+    
     
     public boolean addImplementation(Implementation imp) throws Exception {
         
@@ -69,7 +70,7 @@ public class ImplementationDAO{
         }
     }
     
-    public ArrayList<Implementation> getAllImplementations(String algoID) throws Exception {
+    public LinkedList<Implementation> getAllImplementations(String algoID) throws Exception {
         
         try {
         	Implementation imp = null;
@@ -77,7 +78,7 @@ public class ImplementationDAO{
             ps.setString(1,  algoID);
             ResultSet resultSet = ps.executeQuery();
             
-            ArrayList<Implementation> imps = new ArrayList<Implementation>();
+            LinkedList<Implementation> imps = new LinkedList<Implementation>();
             while (resultSet.next()) {
                 imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
                 imps.add(imp);
@@ -93,6 +94,25 @@ public class ImplementationDAO{
             throw new Exception("Failed in getting implementations: " + e.getMessage());
         }
     }
+    
+    
+    public boolean deleteImplementation(String implementationID) throws Exception {
+        
+        try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID=?;");
+            ps.setString(1,  implementationID);
+            int result = ps.executeUpdate();
+            ps.close();
+            
+            return (result==1);
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in deleting implementation: " + e.getMessage());
+        }
+    }
+    
+    
     
     
    

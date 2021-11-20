@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ImplementationDAO;
@@ -50,7 +51,7 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
             	String algorithmID = algorithm.getAlgorithmID();
             	try {
             		logger.log("Getting implementations...");
-                	ArrayList<Implementation> implementations = db.getAllImplementations(algorithmID);
+                	LinkedList<Implementation> implementations = db.getAllImplementations(algorithmID);
                 	response = new GetImplementationsAllResponse(implementations,200);
                 	writer.write(new Gson().toJson(response));
                 } catch(Exception e) {
