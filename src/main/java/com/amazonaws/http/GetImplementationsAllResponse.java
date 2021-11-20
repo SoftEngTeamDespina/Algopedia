@@ -1,16 +1,17 @@
 package com.amazonaws.http;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import com.amazonaws.entities.Implementation;
 
 public class GetImplementationsAllResponse {
-	ArrayList<Implementation> implementations;
+	LinkedList<Implementation> implementations;
 	int statusCode;
 	String errorMessage;
 	
-	public GetImplementationsAllResponse(ArrayList<Implementation> implementations, int statusCode){
-		this.implementations = implementations;
+	public GetImplementationsAllResponse(LinkedList<Implementation> implementations2, int statusCode){
+		this.implementations = implementations2;
 		this.statusCode = statusCode;
 		this.errorMessage = "";
 

@@ -7,9 +7,14 @@ public class ProblemInstance {
 	private String problemInstanceID;
 	private String name;
 	private String description;
-	private File dataSet;
+	private String dataSet;
 	
-	
+	public ProblemInstance(String problemInstanceID, String name, String description, String dataSet) {
+		this.problemInstanceID = problemInstanceID;
+		this.name = name;
+		this.description = description;
+		this.dataSet = dataSet;
+	}
 	public String getProblemInstanceID() {
 		return problemInstanceID;
 	}
@@ -28,10 +33,10 @@ public class ProblemInstance {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public File getDataSet() {
+	public String getDataSet() {
 		return dataSet;
 	}
-	public void setDataSet(File dataSet) {
+	public void setDataSet(String dataSet) {
 		this.dataSet = dataSet;
 	}
 	

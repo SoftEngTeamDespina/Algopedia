@@ -2,8 +2,10 @@ package com.amazonaws.lambda;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.Implementation;
 import com.amazonaws.http.CreateClassificationResponse;
 import com.amazonaws.http.GetClassificationResponse;
 
@@ -16,6 +18,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
@@ -44,6 +47,7 @@ public class GetClassificationHandler implements RequestStreamHandler {
 
 		ClassificationDAO db = new ClassificationDAO();
 		AlgorithmDAO adb = new AlgorithmDAO();
+		ImplementationDAO impdb = new ImplementationDAO();
 		GetClassificationResponse response;
 		logger.log(event.toString());
 		
@@ -55,6 +59,10 @@ public class GetClassificationHandler implements RequestStreamHandler {
 				logger.log("Fetching all algorithms for all classifications");
 				for(Classification c: ClassificationsList) {
 					LinkedList<Algorithm>  algorithms = adb.getAlgorithms(c.getClassificationID());
+					for(Algorithm a: algorithms) {
+						LinkedList<Implementation> imps = impdb.getAllImplementations(a.getAlgorithmID());
+						a.setImplementations(imps);
+					}
 					c.setAlgorithms(algorithms);
 				}
 				response = new GetClassificationResponse(200,ClassificationsList);

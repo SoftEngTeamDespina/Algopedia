@@ -9,7 +9,18 @@ public class MachineConfiguration {
 	private String l1;
 	private String l2;
 	private String l3;
+
 	
+	
+	public MachineConfiguration(String machineConfigurationID, String cpu, int cores, int threads, String l1, String l2, String l3) {
+		this.machineConfigurationID = machineConfigurationID;
+		this.cpu = cpu;
+		this.cores = cores;
+		this.threads = threads;
+		this.l1 = l1;
+		this.l2 = l2;
+		this.l3 = l3;
+	}
 	public String getMachineConfigurationID() {
 		return machineConfigurationID;
 	}

@@ -2,6 +2,7 @@ package com.amazonaws.db;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import com.amazonaws.entities.Implementation;
 
@@ -45,6 +46,28 @@ public class ImplementationDAO{
         }
     }
     
+ public Implementation getImplementationByID(String UID) throws Exception {
+        
+        try {
+        	Implementation imp = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID=?;");
+            ps.setString(1,  UID);
+            ResultSet resultSet = ps.executeQuery();
+            
+            while (resultSet.next()) {
+                imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
+            }
+            resultSet.close();
+            ps.close();
+            
+            return imp;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting implementation: " + e.getMessage());
+        }
+    }
+    
     public boolean addImplementation(Implementation imp) throws Exception {
         
     	try {
@@ -69,7 +92,7 @@ public class ImplementationDAO{
         }
     }
     
-    public ArrayList<Implementation> getAllImplementations(String algoID) throws Exception {
+    public LinkedList<Implementation> getAllImplementations(String algoID) throws Exception {
         
         try {
         	Implementation imp = null;
@@ -77,7 +100,7 @@ public class ImplementationDAO{
             ps.setString(1,  algoID);
             ResultSet resultSet = ps.executeQuery();
             
-            ArrayList<Implementation> imps = new ArrayList<Implementation>();
+            LinkedList<Implementation> imps = new LinkedList<Implementation>();
             while (resultSet.next()) {
                 imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
                 imps.add(imp);
