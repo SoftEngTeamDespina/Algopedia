@@ -6,75 +6,117 @@ import java.util.LinkedList;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.ProblemInstance;
 
+public class ProblemInstanceDAO {
 
-public class ProblemInstanceDAO{ 
+    java.sql.Connection conn;
 
-	java.sql.Connection conn;
-	
-	final String tblName = "problem_instance";   // Exact capitalization
+    final String tblName = "problem_instance"; // Exact capitalization
 
     public ProblemInstanceDAO() {
-    	System.out.print("problem_instance DAO here");
-    	try  {
-    		conn = DatabaseUtil.connect();
-    	} catch (Exception e) {
-    		conn = null;
-    	}
-    }  
-    
+        System.out.print("problem_instance DAO here");
+        try {
+            conn = DatabaseUtil.connect();
+        } catch (Exception e) {
+            conn = null;
+        }
+    }
+
     public ProblemInstance getProblemInstance(String UID) throws Exception {
-        
+
         try {
             ProblemInstance pi = null;
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID=?;");
             ps.setString(1, UID);
             ResultSet resultSet = ps.executeQuery();
-            
+
             while (resultSet.next()) {
-                pi = new ProblemInstance(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"),resultSet.getString("filename"));
+                pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
+                        resultSet.getString("description"), resultSet.getString("filename"));
             }
             resultSet.close();
             ps.close();
-            
+
             return pi;
 
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new Exception("Failed in getting classification: " + e.getMessage());
         }
     }
-    
-public LinkedList<ProblemInstance> getProblemInstanceByAlgorithm(String algorithm) throws Exception {
-		LinkedList<ProblemInstance> ret = new LinkedList<ProblemInstance>();
+
+    public LinkedList<ProblemInstance> getProblemInstanceByAlgorithm(String algorithm) throws Exception {
+        LinkedList<ProblemInstance> ret = new LinkedList<ProblemInstance>();
         try {
-        	//get algorithm id using name
-        	PreparedStatement p = conn.prepareStatement("SELECT * FROM algorithm WHERE name=?;");
-        	p.setString(1, algorithm);
+            // get algorithm id using name
+            PreparedStatement p = conn.prepareStatement("SELECT * FROM algorithm WHERE name=?;");
+            p.setString(1, algorithm);
             ResultSet resultSet2 = p.executeQuery();
             String algo_id = "";
             while (resultSet2.next()) {
-            	algo_id = resultSet2.getString("UID");
+                algo_id = resultSet2.getString("UID");
             }
-            
+
             ProblemInstance pi = null;
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm=?;");
             ps.setString(1, algo_id);
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
-                pi = new ProblemInstance(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"),resultSet.getString("filename"));
+                pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
+                        resultSet.getString("description"), resultSet.getString("filename"));
                 ret.add(pi);
             }
             resultSet.close();
             ps.close();
-            
+
             return ret;
 
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new Exception("Failed in getting classification: " + e.getMessage());
         }
     }
 
+    public boolean addProblemInstance(ProblemInstance inst) throws Exception {
+
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm = ?;");
+            ps.setString(1, inst.getName());
+            ResultSet resultSet = ps.executeQuery();
+
+            // already present?
+            while (resultSet.next()) {
+                return false;
+            }
+
+            ps = conn.prepareStatement(
+                    "INSERT INTO " + tblName + " (UID,name,description,dataset) values(UUID(),?,?,?);");
+            ps.setString(1, inst.getName());
+            ps.setString(2, inst.getDescription());
+            ps.setString(3, inst.getDataSet());
+            ps.execute();
+            return true;
+
+        } catch (Exception e) {
+            throw new Exception("Failed to create Problem Instance: " + e.getMessage());
+        }
+    }
+
+    public boolean removeProblemInstance(String instID) throws Exception {
+        
+    	try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ instID +" ;");
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+                if(resultSet.getString(1) == "1"){
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to remove problem instance: " + e.getMessage());
+        }
+    }
+
 }
-
-

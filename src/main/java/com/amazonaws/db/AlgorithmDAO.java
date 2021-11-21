@@ -93,11 +93,22 @@ public LinkedList<Algorithm> getAlgorithms(String ClassificationID) throws Excep
             throw new Exception("Failed to create algorithm: " + e.getMessage());
         }
     }
-    
-    
-    
-   
 
+        public boolean removeAlgorithm(String algoID) throws Exception {
+        
+    	try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ algoID +" ;");
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+                if(resultSet.getString(1) == "1"){
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to remove algorithm: " + e.getMessage());
+        }
+    }
 }
-
-

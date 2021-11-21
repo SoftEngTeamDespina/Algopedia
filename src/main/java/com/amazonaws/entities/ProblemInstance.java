@@ -15,6 +15,11 @@ public class ProblemInstance {
 		this.description = description;
 		this.dataSet = dataSet;
 	}
+	public ProblemInstance(String name, String description, String dataSet) {
+		this.name = name;
+		this.description = description;
+		this.dataSet = dataSet;
+	}
 	public String getProblemInstanceID() {
 		return problemInstanceID;
 	}
