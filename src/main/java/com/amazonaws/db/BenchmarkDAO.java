@@ -50,8 +50,8 @@ public class BenchmarkDAO{
         }
     }
     
-public Benchmark getBenchmarkByProblemInstance(String id) throws Exception {
-        
+public LinkedList<Benchmark> getBenchmarkByProblemInstance(String id) throws Exception {
+		LinkedList<Benchmark> ret = new LinkedList<Benchmark>();
         try {
         	Benchmark bench = null;
         	//create ImplemenationDAO, MachineconfigDAO and ProblemInstanceDAO
@@ -63,12 +63,15 @@ public Benchmark getBenchmarkByProblemInstance(String id) throws Exception {
             ResultSet resultSet = ps.executeQuery();
             
             while (resultSet.next()){
+            	
                 bench = new Benchmark(resultSet.getString("UID"),resultSet.getDate("date"),resultSet.getString("name"),idao.getImplementationByID(resultSet.getString("implementation")),mdao.getMachineConfig(resultSet.getString("machine_config")),pdao.getProblemInstance(resultSet.getString("problem_instance")),resultSet.getDouble("runtime"),resultSet.getString("observations"));
+                ret.add(bench);
             }
+            
             resultSet.close();
             ps.close();
             
-            return bench;
+            return ret;
 
         } catch (Exception e) {
         	e.printStackTrace();
@@ -87,6 +90,7 @@ public Benchmark getBenchmarkByProblemInstance(String id) throws Exception {
             while (resultSet.next()) {
                 return false;
             }
+            System.out.println("HERE is the IDDDDDDDDD " +  bench.getConfiguration().getMachineConfigurationID());
 
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,date,runtime,observations,machine_config,implementation,problem_instance,name) values(UUID(),CURDATE(),?,?,?,?,?,?);");
             ps.setDouble(1, bench.getRuntime());
@@ -99,7 +103,10 @@ public Benchmark getBenchmarkByProblemInstance(String id) throws Exception {
             return true;
 
         } catch (Exception e) {
-            throw new Exception("Failed to create benchmark: " + e.getMessage());
+            throw new Exception("Failed to create benchmark: " + 
+        
+						bench.getConfiguration().getMachineConfigurationID() 
+            		+ e.getMessage());
         }
     }
 

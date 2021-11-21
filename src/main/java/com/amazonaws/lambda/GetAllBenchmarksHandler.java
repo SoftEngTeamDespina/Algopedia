@@ -71,20 +71,23 @@ public class GetAllBenchmarksHandler implements RequestStreamHandler {
 //		
 		if (event.get("algorithm") != null) {
 			
-			String name = new Gson().fromJson(event.get("name"), String.class);
+			String name = new Gson().fromJson(event.get("algorithm"), String.class);
 		
 		try {
 			
         	ProblemInstanceDAO pdao = new ProblemInstanceDAO();
         	
         	LinkedList<ProblemInstance>  pi = pdao.getProblemInstanceByAlgorithm(name);
-        	System.out.println(pi.getFirst());
         	LinkedList<Benchmark> ret = new LinkedList<Benchmark>();
         	
+        	
+        	
         	for(ProblemInstance p: pi) {
-        		Benchmark temp = db.getBenchmarkByProblemInstance(p.getProblemInstanceID());
-        		ret.add(temp);
+        		for(Benchmark b:db.getBenchmarkByProblemInstance(p.getProblemInstanceID())) {
+        		ret.add(b);
+        		}
         	}
+        	
         	
         	response = new GetBenchmarkResponse(ret,200);
 			writer.write(new Gson().toJson(response));
