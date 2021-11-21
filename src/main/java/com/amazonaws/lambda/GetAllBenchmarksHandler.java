@@ -12,6 +12,7 @@ import com.amazonaws.entities.ProblemInstance;
 import com.amazonaws.http.CreateBenchmarkResponse;
 import com.amazonaws.http.CreateClassificationResponse;
 import com.amazonaws.http.CreateImplementationResponse;
+import com.amazonaws.http.GetBenchmarkResponse;
 import com.amazonaws.regions.Regions;
 
 import java.io.BufferedReader;
@@ -26,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.util.LinkedList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,48 +44,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
 
-public class CreateBenchmarkHandler implements RequestStreamHandler {
+public class GetAllBenchmarksHandler implements RequestStreamHandler {
 	LambdaLogger logger;
 	private AmazonS3 s3 = null;
 	public static final String REAL_BUCKET = "benchmarks/";
 	
-	
-	//RDS
-	boolean createBenchmark( Benchmark bench ) throws Exception{
-		if (logger != null) { logger.log("in benchmark"); }
-		BenchmarkDAO dao = new BenchmarkDAO();
-		return dao.addBenchmark(bench);
-	}
-	
-	//S3 bucket
-	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
-		if (logger != null) { logger.log("in createSystemImplementation"); }
-		
-		if (s3 == null) {
-			logger.log("attach to S3 request");
-			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
-			logger.log("attach to S3 succeed");
-		}
-		
-		String bucket = REAL_BUCKET;
-		
-//		byte[] file = new code.toByteArray();
-		ByteArrayInputStream bais = new ByteArrayInputStream(code);
-		ObjectMetadata omd = new ObjectMetadata();
-		omd.setContentLength(code.length);
-		
-		
-		
-		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", filename, bais, omd)
-				.withCannedAcl(CannedAccessControlList.PublicRead));
-		
-		return true;
-		
-		
-	}
-	
-
-
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
@@ -96,7 +61,7 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 		logger.log(event.toString());
 		
 		BenchmarkDAO db = new BenchmarkDAO();
-		CreateBenchmarkResponse response;
+		GetBenchmarkResponse response;
 		
 //		private MachineConfiguration configuration;
 //		private ProblemInstance instance;
@@ -104,37 +69,30 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 //		private double runtime;
 //		private String observations;
 //		
-		if (event.get("name") != null) {
+		if (event.get("algorithm") != null) {
 			
 			String name = new Gson().fromJson(event.get("name"), String.class);
-            String MachineConfig = new Gson().fromJson(event.get("machine_config"), String.class);
-            String ProblemInstance = new Gson().fromJson(event.get("problem_instance"), String.class);
-            String Implementation = new Gson().fromJson(event.get("implementation"), String.class);
-            double runtime =  new Gson().fromJson(event.get("runtime"), double.class);
-            String observations = new Gson().fromJson(event.get("observations"), String.class);
-
-
+		
 		try {
-			ImplementationDAO idao = new ImplementationDAO();
-        	MachineConfigurationDAO mdao = new MachineConfigurationDAO();
-        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();
-
 			
-			Benchmark newBench = new Benchmark(name,idao.getImplementationByID(Implementation),mdao.getMachineConfig(MachineConfig),pdao.getProblemInstance(ProblemInstance),runtime,observations);
-			if (db.addBenchmark(newBench)){
-				logger.log("inserting the new benchmark");
-				Benchmark b = db.getBenchmark(name);
-				response = new CreateBenchmarkResponse(b.getBenchmarkID(),200);
-			}
-			else {
-				response = new CreateBenchmarkResponse(400, "Failed to create benchmark");
-			}
+        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();
+        	
+        	LinkedList<ProblemInstance>  pi = pdao.getProblemInstanceByAlgorithm(name);
+        	System.out.println(pi.getFirst());
+        	LinkedList<Benchmark> ret = new LinkedList<Benchmark>();
+        	
+        	for(ProblemInstance p: pi) {
+        		Benchmark temp = db.getBenchmarkByProblemInstance(p.getProblemInstanceID());
+        		ret.add(temp);
+        	}
+        	
+        	response = new GetBenchmarkResponse(ret,200);
 			writer.write(new Gson().toJson(response));
 
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			response = new CreateBenchmarkResponse(500, "Failed to create benchmark");
+			response = new GetBenchmarkResponse(500, "Failed to get benchmark");
 			writer.write(new Gson().toJson(response));
 
 		}finally {
