@@ -39,35 +39,36 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
 
 		logger.log(event.toString());
 		
+		ImplementationDAO db = new ImplementationDAO();
+		AlgorithmDAO aDao = new AlgorithmDAO();
+		GetImplementationsAllResponse response;
 		
-		ImplementationDAO dao = new ImplementationDAO();
-		GetImplementationResponse response;
-		
-		if (event.get("id") != null) {
-            String implementationID = new Gson().fromJson(event.get("id"), String.class);
+		if (event.get("algorithm") != null) {
+            String algorithmName = new Gson().fromJson(event.get("algorithm"), String.class);
             try {
-            	logger.log("Getting implementation...");
-            	Implementation implementation = dao.getImplementationByID(implementationID);
-            	
-            	response = new GetImplementationResponse(implementation ,200);
-            	writer.write(new Gson().toJson(response));
-            	
+            	logger.log("Getting algorithm id...");
+            	Algorithm algorithm = aDao.getAlgorithm(algorithmName);
+            	String algorithmID = algorithm.getAlgorithmID();
+            	try {
+            		logger.log("Getting implementations...");
+                	LinkedList<Implementation> implementations = db.getAllImplementations(algorithmID);
+                	response = new GetImplementationsAllResponse(implementations,200);
+                	writer.write(new Gson().toJson(response));
+                } catch(Exception e) {
+                	response = new GetImplementationsAllResponse(400, "Failed to get implemenations from database");
+                	writer.write(new Gson().toJson(response));
+                }
             } catch(Exception e) {
             	logger.log(e.getMessage());
     			e.printStackTrace();
-            	response = new GetImplementationResponse(500, e.getMessage());
+            	response = new GetImplementationsAllResponse(500, e.getMessage());
             	writer.write(new Gson().toJson(response));
             }finally {
     			reader.close();
     			writer.close();
     		}
-            
-            
-            
-            
 		
 		
-		}
 		
 		
 	}
