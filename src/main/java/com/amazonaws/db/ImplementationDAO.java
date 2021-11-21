@@ -45,6 +45,30 @@ public class ImplementationDAO{
         }
     }
     
+
+ public Implementation getImplementationByID(String UID) throws Exception {
+        
+        try {
+        	Implementation imp = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID=?;");
+            ps.setString(1,  UID);
+            ResultSet resultSet = ps.executeQuery();
+            
+            while (resultSet.next()) {
+                imp = new Implementation(resultSet.getString("UID"),resultSet.getString("language"),resultSet.getString("filename"),resultSet.getString("algorithm"));
+            }
+            resultSet.close();
+            ps.close();
+            
+            return imp;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting implementation: " + e.getMessage());
+        }
+    }
+
+
     
     public String addImplementation(Implementation imp) throws Exception {
         
