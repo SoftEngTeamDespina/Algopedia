@@ -91,7 +91,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
             byte[] code = new Gson().fromJson(event.get("code"), byte[].class);
-            String algorithmID = new Gson().fromJson(event.get("id"), String.class);
+            String algorithmID = new Gson().fromJson(event.get("algorithm"), String.class);
             String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
             
             String userID = new Gson().fromJson(event.get("user"), String.class);
