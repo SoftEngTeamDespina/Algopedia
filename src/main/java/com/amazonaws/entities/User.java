@@ -12,6 +12,11 @@ public class User {
 		this.isAdmin = isAdmin;
 	}
 	
+	public User(String uname,String passwordHash) {
+		this.username = uname;
+		this.passwordHash = passwordHash;
+	}
+	
 	
 	public String getUsername() {
 		return username;
