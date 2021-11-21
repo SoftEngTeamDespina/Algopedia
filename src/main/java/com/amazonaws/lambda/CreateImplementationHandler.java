@@ -43,15 +43,6 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 	public static final String REAL_BUCKET = "implementations/";
 	
 	
-	//RDS
-	boolean createImplementation(String language, String filename, String algoID) throws Exception{
-		if (logger != null) { logger.log("in createImplementation"); }
-		ImplementationDAO dao = new ImplementationDAO();
-		
-		return dao.addImplementation(new Implementation());
-		
-		
-	}
 	
 	//S3 bucket
 	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
