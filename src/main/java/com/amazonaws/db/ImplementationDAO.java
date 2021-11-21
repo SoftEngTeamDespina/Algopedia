@@ -70,7 +70,7 @@ public class ImplementationDAO{
 
 
     
-    public boolean addImplementation(Implementation imp) throws Exception {
+    public String addImplementation(Implementation imp) throws Exception {
         
     	try {
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID = ?;");
@@ -79,15 +79,24 @@ public class ImplementationDAO{
             
             // already present?
             while (resultSet.next()) {
-                return false;
+                return null;
             }
 
-            ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,language,filename,algorithm) values(UUID(),?,?,?);");
+            ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,language,filename,algorithm) values(UUID(),?,?,?);",Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, imp.getLanguage().toString());
             ps.setString(2, imp.getFileName().toString());
             ps.setString(3, imp.getAlgorithmID());
             ps.execute();
-            return true;
+           
+            
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return String.valueOf(generatedKeys.getLong(1));
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
 
         } catch (Exception e) {
             throw new Exception("Failed to create implementation: " + e.getMessage());

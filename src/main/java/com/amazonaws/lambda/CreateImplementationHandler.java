@@ -43,15 +43,6 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 	public static final String REAL_BUCKET = "implementations/";
 	
 	
-	//RDS
-	boolean createImplementation(String language, String filename, String algoID) throws Exception{
-		if (logger != null) { logger.log("in createImplementation"); }
-		ImplementationDAO dao = new ImplementationDAO();
-		
-		return dao.addImplementation(new Implementation());
-		
-		
-	}
 	
 	//S3 bucket
 	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
@@ -109,13 +100,14 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		try {
 
 			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
-			if(!iDAO.addImplementation(newImplementation)) {throw new Exception("Failed to insert to table.");}
+			String implementationID = iDAO.addImplementation(newImplementation);
+			if(implementationID == null) {throw new Exception("Failed to insert to table.");}
 			logger.log("Storing implementation...");
-			response = new CreateImplementationResponse(200, iDAO.getImplementation(fileName).getImplementationID()); 
+			response = new CreateImplementationResponse(200, implementationID); 
 			
 				
-			if (!createSystemImplementation(fileName, code)){throw new Exception("Failed to insert to S3 bucket.");}
-			response = new CreateImplementationResponse(iDAO.getImplementation(fileName).getImplementationID(), 200);
+			if (!createSystemImplementation(implementationID, code)){throw new Exception("Failed to insert to S3 bucket.");}
+			response = new CreateImplementationResponse(200, implementationID);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			UserAction action = new UserAction(userID,"Add Implementation",timestamp.toString());
