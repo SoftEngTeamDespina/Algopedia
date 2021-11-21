@@ -5,6 +5,7 @@ import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateImplementationResponse;
+import com.amazonaws.http.RemoveImplementationResponse;
 import com.amazonaws.regions.Regions;
 
 import java.io.BufferedReader;
@@ -37,40 +38,13 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
 
-public class CreateImplementationHandler implements RequestStreamHandler {
+public class RemoveImplementationHandler implements RequestStreamHandler {
 	LambdaLogger logger;
 	private AmazonS3 s3 = null;
 	public static final String REAL_BUCKET = "implementations/";
 	
 	
 	
-	//S3 bucket
-	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
-		if (logger != null) { logger.log("in createSystemImplementation"); }
-		
-		if (s3 == null) {
-			logger.log("attach to S3 request");
-			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
-			logger.log("attach to S3 succeed");
-		}
-		
-		String bucket = REAL_BUCKET;
-		
-		ByteArrayInputStream bais = new ByteArrayInputStream(code);
-		ObjectMetadata omd = new ObjectMetadata();
-		omd.setContentLength(code.length);
-		
-		
-		
-		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + filename, bais, omd)
-				.withCannedAcl(CannedAccessControlList.PublicRead));
-		
-		return true;
-		
-		
-	}
-	
-
 
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
@@ -84,33 +58,25 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		logger.log(event.toString());
 		
 		ImplementationDAO iDAO = new ImplementationDAO();
-		CreateImplementationResponse response;
+		RemoveImplementationResponse response;
 		
 		UserActionDAO uaDAO =  new UserActionDAO();
 		
 		if (event.get("language") != null) {
-            String language = new Gson().fromJson(event.get("language"), String.class);
-            byte[] code = new Gson().fromJson(event.get("code"), byte[].class);
-            String algorithmID = new Gson().fromJson(event.get("id"), String.class);
-            String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
+            String implementationID = new Gson().fromJson(event.get("id"), String.class);
             
             String userID = new Gson().fromJson(event.get("user"), String.class);
             
 		
 		try {
-
-			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
-			String implementationID = iDAO.addImplementation(newImplementation);
-			if(implementationID == null) {throw new Exception("Failed to insert to table.");}
-			logger.log("Storing implementation...");
-			response = new CreateImplementationResponse(implementationID,200); 
+			if(!iDAO.deleteImplementation(implementationID)) {throw new Exception("Failed to delete implementation");}
+			logger.log("Deleting implementation...");
 			
-				
-			if (!createSystemImplementation(implementationID, code)){throw new Exception("Failed to insert to S3 bucket.");}
-			response = new CreateImplementationResponse(implementationID, 200);
+			response = new RemoveImplementationResponse(implementationID, 200); 
+			
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			UserAction action = new UserAction(userID,"Add Implementation",timestamp.toString());
+			UserAction action = new UserAction(userID,"Remove Implementation",timestamp.toString());
 			uaDAO.addUserAction(action);
 			
 			writer.write(new Gson().toJson(response));
@@ -118,7 +84,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			response = new CreateImplementationResponse(500, e.getMessage());
+			response = new RemoveImplementationResponse(500, e.getMessage());
 			writer.write(new Gson().toJson(response));
 			
 		}finally {
