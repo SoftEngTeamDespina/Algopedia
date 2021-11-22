@@ -61,7 +61,6 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		omd.setContentLength(code.length);
 		
 		
-		
 		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + filename, bais, omd)
 				.withCannedAcl(CannedAccessControlList.PublicRead));
 		

@@ -22,7 +22,7 @@ public class UserActionDAO{
     	}
     }
     
-	 public LinkedList<UserAction> getUserActions(String userID) throws Exception {
+	 public LinkedList<UserAction> getUserActions(String username) throws Exception {
 		 
 		 	LinkedList<UserAction> returnList = new LinkedList<UserAction>();
 	        
@@ -53,8 +53,8 @@ public class UserActionDAO{
     public boolean addUserAction(UserAction ua) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE id = ?;");
-            ps.setString(1, ua.getUserActionID());
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE author = ?;");
+            ps.setString(1, ua.getAuthorID());
             ResultSet resultSet = ps.executeQuery();
             
             // already present?
