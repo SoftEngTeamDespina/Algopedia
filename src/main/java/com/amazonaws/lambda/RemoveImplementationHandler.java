@@ -62,7 +62,7 @@ public class RemoveImplementationHandler implements RequestStreamHandler {
 		
 		UserActionDAO uaDAO =  new UserActionDAO();
 		
-		if (event.get("language") != null) {
+		if (event.get("id") != null) {
             String implementationID = new Gson().fromJson(event.get("id"), String.class);
             
             String userID = new Gson().fromJson(event.get("user"), String.class);
