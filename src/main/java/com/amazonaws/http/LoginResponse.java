@@ -3,19 +3,27 @@ package com.amazonaws.http;
 import com.amazonaws.entities.User;
 
 public class LoginResponse {
-	
+	String username;
 	int httpStatusCode;
 	String logMsg;
 	
 	public LoginResponse() {}
 	
-	public LoginResponse( int httpStatusCode, String logMsg) {
-		
+	public LoginResponse(String username, int httpStatusCode, String logMsg) {
+		this.username = username;
 		this.httpStatusCode = httpStatusCode;
 		this.logMsg = logMsg;
 	}
 	
 	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public void setHttpStatusCode(int httpStatusCode) {
 		this.httpStatusCode = httpStatusCode;
 	}

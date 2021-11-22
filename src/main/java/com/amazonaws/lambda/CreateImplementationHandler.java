@@ -90,7 +90,8 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
-            byte[] code = new Gson().fromJson(event.get("code"), byte[].class);
+            String rawCode = new Gson().fromJson(event.get("code"), String.class); 
+            byte[] b = rawCode.getBytes(Charset.forName("UTF-8"));
             String algorithmID = new Gson().fromJson(event.get("algorithm"), String.class);
             String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
             
@@ -98,16 +99,25 @@ public class CreateImplementationHandler implements RequestStreamHandler {
             
 		
 		try {
-
-			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
-			String implementationID = iDAO.addImplementation(newImplementation);
-			if(implementationID == null) {throw new Exception("Failed to insert to table.");}
-			logger.log("Storing implementation...");
-			response = new CreateImplementationResponse(implementationID,200); 
+			long now = System.currentTimeMillis();
+        	Timestamp stamp = new Timestamp(now);
+        	
+			Implementation newImplementation = new Implementation(stamp.toString(),language, fileName, algorithmID);
+			Implementation imp;
+			
+			if(iDAO.addImplementation(newImplementation)) {
+				
+				 imp = iDAO.getImplementationByStamp(stamp.toString());
+			}
+			else{
+				throw new Exception("Failed to insert to table.");
+			}
+			
+			response = new CreateImplementationResponse(imp.getImplementationID(),200); 
 			
 				
-			if (!createSystemImplementation(implementationID, code)){throw new Exception("Failed to insert to S3 bucket.");}
-			response = new CreateImplementationResponse(implementationID, 200);
+			if (!createSystemImplementation(imp.getImplementationID(), b)){throw new Exception("Failed to insert to S3 bucket.");}
+			response = new CreateImplementationResponse(imp.getImplementationID(), 200);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			UserAction action = new UserAction(userID,"Add Implementation",timestamp.toString());

@@ -47,20 +47,25 @@ public class HandleLogin implements RequestStreamHandler {
             try {
             	User u = new User(username,password);
             	String res = userDao.authenticateUser(u);
+            	User user = userDao.getUser(username);
+            	
             	
             	if(res == "SUCCESS") {
             		response.setHttpStatusCode(200);
             		response.setLogMsg("User authenticated");
+            		response.setUsername(user.getUsername());
             		writer.write(new Gson().toJson(response));
             	}
             	else if(res == "WRONG PASSWORD") {
-            		response.setHttpStatusCode(200);
+            		response.setHttpStatusCode(400);
             		response.setLogMsg("Wrong Password");
+            		response.setUsername(username);
             		writer.write(new Gson().toJson(response));
             	}
             	else {
-            		response.setHttpStatusCode(200);
+            		response.setHttpStatusCode(400);
             		response.setLogMsg("Invalid User");
+            		response.setUsername(username);
             		writer.write(new Gson().toJson(response));
             	}
             	

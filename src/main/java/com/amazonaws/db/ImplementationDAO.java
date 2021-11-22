@@ -67,10 +67,32 @@ public class ImplementationDAO{
             throw new Exception("Failed in getting implementation: " + e.getMessage());
         }
     }
+ 
+ public Implementation getImplementationByStamp(String stamp) throws Exception {
+     
+     try {
+     	Implementation imp = null;
+         PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE timestamp=?;");
+         ps.setString(1,  stamp);
+         ResultSet resultSet = ps.executeQuery();
+         
+         while (resultSet.next()) {
+             imp = new Implementation(resultSet.getString("UID"),resultSet.getString("algorithm"),resultSet.getString("timestamp"),resultSet.getString("language"),resultSet.getString("filename"));
+         }
+         resultSet.close();
+         ps.close();
+         
+         return imp;
+
+     } catch (Exception e) {
+     	e.printStackTrace();
+         throw new Exception("Failed in getting implementation: " + e.getMessage());
+     }
+ }
 
 
     
-    public String addImplementation(Implementation imp) throws Exception {
+    public boolean addImplementation(Implementation imp) throws Exception {
         
     	try {
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID = ?;");
@@ -78,26 +100,18 @@ public class ImplementationDAO{
             ResultSet resultSet = ps.executeQuery();
             
             // already present?
-            while (resultSet.next()) {
-                return null;
-            }
+            
 
-            ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,language,filename,algorithm) values(UUID(),?,?,?);",Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,language,filename,algorithm,timestamp) values (UUID(),?,?,?,?);");
             ps.setString(1, imp.getLanguage().toString());
             ps.setString(2, imp.getFileName().toString());
             ps.setString(3, imp.getAlgorithmID());
+            ps.setString(4,imp.getStamp());
             ps.execute();
-           
+            ps.close();
             
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return String.valueOf(generatedKeys.getLong(1));
-                }
-                else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
-                }
-            }
-
+            return true;
+            
         } catch (Exception e) {
             throw new Exception("Failed to create implementation: " + e.getMessage());
         }

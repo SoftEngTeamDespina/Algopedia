@@ -9,25 +9,37 @@ public class Implementation {
 	private LinkedList<Benchmark> benchmarks;
 	private String filename;
 	private String algorithmID;
+	private String stamp;
 	
 	public Implementation() {}
 	
-	public Implementation(String language, String filename, String algorithmID) {
+	public Implementation(String stamp,String language, String filename, String algorithmID) {
+		this.stamp = stamp;
 		this.language = language;
 		this.filename = filename;
 		this.algorithmID = algorithmID;
 		
 	}
 	
-	public Implementation(String implementationID, String language, String filename, String algorithmID) {
+	public Implementation(String implementationID, String stamp,String language, String filename, String algorithmID) {
+		this.stamp = stamp;
 		this.implementationID = implementationID;
 		this.language = language;
 		this.filename = filename;
 		this.algorithmID = algorithmID;
 		
+		
 	}
 	
 	
+	public String getStamp() {
+		return stamp;
+	}
+
+	public void setStamp(String stamp) {
+		this.stamp = stamp;
+	}
+
 	public String getImplementationID() {
 		return implementationID;
 	}
