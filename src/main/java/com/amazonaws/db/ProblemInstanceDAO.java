@@ -31,7 +31,28 @@ public class ProblemInstanceDAO {
 
             while (resultSet.next()) {
                 pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
-                        resultSet.getString("description"), resultSet.getString("filename"));
+                        resultSet.getString("description"), resultSet.getString("filename"), resultSet.getString("algorithm"));
+            }
+            resultSet.close();
+            ps.close();
+
+            return pi;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Failed in getting classification: " + e.getMessage());
+        }
+    }
+
+    public ProblemInstance getProblemInstanceNoID(String algoID, String instName) throws Exception {
+
+        try {
+            ProblemInstance pi = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm="+algoID+" AND name="+instName+";");            
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
+                        resultSet.getString("description"), resultSet.getString("filename"), resultSet.getString("algorithm"));
             }
             resultSet.close();
             ps.close();
@@ -62,7 +83,7 @@ public class ProblemInstanceDAO {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
-                        resultSet.getString("description"), resultSet.getString("filename"));
+                        resultSet.getString("description"), resultSet.getString("filename"), resultSet.getString("algorithm"));
                 ret.add(pi);
             }
             resultSet.close();
@@ -89,10 +110,11 @@ public class ProblemInstanceDAO {
             }
 
             ps = conn.prepareStatement(
-                    "INSERT INTO " + tblName + " (UID,name,description,dataset) values(UUID(),?,?,?);");
+                    "INSERT INTO " + tblName + " (UID,name,description,dataset) values(UUID(),?,?,?,?);");
             ps.setString(1, inst.getName());
             ps.setString(2, inst.getDescription());
             ps.setString(3, inst.getDataSet());
+            ps.setString(4, inst.getAlgoID());
             ps.execute();
             return true;
 

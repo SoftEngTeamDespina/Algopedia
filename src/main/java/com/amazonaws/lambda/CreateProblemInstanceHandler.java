@@ -1,13 +1,10 @@
 package com.amazonaws.lambda;
 
-import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ProblemInstanceDAO;
 import com.amazonaws.db.UserActionDAO;
-import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.ProblemInstance;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateProblemInstanceResponse;
-import com.amazonaws.http.RemoveAlgorithmResponse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -50,16 +47,17 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
         UserActionDAO uaDAO =  new UserActionDAO();
 		
 		if (event.get("id") != null) {
-            String name = new Gson().fromJson(event.get("id"), String.class);
-            String desc = new Gson().fromJson(event.get("id"), String.class);
-            String data = new Gson().fromJson(event.get("id"), String.class);
+            String name = new Gson().fromJson(event.get("name"), String.class);
+            String desc = new Gson().fromJson(event.get("desc"), String.class);
+            String data = new Gson().fromJson(event.get("data"), String.class);
             String userID = new Gson().fromJson(event.get("user"), String.class);
+            String algoID = new Gson().fromJson(event.get("algoID"), String.class);
 
-            ProblemInstance temp = new ProblemInstance(name, desc, data);
+            ProblemInstance temp = new ProblemInstance(name, desc, data, algoID);
             String instID = "tempID";
             try {
                 if (db.addProblemInstance(temp)) {
-                    // instID = TODO:db.getProblemInstance(name).getInstanceID();
+                    instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
                     response = new CreateProblemInstanceResponse(instID, 200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     UserAction action = new UserAction(userID,"Created Problem Instance: " + instID,timestamp.toString());

@@ -2,7 +2,6 @@ package com.amazonaws.lambda;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.UserActionDAO;
-import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.RemoveAlgorithmResponse;
 
