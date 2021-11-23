@@ -61,7 +61,6 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		omd.setContentLength(code.length);
 		
 		
-		
 		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + filename, bais, omd)
 				.withCannedAcl(CannedAccessControlList.PublicRead));
 		
@@ -90,24 +89,34 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
-            byte[] code = new Gson().fromJson(event.get("code"), byte[].class);
-            String algorithmID = new Gson().fromJson(event.get("id"), String.class);
+            String rawCode = new Gson().fromJson(event.get("code"), String.class); 
+            byte[] b = rawCode.getBytes(Charset.forName("UTF-8"));
+            String algorithmID = new Gson().fromJson(event.get("algorithm"), String.class);
             String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
             
             String userID = new Gson().fromJson(event.get("user"), String.class);
             
 		
 		try {
-
-			Implementation newImplementation = new Implementation(language, fileName, algorithmID);
-			String implementationID = iDAO.addImplementation(newImplementation);
-			if(implementationID == null) {throw new Exception("Failed to insert to table.");}
-			logger.log("Storing implementation...");
-			response = new CreateImplementationResponse(200, implementationID); 
+			long now = System.currentTimeMillis();
+        	Timestamp stamp = new Timestamp(now);
+        	
+			Implementation newImplementation = new Implementation(stamp.toString(),language, fileName, algorithmID);
+			Implementation imp;
+			
+			if(iDAO.addImplementation(newImplementation)) {
+				
+				 imp = iDAO.getImplementationByStamp(stamp.toString());
+			}
+			else{
+				throw new Exception("Failed to insert to table.");
+			}
+			
+			response = new CreateImplementationResponse(imp.getImplementationID(),200); 
 			
 				
-			if (!createSystemImplementation(implementationID, code)){throw new Exception("Failed to insert to S3 bucket.");}
-			response = new CreateImplementationResponse(200, implementationID);
+			if (!createSystemImplementation(imp.getImplementationID(), b)){throw new Exception("Failed to insert to S3 bucket.");}
+			response = new CreateImplementationResponse(imp.getImplementationID(), 200);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			UserAction action = new UserAction(userID,"Add Implementation",timestamp.toString());

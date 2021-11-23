@@ -26,6 +26,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -107,20 +109,41 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 		if (event.get("name") != null) {
 			
 			String name = new Gson().fromJson(event.get("name"), String.class);
-            String MachineConfig = new Gson().fromJson(event.get("machine_config"), String.class);
+            //String MachineConfig = new Gson().fromJson(event.get("machine_config"), String.class);
             String ProblemInstance = new Gson().fromJson(event.get("problem_instance"), String.class);
             String Implementation = new Gson().fromJson(event.get("implementation"), String.class);
             double runtime =  new Gson().fromJson(event.get("runtime"), double.class);
             String observations = new Gson().fromJson(event.get("observations"), String.class);
+            String cpu = new Gson().fromJson(event.get("cpu"), String.class);;
+            int cores  =  new Gson().fromJson(event.get("cores"), int.class);;
+            int threads  =  new Gson().fromJson(event.get("threads"), int.class);;
+            String L1 = new Gson().fromJson(event.get("l1"), String.class);;
+            String L2 = new Gson().fromJson(event.get("l2"), String.class);;
+            String L3 = new Gson().fromJson(event.get("l3"), String.class);;
 
 
 		try {
 			ImplementationDAO idao = new ImplementationDAO();
         	MachineConfigurationDAO mdao = new MachineConfigurationDAO();
         	ProblemInstanceDAO pdao = new ProblemInstanceDAO();
-
-			
-			Benchmark newBench = new Benchmark(name,idao.getImplementationByID(Implementation),mdao.getMachineConfig(MachineConfig),pdao.getProblemInstance(ProblemInstance),runtime,observations);
+        	
+        	long now = System.currentTimeMillis();
+        	Timestamp sqlTimestamp = new Timestamp(now);
+        	String ID =  "";
+        	MachineConfiguration mconfig  = new MachineConfiguration(sqlTimestamp.toString(),cpu,cores,threads,L1,L2,L3);
+        	MachineConfiguration mconf;
+        	if(mdao.addMachineConfig(mconfig)){
+        		mconf = mdao.getMachineConfigByStamp(sqlTimestamp);
+        		if(mconf == null) {
+        			throw new Exception("Failed to create machine confing because is null" );
+        		}
+        	}
+        	else {
+        		throw new Exception("Failed to create machine confing");
+        	}
+        	System.out.println(sqlTimestamp);
+        		 
+			Benchmark newBench = new Benchmark(name,idao.getImplementationByID(Implementation),mconf,pdao.getProblemInstance(ProblemInstance),runtime,observations);
 			if (db.addBenchmark(newBench)){
 				logger.log("inserting the new benchmark");
 				Benchmark b = db.getBenchmark(name);

@@ -44,6 +44,36 @@ public class UserDAO{
         }
     }
     
+public String authenticateUser(User user) throws Exception {
+        
+    	try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE username = ?;");
+            ps.setString(1, user.getUsername());
+            ResultSet resultSet = ps.executeQuery();
+            
+            // already present?
+            if(resultSet.next()) {
+                if(user.getPasswordHash() == resultSet.getString("passwordHash")) {
+                	return "SUCCESS";
+                			
+                }
+                else {
+                	return "WRONG PASSWORD";
+                }
+            }
+            else {
+            	return "INVALID USER";
+            }
+
+  
+        } catch (Exception e) {
+            throw new Exception("Failed to authenticate user : " + e.getMessage());
+        }
+
+    }
+    
+    
+    
     public boolean addUser(User user) throws Exception {
         
     	try {

@@ -1,18 +1,11 @@
 package com.amazonaws.lambda;
 
-import com.amazonaws.db.BenchmarkDAO;
 import com.amazonaws.db.ImplementationDAO;
-import com.amazonaws.db.MachineConfigurationDAO;
-import com.amazonaws.db.ProblemInstanceDAO;
-import com.amazonaws.entities.Benchmark;
-import com.amazonaws.entities.Classification;
+import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.Implementation;
-import com.amazonaws.entities.MachineConfiguration;
-import com.amazonaws.entities.ProblemInstance;
-import com.amazonaws.http.CreateBenchmarkResponse;
-import com.amazonaws.http.CreateClassificationResponse;
+import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateImplementationResponse;
-import com.amazonaws.http.GetBenchmarkResponse;
+import com.amazonaws.http.RemoveImplementationResponse;
 import com.amazonaws.regions.Regions;
 
 import java.io.BufferedReader;
@@ -27,7 +20,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.LinkedList;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -44,11 +38,14 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
 
-public class GetAllBenchmarksHandler implements RequestStreamHandler {
+public class RemoveImplementationHandler implements RequestStreamHandler {
 	LambdaLogger logger;
 	private AmazonS3 s3 = null;
-	public static final String REAL_BUCKET = "benchmarks/";
+	public static final String REAL_BUCKET = "implementations/";
 	
+	
+	
+
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
@@ -60,52 +57,45 @@ public class GetAllBenchmarksHandler implements RequestStreamHandler {
 
 		logger.log(event.toString());
 		
-		BenchmarkDAO db = new BenchmarkDAO();
-		GetBenchmarkResponse response;
+		ImplementationDAO iDAO = new ImplementationDAO();
+		RemoveImplementationResponse response;
 		
-//		private MachineConfiguration configuration;
-//		private ProblemInstance instance;
-//		private Implementation implementation;
-//		private double runtime;
-//		private String observations;
-//		
-		if (event.get("algorithm") != null) {
-			
-			String name = new Gson().fromJson(event.get("algorithm"), String.class);
+		UserActionDAO uaDAO =  new UserActionDAO();
+		
+		if (event.get("id") != null) {
+            String implementationID = new Gson().fromJson(event.get("id"), String.class);
+            
+            String userID = new Gson().fromJson(event.get("user"), String.class);
+            
 		
 		try {
+			if(!iDAO.deleteImplementation(implementationID)) {throw new Exception("Failed to delete implementation");}
+			logger.log("Deleting implementation...");
 			
-        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();
-        	
-        	LinkedList<ProblemInstance>  pi = pdao.getProblemInstanceByAlgorithm(name);
-        	LinkedList<Benchmark> ret = new LinkedList<Benchmark>();
-        	
-        	
-        	
-        	for(ProblemInstance p: pi) {
-        		for(Benchmark b:db.getBenchmarkByProblemInstance(p.getProblemInstanceID())) {
-        		ret.add(b);
-        		}
-        	}
-        	
-        	
-        	response = new GetBenchmarkResponse(ret,200);
+			response = new RemoveImplementationResponse(implementationID, 200); 
+			
+			
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			UserAction action = new UserAction(userID,"Remove Implementation",timestamp.toString());
+			uaDAO.addUserAction(action);
+			
 			writer.write(new Gson().toJson(response));
-
+			
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			response = new GetBenchmarkResponse(500, "Failed to get benchmark");
+			response = new RemoveImplementationResponse(500, e.getMessage());
 			writer.write(new Gson().toJson(response));
-
+			
 		}finally {
 			reader.close();
 			writer.close();
 		}
-
+		
 		}
-
+		
 		return;
 	}
+
 }
 
