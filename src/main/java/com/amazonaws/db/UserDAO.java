@@ -53,7 +53,7 @@ public String authenticateUser(User user) throws Exception {
             
             // already present?
             if(resultSet.next()) {
-                if(user.getPasswordHash() == resultSet.getString("passwordHash")) {
+                if(user.getPasswordHash().equals(resultSet.getString("passwordHash"))) {
                 	return "SUCCESS";
                 			
                 }
