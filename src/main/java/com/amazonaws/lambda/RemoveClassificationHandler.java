@@ -1,6 +1,7 @@
 package com.amazonaws.lambda;
 
 import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.RemoveClassificationResponse;
@@ -42,7 +43,7 @@ public class RemoveClassificationHandler implements RequestStreamHandler {
 		logger.log(event.toString());
 		RemoveClassificationResponse response;
 		
-		AlgorithmDAO db = new AlgorithmDAO();
+		ClassificationDAO db = new ClassificationDAO();
         UserActionDAO uaDAO =  new UserActionDAO();
 		
 		if (event.get("id") != null) {
@@ -50,7 +51,7 @@ public class RemoveClassificationHandler implements RequestStreamHandler {
             String userID = new Gson().fromJson(event.get("user"), String.class);
 		
             try {
-                if (db.removeAlgorithm(classID)) {
+                if (db.removeClassification(classID)) {
                     response = new RemoveClassificationResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     UserAction action = new UserAction(userID,"Remove Algorithm: " + classID,timestamp.toString());
