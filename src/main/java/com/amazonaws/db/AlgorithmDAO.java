@@ -97,14 +97,12 @@ public LinkedList<Algorithm> getAlgorithms(String ClassificationID) throws Excep
         public boolean removeAlgorithm(String algoID) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ algoID +" ;");
-            ResultSet resultSet = ps.executeQuery();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
+            ps.setString(1, algoID);
+            int rows = ps.executeUpdate();
 
-            while (resultSet.next()) {
-                if(resultSet.getString(1) == "1"){
-                    return true;
-                }
-                return false;
+            if(rows == 1){
+                return true;
             }
             return false;
         } catch (Exception e) {

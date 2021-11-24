@@ -120,7 +120,7 @@ public class ProblemInstanceDAO {
             }
 
             ps = conn.prepareStatement(
-                    "INSERT INTO " + tblName + " (UID,name,description,dataset) values(UUID(),?,?,?,?);");
+                    "INSERT INTO " + tblName + " (UID,name,description,filename,algorithm) values(UUID(),?,?,?,?);");
             ps.setString(1, inst.getName());
             ps.setString(2, inst.getDescription());
             ps.setString(3, inst.getDataSet());
@@ -136,14 +136,12 @@ public class ProblemInstanceDAO {
     public boolean removeProblemInstance(String instID) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ instID +" ;");
-            ResultSet resultSet = ps.executeQuery();
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
+            ps.setString(1, instID);
+            int rows = ps.executeUpdate();
 
-            while (resultSet.next()) {
-                if(resultSet.getString(1) == "1"){
-                    return true;
-                }
-                return false;
+            if(rows == 1){
+                return true;
             }
             return false;
         } catch (Exception e) {
