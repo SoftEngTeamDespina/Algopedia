@@ -46,7 +46,7 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
 		ProblemInstanceDAO db = new ProblemInstanceDAO();
         UserActionDAO uaDAO =  new UserActionDAO();
 		
-		if (event.get("id") != null) {
+		if (event.get("name") != null) {
             String name = new Gson().fromJson(event.get("name"), String.class);
             String desc = new Gson().fromJson(event.get("desc"), String.class);
             String data = new Gson().fromJson(event.get("data"), String.class);
