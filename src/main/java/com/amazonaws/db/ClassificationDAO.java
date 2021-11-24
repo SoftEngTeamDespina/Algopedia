@@ -100,14 +100,12 @@ public class ClassificationDAO{
             // PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ classID +" ;");
             PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
             ps.setString(1, classID);
-            ResultSet resultSet = ps.executeQuery();
+            int rows = ps.executeUpdate();
 
-            while (resultSet.next()) {
-                if(resultSet.getString(1).equals("1")){
-                    return true;
-                }
-                return false;
+            if(rows == 1){
+                return true;
             }
+
             return false;
         } catch (Exception e) {
             throw new Exception("Failed to remove classification: " + e.getMessage());
