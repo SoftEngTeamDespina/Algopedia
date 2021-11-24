@@ -151,20 +151,20 @@ public class ProblemInstanceDAO {
         }
     }
 
-    public boolean removeProblemInstancesByAlgorithm(String algoID) throws Exception {
+    // public boolean removeProblemInstancesByAlgorithm(String algoID) throws Exception {
         
-    	try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE algorithm = ?;");
-            ps.setString(1, algoID);
-            int rows = ps.executeUpdate();
+    // 	try {
+    //         PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE algorithm = ?;");
+    //         ps.setString(1, algoID);
+    //         int rows = ps.executeUpdate();
 
-            if(rows >= 1){
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            throw new Exception("Failed to remove problem instances: " + e.getMessage());
-        }
-    }
+    //         if(rows >= 1){
+    //             return true;
+    //         }
+    //         return false;
+    //     } catch (Exception e) {
+    //         throw new Exception("Failed to remove problem instances: " + e.getMessage());
+    //     }
+    // }
 
 }

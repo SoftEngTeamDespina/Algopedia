@@ -52,9 +52,9 @@ public class RemoveAlgorithmHandler implements RequestStreamHandler {
             String userID = new Gson().fromJson(event.get("user"), String.class);
 		
             try {
-                if(!pidb.removeProblemInstancesByAlgorithm(algoID)){
-                    response = new RemoveAlgorithmResponse(400, "Failed to remove algorithm");
-                }
+                // if(!pidb.removeProblemInstancesByAlgorithm(algoID)){
+                //     response = new RemoveAlgorithmResponse(400, "Failed to remove algorithm");
+                // }
                 if (db.removeAlgorithm(algoID)) {
                     response = new RemoveAlgorithmResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
