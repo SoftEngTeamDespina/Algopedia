@@ -97,11 +97,13 @@ public class ClassificationDAO{
     public boolean removeClassification(String classID) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ classID +" ;");
+            // PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ classID +" ;");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
+            ps.setString(1, classID);
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
-                if(resultSet.getString(1) == "1"){
+                if(resultSet.getString(1).equals("1")){
                     return true;
                 }
                 return false;
