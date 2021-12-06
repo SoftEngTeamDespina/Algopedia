@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 
 import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.User;
+import com.amazonaws.http.GetAllUsersResponse;
 import com.amazonaws.http.LoginResponse;
 import com.amazonaws.http.RegisterUserResponse;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -25,7 +26,7 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 //aws:states:opt-out	
 
-public class HandleLogin implements RequestStreamHandler {
+public class GetAllUsersHandler implements RequestStreamHandler {
 
 	LambdaLogger logger;
 	
@@ -39,48 +40,28 @@ public class HandleLogin implements RequestStreamHandler {
 				new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 		UserDAO userDao = new UserDAO();
-		LoginResponse response = new LoginResponse();
+		GetAllUsersResponse response = new GetAllUsersResponse();
 		
 		logger.log(event.toString());
-		if (event.get("username") != null) {
-            String username = new Gson().fromJson(event.get("username"), String.class);
-            String password = new Gson().fromJson(event.get("password"), String.class);
             try {
-            	User usr = new User(username,password);
-            	String res = userDao.authenticateUser(usr);
-            	User user = userDao.getUser(username);
             	
-            	
-            	if(res == "SUCCESS") {
-            		response.setHttpStatusCode(200);
-            		response.setLogMsg("User authenticated");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
-            	}
-            	else if(res == "WRONG PASSWORD") {
-            		response.setHttpStatusCode(400);
-            		response.setLogMsg("Wrong Password");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
-            	}
-            	else {
-            		response.setHttpStatusCode(400);
-            		response.setLogMsg("Invalid User");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
-            	}
+            	response.setHttpStatusCode(200);
+        		response.setLogMsg("List Of Users");
+        		response.setUsername(userDao.getAllUsers());
+        		writer.write(new Gson().toJson(response));
+    
             	
 			} catch (Exception e) {
 				logger.log(e.getMessage());
 				e.printStackTrace();
-				response.setLogMsg("Failed to login user");
+				response.setLogMsg("Failed to Get user data");
 				response.setHttpStatusCode(500);
 				writer.write(new Gson().toJson(response));
 			} finally {
 				reader.close();
 				writer.close();
 			}
-		}
+		
 		
 		return;
 	}
