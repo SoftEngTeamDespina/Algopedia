@@ -3,6 +3,7 @@ package com.amazonaws.db;
 import java.sql.*;
 import java.util.LinkedList;
 
+import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.ProblemInstance;
 
 public class ProblemInstanceDAO {
@@ -167,5 +168,31 @@ public class ProblemInstanceDAO {
     //         throw new Exception("Failed to remove problem instances: " + e.getMessage());
     //     }
     // }
+    
+    public LinkedList<ProblemInstance> getAllProblemInstances(String algoID) throws Exception {
+        
+        try {
+        	ProblemInstance inst = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm=?;");
+            ps.setString(1,  algoID);
+            ResultSet resultSet = ps.executeQuery();
+            
+            LinkedList<ProblemInstance> insts = new LinkedList<ProblemInstance>();
+            while (resultSet.next()) {
+                inst = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
+                        resultSet.getString("description"), resultSet.getString("filename"), resultSet.getString("algorithm"));
+                insts.add(inst);
+            }
+            
+            resultSet.close();
+            ps.close();
+            
+            return insts;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting implementations: " + e.getMessage());
+        }
+    }
 
 }
