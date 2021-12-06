@@ -62,13 +62,6 @@ public class GetImplementationHandler implements RequestStreamHandler{
     			writer.close();
     		}
             
-            
-           
-            
-            
-            
-            
-		
 		
 		}
 		
