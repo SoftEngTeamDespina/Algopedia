@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-public class GetImplementationHandler implements RequestStreamHandler{
+public class DownloadImplementationHandler implements RequestStreamHandler{
 	LambdaLogger logger;
 
 	@Override
