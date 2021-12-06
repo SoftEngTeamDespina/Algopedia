@@ -62,13 +62,6 @@ public class DownloadImplementationHandler implements RequestStreamHandler{
     			writer.close();
     		}
             
-            
-           
-            
-            
-            
-            
-		
 		
 		}
 		

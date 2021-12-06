@@ -4,11 +4,13 @@ import com.amazonaws.db.BenchmarkDAO;
 import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.db.MachineConfigurationDAO;
 import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.Benchmark;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.MachineConfiguration;
 import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateBenchmarkResponse;
 import com.amazonaws.http.CreateClassificationResponse;
 import com.amazonaws.http.CreateImplementationResponse;
@@ -108,6 +110,7 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 //		
 		if (event.get("name") != null) {
 			
+			String username = new Gson().fromJson(event.get("user"), String.class);
 			String name = new Gson().fromJson(event.get("name"), String.class);
             //String MachineConfig = new Gson().fromJson(event.get("machine_config"), String.class);
             String ProblemInstance = new Gson().fromJson(event.get("problem_instance"), String.class);
@@ -132,6 +135,7 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
         	String ID =  "";
         	MachineConfiguration mconfig  = new MachineConfiguration(sqlTimestamp.toString(),cpu,cores,threads,L1,L2,L3);
         	MachineConfiguration mconf;
+        	
         	if(mdao.addMachineConfig(mconfig)){
         		mconf = mdao.getMachineConfigByStamp(sqlTimestamp);
         		if(mconf == null) {
@@ -143,11 +147,24 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
         	}
         	System.out.println(sqlTimestamp);
         		 
-			Benchmark newBench = new Benchmark(name,idao.getImplementationByID(Implementation),mconf,pdao.getProblemInstance(ProblemInstance),runtime,observations);
+        	
+        	Implementation id = idao.getImplementationByID(Implementation);
+        	if(id == null) {
+        		throw new Exception("THIs is null");
+        	}
+        	else {
+        		System.out.println(id);
+        	}
+			Benchmark newBench = new Benchmark(name,id,mconf,pdao.getProblemInstance(ProblemInstance),runtime,observations);
+			newBench.getImplementation().setImplementationID(Implementation);
 			if (db.addBenchmark(newBench)){
 				logger.log("inserting the new benchmark");
 				Benchmark b = db.getBenchmark(name);
 				response = new CreateBenchmarkResponse(b.getBenchmarkID(),200);
+				UserActionDAO uaDAO =  new UserActionDAO();
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+				UserAction action = new UserAction(username,"Created Benchmark",timestamp.toString());
+				uaDAO.addUserAction(action);
 			}
 			else {
 				response = new CreateBenchmarkResponse(400, "Failed to create benchmark");
@@ -157,7 +174,7 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 		} catch (Exception e){
 			logger.log(e.getMessage());
 			e.printStackTrace();
-			response = new CreateBenchmarkResponse(500, "Failed to create benchmark");
+			response = new CreateBenchmarkResponse(500, "Failed to create benchmark:" + e.getMessage());
 			writer.write(new Gson().toJson(response));
 
 		}finally {
