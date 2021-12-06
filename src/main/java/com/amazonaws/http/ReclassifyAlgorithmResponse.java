@@ -11,7 +11,7 @@ public class ReclassifyAlgorithmResponse {
 
 	public String toString() {
 		if (statusCode == 200) {  
-			return "MergeClassification()";
+			return "ReclassifyAlgorithm()";
 		} else {
 			return "ErrorResult(statusCode=" + statusCode + ", err=" + errorMessage + ")";
 		}
