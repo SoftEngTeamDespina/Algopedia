@@ -89,14 +89,18 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 		
 		if (event.get("language") != null) {
             String language = new Gson().fromJson(event.get("language"), String.class);
-            String rawCode = new Gson().fromJson(event.get("code"), String.class); 
-            byte[] b = rawCode.getBytes(Charset.forName("UTF-8"));
+            String rawCode = new Gson().fromJson(event.get("code"), String.class);
             String algorithmID = new Gson().fromJson(event.get("algorithm"), String.class);
             String fileName = language + algorithmID + ".txt"; // generate file name -> <language><AlgoID>.txt format
-            
             String userID = new Gson().fromJson(event.get("user"), String.class);
             
-		
+            //Parsing byte array
+            String[] byteValues = rawCode.substring(1, rawCode.length() - 1).split(",");
+            byte[] bytes = new byte[byteValues.length];
+            for (int i=0, len=bytes.length; i<len; i++) {
+               bytes[i] = Byte.parseByte(byteValues[i].trim());     
+            }
+            
 		try {
 			long now = System.currentTimeMillis();
         	Timestamp stamp = new Timestamp(now);
@@ -115,7 +119,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 			response = new CreateImplementationResponse(imp.getImplementationID(),200); 
 			
 				
-			if (!createSystemImplementation(imp.getImplementationID(), b)){throw new Exception("Failed to insert to S3 bucket.");}
+			if (!createSystemImplementation(imp.getImplementationID(), bytes)){throw new Exception("Failed to insert to S3 bucket.");}
 			response = new CreateImplementationResponse(imp.getImplementationID(), 200);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
