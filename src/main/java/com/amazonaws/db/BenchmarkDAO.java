@@ -110,6 +110,23 @@ public LinkedList<Benchmark> getBenchmarkByProblemInstance(String id) throws Exc
         }
     }
 
+    public boolean removeBenchmark(String benchID) throws Exception {
+        
+    	try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
+            ps.setString(1, benchID);
+            int rows = ps.executeUpdate();
+
+            if(rows == 1){
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to remove benchmark: " + e.getMessage());
+        }
+    }
+
 }
 
 
