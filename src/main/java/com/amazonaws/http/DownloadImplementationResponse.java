@@ -5,20 +5,20 @@ import java.util.LinkedList;
 
 import com.amazonaws.entities.Implementation;
 
-public class GetImplementationResponse {	
+public class DownloadImplementationResponse {	
 	Implementation implementation;
 	int statusCode;
 	String errorMessage;
 	
 
-	public GetImplementationResponse(Implementation implementation, int statusCode){
+	public DownloadImplementationResponse(Implementation implementation, int statusCode){
 		this.implementation = implementation;
 		this.statusCode = statusCode;
 		this.errorMessage = "";
 
 	}
 
-	public GetImplementationResponse(int statusCode, String errorMessage){
+	public DownloadImplementationResponse(int statusCode, String errorMessage){
 		this.statusCode = statusCode;
 		this.errorMessage = errorMessage;
 

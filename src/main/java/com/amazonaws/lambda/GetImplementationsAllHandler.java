@@ -16,7 +16,6 @@ import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Implementation;
-import com.amazonaws.http.GetImplementationResponse;
 import com.amazonaws.http.GetImplementationsAllResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;

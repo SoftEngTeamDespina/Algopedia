@@ -18,7 +18,6 @@ import com.amazonaws.db.ProblemInstanceDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.ProblemInstance;
-import com.amazonaws.http.GetImplementationResponse;
 import com.amazonaws.http.GetProblemInstancesAllResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
