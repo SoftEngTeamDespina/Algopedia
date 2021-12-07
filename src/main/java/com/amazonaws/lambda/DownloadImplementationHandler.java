@@ -9,12 +9,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
 import java.util.LinkedList;
 
 import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.DownloadImplementationResponse;
 import com.amazonaws.http.GetImplementationsAllResponse;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -29,23 +31,7 @@ import com.google.gson.JsonObject;
 
 public class DownloadImplementationHandler implements RequestStreamHandler{
 	LambdaLogger logger;
-	private AmazonS3 s3 = null;
-	public static final String REAL_BUCKET = "implementations/";
 	
-	public String getFile(String fileName) throws Exception {
-		logger.log("Getting file from S3 bucket...");
-	    if (StringUtils.isNullOrEmpty(fileName)) {
-	        throw new Exception("file name can not be empty");
-	    }
-	    S3Object s3Object = s3.getObject("bucketname", fileName);
-	    if (s3Object == null) {
-	        throw new Exception("Object not found");
-	    }
-	    //File file = new File("you file path");
-	    //Files.copy(s3Object.getObjectContent(), file.toPath());
-	    return "file";
-	}
-
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
@@ -58,17 +44,20 @@ public class DownloadImplementationHandler implements RequestStreamHandler{
 		logger.log(event.toString());
 		
 		
-		ImplementationDAO dao = new ImplementationDAO();
 		UserActionDAO uaDao = new UserActionDAO();
 		DownloadImplementationResponse response;
 		
 		if (event.get("id") != null) {
-            String implementationID = new Gson().fromJson(event.get("id"), String.class);
+            String userID = new Gson().fromJson(event.get("user"), String.class);
             try {
-            	logger.log("Getting implementation...");
-            	Implementation implementation = dao.getImplementationByID(implementationID);
+            	logger.log("Recording User Action for Implementation Download...");
             	
-            	response = new DownloadImplementationResponse(implementation ,200);
+            	Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    			UserAction action = new UserAction(userID,"Download Implementation",timestamp.toString());
+    			uaDao.addUserAction(action);
+    			
+            	
+            	response = new DownloadImplementationResponse(200, "Success");
             	writer.write(new Gson().toJson(response));
             	
             } catch(Exception e) {
