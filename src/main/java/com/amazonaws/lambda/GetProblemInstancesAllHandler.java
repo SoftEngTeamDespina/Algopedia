@@ -53,7 +53,7 @@ public class GetProblemInstancesAllHandler implements RequestStreamHandler{
             	String algorithmID = algorithm.getAlgorithmID();
             	try {
             		logger.log("Getting problem instances...");
-            		LinkedList<ProblemInstance> instances = pDao.getProblemInstanceByAlgorithm(algorithmID);
+            		LinkedList<ProblemInstance> instances = pDao.getAllProblemInstances(algorithmID);
             		response = new GetProblemInstancesAllResponse(instances,200);
             		writer.write(new Gson().toJson(response));
             	} catch(Exception e) {
