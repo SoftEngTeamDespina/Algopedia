@@ -45,7 +45,7 @@ public class ReclassifyAlgorithmHandler implements RequestStreamHandler {
         AlgorithmDAO adb = new AlgorithmDAO();
         UserActionDAO uaDAO = new UserActionDAO();
 
-        if (event.get("id") != null) {
+        if (event.get("algoID") != null) {
             String algoID = new Gson().fromJson(event.get("algoID"), String.class);
             String classID = new Gson().fromJson(event.get("classID"), String.class);
             String userID = new Gson().fromJson(event.get("user"), String.class);

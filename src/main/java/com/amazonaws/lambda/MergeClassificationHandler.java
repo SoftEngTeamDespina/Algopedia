@@ -45,7 +45,7 @@ public class MergeClassificationHandler implements RequestStreamHandler {
         AlgorithmDAO adb = new AlgorithmDAO();
         UserActionDAO uaDAO = new UserActionDAO();
 
-        if (event.get("id") != null) {
+        if (event.get("keepID") != null) {
             String keepID = new Gson().fromJson(event.get("keepID"), String.class);
             String mergeID = new Gson().fromJson(event.get("mergeID"), String.class);
             String userID = new Gson().fromJson(event.get("user"), String.class);

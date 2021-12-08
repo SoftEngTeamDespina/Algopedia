@@ -112,7 +112,7 @@ public class AlgorithmDAO {
     public boolean changeAlgorithmClassificationAll(String keepID, String mergeID, int expected) throws Exception {
         try {
             PreparedStatement ps = conn
-                    .prepareStatement("UPDATE " + tblName + "SET classification = ? WHERE classification = ?;");
+                    .prepareStatement("UPDATE " + tblName + " SET classification = ? WHERE classification = ?;");
             ps.setString(1, keepID);
             ps.setString(2, mergeID);
             int result = ps.executeUpdate();
@@ -131,7 +131,7 @@ public class AlgorithmDAO {
     public boolean changeAlgorithmClassification(String algoID, String classID) throws Exception {
         try {
             PreparedStatement ps = conn
-                    .prepareStatement("UPDATE " + tblName + "SET classification = ? WHERE UID = ?;");
+                    .prepareStatement("UPDATE " + tblName + " SET classification = ? WHERE UID = ?;");
             ps.setString(1, classID);
             ps.setString(2, algoID);
             int result = ps.executeUpdate();
