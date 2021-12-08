@@ -47,7 +47,7 @@ public class DownloadImplementationHandler implements RequestStreamHandler{
 		UserActionDAO uaDao = new UserActionDAO();
 		DownloadImplementationResponse response;
 		
-		if (event.get("id") != null) {
+		if (event.get("user") != null) {
             String userID = new Gson().fromJson(event.get("user"), String.class);
             try {
             	logger.log("Recording User Action for Implementation Download...");
