@@ -60,7 +60,7 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
                     instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
                     response = new CreateProblemInstanceResponse(instID, 200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Created Problem Instance: " + instID,timestamp.toString());
+                    UserAction action = new UserAction(userID,"Created Problem Instance",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {

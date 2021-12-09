@@ -54,7 +54,7 @@ public class ReclassifyAlgorithmHandler implements RequestStreamHandler {
                 if (adb.changeAlgorithmClassification(algoID, classID)) {
                     response = new ReclassifyAlgorithmResponse(200, "");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID, "Reclassify Algorithm: " + algoID + " into " + classID,
+                    UserAction action = new UserAction(userID, "Reclassified Algorithm",
                             timestamp.toString());
                     uaDAO.addUserAction(action);
                 } else {

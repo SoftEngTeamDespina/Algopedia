@@ -58,7 +58,7 @@ public class RemoveAlgorithmHandler implements RequestStreamHandler {
                 if (db.removeAlgorithm(algoID)) {
                     response = new RemoveAlgorithmResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Remove Algorithm: " + algoID,timestamp.toString());
+                    UserAction action = new UserAction(userID,"Removed Algorithm",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {

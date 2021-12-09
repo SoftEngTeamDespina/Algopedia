@@ -55,7 +55,7 @@ public class RemoveBenchmarkHandler implements RequestStreamHandler {
                 if (db.removeBenchmark(benchID)) {
                     response = new RemoveBenchmarkResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Remove Benchmark: " + benchID,timestamp.toString());
+                    UserAction action = new UserAction(userID,"Removed Benchmark",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {

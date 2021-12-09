@@ -56,7 +56,7 @@ public class MergeClassificationHandler implements RequestStreamHandler {
                     if (cdb.removeClassification(mergeID)) {
                         response = new MergeClassificationResponse(200, "");
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        UserAction action = new UserAction(userID, "Merge Classification: " + mergeID + " into " + keepID,
+                        UserAction action = new UserAction(userID, "Merged Classification",
                                 timestamp.toString());
                         uaDAO.addUserAction(action);
                     } else {
