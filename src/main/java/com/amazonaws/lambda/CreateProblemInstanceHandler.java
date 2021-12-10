@@ -101,10 +101,10 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
                 if (db.addProblemInstance(temp)) {
                     instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
 
-                    response = new CreateProblemInstanceResponse(data,200,""); 
+                    response = new CreateProblemInstanceResponse(instID,200,""); 
 			
 				
-                    if (!createSystemInstance(instID, dataset)){
+                    if (!createSystemInstance(instID, data)){
                         throw new Exception("Failed to insert to S3 bucket.");
                     }
                     response = new CreateProblemInstanceResponse(instID, 200,"");
