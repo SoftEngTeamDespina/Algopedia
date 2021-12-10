@@ -101,7 +101,7 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
                 if (db.addProblemInstance(temp)) {
                     instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
 
-                    response = new CreateProblemInstanceResponse(instID,200,""); 
+                    response = new CreateProblemInstanceResponse(data,200,""); 
 			
 				
                     if (!createSystemInstance(instID, dataset)){
