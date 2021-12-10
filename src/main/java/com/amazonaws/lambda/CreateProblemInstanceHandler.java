@@ -5,17 +5,22 @@ import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.ProblemInstance;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.CreateProblemInstanceResponse;
+import com.amazonaws.regions.Regions;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,10 +29,45 @@ import com.google.gson.JsonObject;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 
 
 public class CreateProblemInstanceHandler implements RequestStreamHandler {
 	LambdaLogger logger;
+	private AmazonS3 s3 = null;
+	public static final String REAL_BUCKET = "ProblemInstances/";
+	
+	
+	
+	//S3 bucket
+	boolean createSystemInstance(String filename, byte[] code) throws Exception{
+		if (logger != null) { logger.log("in createSystemInstance"); }
+		
+		if (s3 == null) {
+			logger.log("attach to S3 request");
+			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
+			logger.log("attach to S3 succeed");
+		}
+		
+		String bucket = REAL_BUCKET;
+		
+		ByteArrayInputStream bais = new ByteArrayInputStream(code);
+		ObjectMetadata omd = new ObjectMetadata();
+		omd.setContentLength(code.length);
+		
+		
+		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", bucket + filename, bais, omd)
+				.withCannedAcl(CannedAccessControlList.PublicRead));
+		
+		return true;
+		
+		
+	}
 	
 
 
@@ -49,16 +89,26 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
 		if (event.get("name") != null) {
             String name = new Gson().fromJson(event.get("name"), String.class);
             String desc = new Gson().fromJson(event.get("desc"), String.class);
-            String data = new Gson().fromJson(event.get("data"), String.class);
+            String rawCode = new Gson().fromJson(event.get("data"), String.class); 
+            byte[] dataset = rawCode.getBytes(Charset.forName("UTF-8"));
             String userID = new Gson().fromJson(event.get("user"), String.class);
             String algoID = new Gson().fromJson(event.get("algoID"), String.class);
+            String data = name+algoID+".txt";
 
             ProblemInstance temp = new ProblemInstance(name, desc, data, algoID);
             String instID = "tempID";
             try {
                 if (db.addProblemInstance(temp)) {
                     instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
+
+                    response = new CreateProblemInstanceResponse(instID,200,""); 
+			
+				
+                    if (!createSystemInstance(instID, dataset)){
+                        throw new Exception("Failed to insert to S3 bucket.");
+                    }
                     response = new CreateProblemInstanceResponse(instID, 200,"");
+
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     UserAction action = new UserAction(userID,"Created Problem Instance",timestamp.toString());
                     uaDAO.addUserAction(action);
