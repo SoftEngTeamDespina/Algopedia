@@ -39,7 +39,7 @@ public class ProblemInstanceDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Failed in getting classification: " + e.getMessage());
+            throw new Exception("Failed in getting Problem instance: " + e.getMessage());
         }
     }
 
@@ -49,7 +49,7 @@ public class ProblemInstanceDAO {
             ProblemInstance pi = null;
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE algorithm=? AND name=?;"); 
             ps.setString(1, algoID);
-            ps.setString(1, instName);           
+            ps.setString(2, instName);           
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 pi = new ProblemInstance(resultSet.getString("UID"), resultSet.getString("name"),
@@ -62,7 +62,7 @@ public class ProblemInstanceDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Failed in getting classification: " + e.getMessage());
+            throw new Exception("Failed in getting Problem instance: " + e.getMessage());
         }
     }
 
