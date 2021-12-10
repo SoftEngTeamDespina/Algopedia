@@ -104,7 +104,7 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
                     response = new CreateProblemInstanceResponse(instID,200,""); 
 			
 				
-                    if (!createSystemInstance(instID, data)){
+                    if (!createSystemInstance(data, dataset)){
                         throw new Exception("Failed to insert to S3 bucket.");
                     }
                     response = new CreateProblemInstanceResponse(instID, 200,"");
