@@ -53,6 +53,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
 			logger.log("attach to S3 succeed");
 		}
+	
 		
 		String bucket = REAL_BUCKET;
 		
@@ -119,7 +120,7 @@ public class CreateImplementationHandler implements RequestStreamHandler {
 			response = new CreateImplementationResponse(imp.getImplementationID(),200); 
 			
 				
-			if (!createSystemImplementation(imp.getImplementationID(), bytes)){throw new Exception("Failed to insert to S3 bucket.");}
+			if (!createSystemImplementation(imp.getImplementationID() +  ".txt", bytes)){throw new Exception("Failed to insert to S3 bucket.");}
 			response = new CreateImplementationResponse(imp.getImplementationID(), 200);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
