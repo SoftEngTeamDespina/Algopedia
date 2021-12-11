@@ -54,7 +54,7 @@ public class RemoveClassificationHandler implements RequestStreamHandler {
                 if (db.removeClassification(classID)) {
                     response = new RemoveClassificationResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Remove Algorithm: " + classID,timestamp.toString());
+                    UserAction action = new UserAction(userID,"Removed Algorithm",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {

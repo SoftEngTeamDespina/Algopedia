@@ -1,10 +1,11 @@
 package com.amazonaws.lambda;
 
 import com.amazonaws.db.AlgorithmDAO;
-import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.BenchmarkDAO;
+import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.UserActionDAO;
 import com.amazonaws.entities.UserAction;
-import com.amazonaws.http.RemoveAlgorithmResponse;
+import com.amazonaws.http.RemoveBenchmarkResponse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,7 +27,7 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 
-public class RemoveAlgorithmHandler implements RequestStreamHandler {
+public class RemoveBenchmarkHandler implements RequestStreamHandler {
 	LambdaLogger logger;
 	
 
@@ -41,34 +42,30 @@ public class RemoveAlgorithmHandler implements RequestStreamHandler {
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 
 		logger.log(event.toString());
-		RemoveAlgorithmResponse response;
+		RemoveBenchmarkResponse response;
 		
-		AlgorithmDAO db = new AlgorithmDAO();
-        ProblemInstanceDAO pidb = new ProblemInstanceDAO();
+		BenchmarkDAO db = new BenchmarkDAO();
         UserActionDAO uaDAO =  new UserActionDAO();
 		
 		if (event.get("id") != null) {
-            String algoID = new Gson().fromJson(event.get("id"), String.class);
+            String benchID = new Gson().fromJson(event.get("id"), String.class);
             String userID = new Gson().fromJson(event.get("user"), String.class);
 		
             try {
-                // if(!pidb.removeProblemInstancesByAlgorithm(algoID)){
-                //     response = new RemoveAlgorithmResponse(400, "Failed to remove algorithm");
-                // }
-                if (db.removeAlgorithm(algoID)) {
-                    response = new RemoveAlgorithmResponse(200,"");
+                if (db.removeBenchmark(benchID)) {
+                    response = new RemoveBenchmarkResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Removed Algorithm",timestamp.toString());
+                    UserAction action = new UserAction(userID,"Removed Benchmark",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {
-                    response = new RemoveAlgorithmResponse(400, "Failed to remove algorithm");
+                    response = new RemoveBenchmarkResponse(400, "Failed to remove benchmark");
                 }
                 writer.write(new Gson().toJson(response));
             } catch (Exception e){
                 logger.log(e.getMessage());
                 e.printStackTrace();
-                response = new RemoveAlgorithmResponse(500, "Failed to remove algorithm");
+                response = new RemoveBenchmarkResponse(500, "Failed to remove benchmark");
                 writer.write(new Gson().toJson(response));
             }finally {
                 reader.close();

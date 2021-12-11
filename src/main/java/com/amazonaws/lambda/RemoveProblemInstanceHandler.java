@@ -53,7 +53,7 @@ public class RemoveProblemInstanceHandler implements RequestStreamHandler {
                 if (db.removeProblemInstance(instID)) {
                     response = new RemoveProblemInstanceResponse(200,"");
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    UserAction action = new UserAction(userID,"Remove Problem Instance: " + instID,timestamp.toString());
+                    UserAction action = new UserAction(userID,"Remove Problem Instance",timestamp.toString());
                     uaDAO.addUserAction(action);
                 }
                 else {

@@ -64,7 +64,7 @@ public class ProblemInstanceDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Failed in getting problem instance: " + e.getMessage());
+            throw new Exception("Failed in getting Problem instance: " + e.getMessage());
         }
     }
 
