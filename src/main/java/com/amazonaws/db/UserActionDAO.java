@@ -28,7 +28,8 @@ public class UserActionDAO{
 	        
 	        try {
 	        	UserAction ua = null;
-	            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName);
+	            PreparedStatement ps = conn.prepareStatement("SELECT * FROM  userAction  WHERE author=?;");
+	            ps.setString(1, username);
 	            ResultSet resultSet = ps.executeQuery();
 	            
 	            while (resultSet.next()) {
