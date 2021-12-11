@@ -37,7 +37,6 @@ public class ReclassifyAlgorithmHandlerTest {
             handler.handleRequest(input, output, createContext("add"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             assertEquals(outgoing, outputNode.get("errorMessage").asText());
-            // assertEquals("200", outputNode.get("statusCode").asText());
         } catch (Exception e) {
             fail("Invalid"+ e);
             System.out.println("error: " +e);
@@ -80,20 +79,12 @@ public class ReclassifyAlgorithmHandlerTest {
     @Test
     public void testReclassifyfakeAlgo() throws Exception{
         try {
-            AlgorithmDAO algodb = new AlgorithmDAO();
             ClassificationDAO classdb = new ClassificationDAO();
 
-            Classification oldClass = new Classification("old", "desc", null);
             Classification newClass = new Classification("new", "desc", null);
-            classdb.addClassification(oldClass);
             classdb.addClassification(newClass);
 
-            String oldID = classdb.getClassification("old").getClassificationID();
             String newID = classdb.getClassification("new").getClassificationID();
-
-            Algorithm algo =  new Algorithm("testAlgo", "desc", oldID);
-            algodb.addAlgorithm(algo);
-            String algoID = algodb.getAlgorithm("testAlgo").getAlgorithmID();
 
             String input = "{\"algoID\": \" \",\"classID\": \""+newID+"\",\"user\": \"testUser\"}";
             String output = "Failed to Reclassify Algorithm";
@@ -119,7 +110,6 @@ public class ReclassifyAlgorithmHandlerTest {
             classdb.addClassification(newClass);
 
             String oldID = classdb.getClassification("old").getClassificationID();
-            String newID = classdb.getClassification("new").getClassificationID();
 
             Algorithm algo =  new Algorithm("testAlgo", "desc", oldID);
             algodb.addAlgorithm(algo);

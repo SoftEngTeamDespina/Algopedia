@@ -66,7 +66,7 @@ public class CreateProblemInstanceHandlerTest {
             algodb.addAlgorithm(algo);
             String algoID = algodb.getAlgorithm("testAlgo").getAlgorithmID();
 
-            String testData = "[109,112,103,44,99,121,108,105,110,100,101,114,115,44,100,105,115,112,108,97,99,101,109,101,110,116,44,104]";
+            String testData = "[109,112,103,44,99,121,108,105,110,100,101,114,115,44,100,105,115,112,108,97,99,101,109,101,110,116,44]";
 
             String input = "{\"algoID\": \""+algoID+"\",\"data\":\""+testData+"\",\"desc\": \"desc\",\"userID\": \"testUser\",\"name\":\"name\"}";
             String output = "";
@@ -78,8 +78,26 @@ public class CreateProblemInstanceHandlerTest {
             fail("Invalid"+ e);
             System.out.println("error: " +e);
         }
-    }    
+    }
 
+
+    @Test
+    public void testBadAlgorithm() throws Exception{
+        try {
+
+            String testData = "[109,112,103,44,99,121,108,105,110,100,101,114,115,44,100,105,115,112,108,97,99,101,109,101,110,116,44]";
+
+            String input = "{\"algoID\": \" \",\"data\":\""+testData+"\",\"desc\": \"desc\",\"userID\": \"testUser\",\"name\":\"name\"}";
+            String output = "Failed to create Problem Instance";
+
+
+            testAddInstance(input, output);
+
+        } catch (Exception e) {
+            fail("Invalid"+ e);
+            System.out.println("error: " +e);
+        }
+    }
     public static byte[] fromHexString(String src) {
         byte[] biBytes = new BigInteger("10" + src.replaceAll("\\s", ""), 16).toByteArray();
         return Arrays.copyOfRange(biBytes, 1, biBytes.length);
