@@ -28,7 +28,8 @@ public class UserActionDAO{
 	        
 	        try {
 	        	UserAction ua = null;
-	            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName);
+	            PreparedStatement ps = conn.prepareStatement("SELECT * FROM  userAction  WHERE author=?;");
+	            ps.setString(1, username);
 	            ResultSet resultSet = ps.executeQuery();
 	            
 	            while (resultSet.next()) {
@@ -53,16 +54,8 @@ public class UserActionDAO{
     public boolean addUserAction(UserAction ua) throws Exception {
         
     	try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE author = ?;");
-            ps.setString(1, ua.getAuthorID());
-            ResultSet resultSet = ps.executeQuery();
-            
-            // already present?
-            while (resultSet.next()) {
-                return false;
-            }
-            
-            ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,author,action,timestamp) values(UUID(),?,?,?);");
+           
+    		PreparedStatement ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,author,action,timestamp) values(UUID(),?,?,?);");
             ps.setString(1, ua.getAuthorID());
             ps.setString(2, ua.getAction());
             ps.setString(3, ua.getTimeStamp());

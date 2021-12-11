@@ -94,7 +94,23 @@ public class ClassificationDAO{
         }
     }
     
-    
+    public boolean removeClassification(String classID) throws Exception {
+        
+    	try {
+            // PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID ="+ classID +" ;");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM " + tblName + " WHERE UID = ?;");
+            ps.setString(1, classID);
+            int rows = ps.executeUpdate();
+
+            if(rows == 1){
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to remove classification: " + e.getMessage());
+        }
+    }
     
    
 

@@ -2,30 +2,27 @@ package com.amazonaws.http;
 
 import com.amazonaws.entities.User;
 
-public class LoginResponse {
-	User username;
+public class RemoveUserResponse {
+	String username;
 	int httpStatusCode;
 	String logMsg;
 	
-	public LoginResponse() {}
+	public RemoveUserResponse() {}
 	
-	public LoginResponse(User username, int httpStatusCode, String logMsg) {
+	public RemoveUserResponse(String username, int httpStatusCode, String logMsg) {
 		this.username = username;
 		this.httpStatusCode = httpStatusCode;
 		this.logMsg = logMsg;
 	}
 	
 	
-	public User getUsername() {
-		return username;
-	}
 	
 
-	public void setUsername(User username) {
-		this.username = username;
+	public String getUsername() {
+		return username;
 	}
 
-	public void User(User username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
 
