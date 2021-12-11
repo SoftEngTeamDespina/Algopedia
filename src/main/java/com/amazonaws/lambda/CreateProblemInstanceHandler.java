@@ -77,7 +77,7 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("US-ASCII")));
 		PrintWriter writer = new PrintWriter(
-				new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
+		new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 
 		logger.log(event.toString());
@@ -93,18 +93,24 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
             byte[] dataset = rawCode.getBytes(Charset.forName("UTF-8"));
             String userID = new Gson().fromJson(event.get("user"), String.class);
             String algoID = new Gson().fromJson(event.get("algoID"), String.class);
-            String data = name+algoID+".txt";
+            String file = name+algoID+".txt";
 
-            ProblemInstance temp = new ProblemInstance(name, desc, data, algoID);
+            String[] byteValues = rawCode.substring(1, rawCode.length() - 1).split(",");
+            byte[] bytes = new byte[byteValues.length];
+            for (int i=0, len=bytes.length; i<len; i++) {
+               bytes[i] = Byte.parseByte(byteValues[i].trim());     
+            }
+
+            ProblemInstance temp = new ProblemInstance(name, desc, file, algoID);
             String instID = "tempID";
             try {
                 if (db.addProblemInstance(temp)) {
                     instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();
 
-                    response = new CreateProblemInstanceResponse(data,200,""); 
+                    response = new CreateProblemInstanceResponse(file,200,""); 
 			
 				
-                    if (!createSystemInstance(instID, dataset)){
+                    if (!createSystemInstance(file, bytes)){
                         throw new Exception("Failed to insert to S3 bucket.");
                     }
                     response = new CreateProblemInstanceResponse(instID, 200,"");
