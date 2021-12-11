@@ -90,8 +90,8 @@ public LinkedList<Benchmark> getBenchmarkByProblemInstance(String id) throws Exc
             while (resultSet.next()) {
                 return false;
             }
-            System.out.println("HERE is the IDDDDDDDDD " +  bench.getConfiguration().getMachineConfigurationID());
-
+            
+            System.out.println("imp id:     " +  bench.getImplementation().getImplementationID() + "------" );
             ps = conn.prepareStatement("INSERT INTO " + tblName + " (UID,date,runtime,observations,machine_config,implementation,problem_instance,name) values(UUID(),CURDATE(),?,?,?,?,?,?);");
             ps.setDouble(1, bench.getRuntime());
             ps.setString(2, bench.getObservations());
@@ -105,8 +105,8 @@ public LinkedList<Benchmark> getBenchmarkByProblemInstance(String id) throws Exc
         } catch (Exception e) {
             throw new Exception("Failed to create benchmark: " + 
         
-						bench.getConfiguration().getMachineConfigurationID() 
-            		+ e.getMessage());
+						
+            		 e.getMessage());
         }
     }
 

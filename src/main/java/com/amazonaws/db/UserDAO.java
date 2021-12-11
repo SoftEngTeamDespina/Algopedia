@@ -2,6 +2,7 @@ package com.amazonaws.db;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.amazonaws.entities.User;
@@ -43,6 +44,52 @@ public class UserDAO{
             throw new Exception("Failed in getting user: " + e.getMessage());
         }
     }
+    
+public LinkedList<String> getAllUsers() throws Exception {
+	LinkedList<String> ret = new LinkedList<String>();
+	
+	try {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName );
+        ResultSet resultSet = ps.executeQuery();
+        
+        
+        while(resultSet.next()) {
+            ret.add(resultSet.getString("username"));
+        }
+         
+	}
+
+     catch (Exception e) {
+        throw new Exception("Failed to authenticate user : " + e.getMessage());
+    }
+	
+	return ret;
+	
+	}
+
+public boolean removeUser(String username) throws Exception {
+	try {
+        PreparedStatement ps = conn.prepareStatement("DELETE  FROM " + tblName + " WHERE username = ?;");
+        ps.setString(1, username);
+        int resultSet = ps.executeUpdate();
+        
+        if(resultSet == 1) {
+            return true;
+            			
+            }
+        else {
+        	throw new Exception("Failed to remove user : " + username);
+        	//return false;
+        }
+           
+
+    } catch (Exception e) {
+        throw new Exception("Failed to remove user : " + e.getMessage());
+    }
+
+	
+	
+}
     
 public String authenticateUser(User user) throws Exception {
         
