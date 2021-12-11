@@ -85,5 +85,22 @@
       <artifactId>aws-lambda-java-core</artifactId>
       <version>1.1.0</version>
     </dependency>
+          <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>1.7.25</version>
+      </dependency>
+      <dependency>
+    <groupId>jakarta.xml.bind</groupId>
+    <artifactId>jakarta.xml.bind-api</artifactId>
+    <version>2.3.2</version>
+</dependency>
+
+<!-- Runtime, com.sun.xml.bind module -->
+<dependency>
+    <groupId>org.glassfish.jaxb</groupId>
+    <artifactId>jaxb-runtime</artifactId>
+    <version>2.3.2</version>
+</dependency>
   </dependencies>
 </project>

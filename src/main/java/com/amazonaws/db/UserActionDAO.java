@@ -14,7 +14,7 @@ public class UserActionDAO{
 	final String tblName = "userAction";   // Exact capitalization
 
     public UserActionDAO() {
-    	System.out.print("user action DAO here");
+    	// System.out.println("user action DAO here");
     	try  {
     		conn = DatabaseUtil.connect();
     	} catch (Exception e) {

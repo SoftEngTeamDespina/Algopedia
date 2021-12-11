@@ -14,7 +14,7 @@ public class ClassificationDAO{
 	final String tblName = "classification";   // Exact capitalization
 
     public ClassificationDAO() {
-    	System.out.print("classification DAO here");
+    	// System.out.println("classification DAO here");
     	try  {
     		conn = DatabaseUtil.connect();
     	} catch (Exception e) {
