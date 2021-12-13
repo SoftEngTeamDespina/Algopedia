@@ -41,10 +41,11 @@ public class GetAllUsersHandler implements RequestStreamHandler {
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 		UserDAO userDao = new UserDAO();
 		GetAllUsersResponse response = new GetAllUsersResponse();
+		response.setLogMsg("Failed to Get user data");
+		response.setHttpStatusCode(500);
 		
 		logger.log(event.toString());
             try {
-            	
             	response.setHttpStatusCode(200);
         		response.setLogMsg("List Of Users");
         		response.setUsername(userDao.getAllUsers());
@@ -52,10 +53,7 @@ public class GetAllUsersHandler implements RequestStreamHandler {
     
             	
 			} catch (Exception e) {
-				logger.log(e.getMessage());
 				e.printStackTrace();
-				response.setLogMsg("Failed to Get user data");
-				response.setHttpStatusCode(500);
 				writer.write(new Gson().toJson(response));
 			} finally {
 				reader.close();

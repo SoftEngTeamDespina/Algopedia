@@ -60,7 +60,7 @@ public LinkedList<String> getAllUsers() throws Exception {
 	}
 
      catch (Exception e) {
-        throw new Exception("Failed to authenticate user : " + e.getMessage());
+        throw new Exception("Failed to get Users : " + e.getMessage());
     }
 	
 	return ret;
@@ -124,6 +124,7 @@ public String authenticateUser(User user) throws Exception {
     public boolean addUser(User user) throws Exception {
         
     	try {
+    		System.out.print(user.getUsername());
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE username = ?;");
             ps.setString(1, user.getUsername());
             ResultSet resultSet = ps.executeQuery();
