@@ -32,9 +32,15 @@ public class UserActionDAO{
 	            ps.setString(1, username);
 	            ResultSet resultSet = ps.executeQuery();
 	            
+	            int i =0;
+	            
 	            while (resultSet.next()) {
+	            	i++;
 	                ua = new UserAction(resultSet.getString("UID"),resultSet.getString("author"),resultSet.getString("action"),resultSet.getString("timestamp"));
 	                returnList.add(ua);
+	            }
+	            if(i == 0) {
+	            	 throw new Exception("No actions to get");
 	            }
 	            
 	            resultSet.close();
