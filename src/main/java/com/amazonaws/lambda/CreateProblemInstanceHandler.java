@@ -90,7 +90,6 @@ public class CreateProblemInstanceHandler implements RequestStreamHandler {
             String name = new Gson().fromJson(event.get("name"), String.class);
             String desc = new Gson().fromJson(event.get("desc"), String.class);
             String rawCode = new Gson().fromJson(event.get("data"), String.class); 
-            byte[] dataset = rawCode.getBytes(Charset.forName("UTF-8"));
             String userID = new Gson().fromJson(event.get("user"), String.class);
             String algoID = new Gson().fromJson(event.get("algoID"), String.class);
             String file = name+algoID+".txt";

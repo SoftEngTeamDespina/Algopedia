@@ -18,8 +18,10 @@ import java.util.Arrays;
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.User;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -68,7 +70,7 @@ public class CreateProblemInstanceHandlerTest {
 
             String testData = "[109,112,103,44,99,121,108,105,110,100,101,114,115,44,100,105,115,112,108,97,99,101,109,101,110,116,44]";
 
-            String input = "{\"algoID\": \""+algoID+"\",\"data\":\""+testData+"\",\"desc\": \"desc\",\"userID\": \"testUser\",\"name\":\"name\"}";
+            String input = "{\"algoID\": \""+algoID+"\",\"data\":\""+testData+"\",\"desc\": \"desc\",\"user\": \"testUser\",\"name\":\"name\"}";
             String output = "";
 
 
