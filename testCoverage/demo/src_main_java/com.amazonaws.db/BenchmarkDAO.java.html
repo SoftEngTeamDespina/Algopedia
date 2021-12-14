@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BenchmarkDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">BenchmarkDAO.java</span></div><h1>BenchmarkDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.Benchmark;
+import com.amazonaws.entities.Implementation;
+
+
+
+public class BenchmarkDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L16">	final String tblName = &quot;benchmark&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L18">    public BenchmarkDAO() {</span>
+    	try  {
+<span class="fc" id="L20">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L21">    	} catch (Exception e) {</span>
+<span class="nc" id="L22">    		conn = null;</span>
+    	}
+<span class="fc" id="L24">    }</span>
+    
+    //to fix
+    public Benchmark getBenchmark(String name) throws Exception {
+        
+        try {
+<span class="fc" id="L30">        	Benchmark bench = null;</span>
+        	//create ImplemenationDAO, MachineconfigDAO and ProblemInstanceDAO
+<span class="fc" id="L32">        	ImplementationDAO idao = new ImplementationDAO();</span>
+<span class="fc" id="L33">        	MachineConfigurationDAO mdao = new MachineConfigurationDAO();</span>
+<span class="fc" id="L34">        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();</span>
+<span class="fc" id="L35">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE name=?;&quot;);</span>
+<span class="fc" id="L36">            ps.setString(1,  name);</span>
+<span class="fc" id="L37">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            while (resultSet.next()){</span>
+<span class="fc" id="L40">                bench = new Benchmark(resultSet.getString(&quot;UID&quot;),resultSet.getDate(&quot;date&quot;),resultSet.getString(&quot;name&quot;),idao.getImplementationByID(resultSet.getString(&quot;implementation&quot;)),mdao.getMachineConfig(resultSet.getString(&quot;machine_config&quot;)),pdao.getProblemInstance(resultSet.getString(&quot;problem_instance&quot;)),resultSet.getDouble(&quot;runtime&quot;),resultSet.getString(&quot;observations&quot;));</span>
+            }
+<span class="fc" id="L42">            resultSet.close();</span>
+<span class="fc" id="L43">            ps.close();</span>
+            
+<span class="fc" id="L45">            return bench;</span>
+
+<span class="nc" id="L47">        } catch (Exception e) {</span>
+<span class="nc" id="L48">        	e.printStackTrace();</span>
+<span class="nc" id="L49">            throw new Exception(&quot;Failed in getting benchmark: &quot; + e.getMessage());</span>
+        }
+    }
+    
+public LinkedList&lt;Benchmark&gt; getBenchmarkByProblemInstance(String id) throws Exception {
+<span class="fc" id="L54">		LinkedList&lt;Benchmark&gt; ret = new LinkedList&lt;Benchmark&gt;();</span>
+        try {
+<span class="fc" id="L56">        	Benchmark bench = null;</span>
+        	//create ImplemenationDAO, MachineconfigDAO and ProblemInstanceDAO
+<span class="fc" id="L58">        	ImplementationDAO idao = new ImplementationDAO();</span>
+<span class="fc" id="L59">        	MachineConfigurationDAO mdao = new MachineConfigurationDAO();</span>
+<span class="fc" id="L60">        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();</span>
+<span class="fc" id="L61">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE problem_instance=?;&quot;);</span>
+<span class="fc" id="L62">            ps.setString(1,  id);</span>
+<span class="fc" id="L63">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            while (resultSet.next()){</span>
+            	
+<span class="nc" id="L67">                bench = new Benchmark(resultSet.getString(&quot;UID&quot;),resultSet.getDate(&quot;date&quot;),resultSet.getString(&quot;name&quot;),idao.getImplementationByID(resultSet.getString(&quot;implementation&quot;)),mdao.getMachineConfig(resultSet.getString(&quot;machine_config&quot;)),pdao.getProblemInstance(resultSet.getString(&quot;problem_instance&quot;)),resultSet.getDouble(&quot;runtime&quot;),resultSet.getString(&quot;observations&quot;));</span>
+<span class="nc" id="L68">                ret.add(bench);</span>
+            }
+            
+<span class="fc" id="L71">            resultSet.close();</span>
+<span class="fc" id="L72">            ps.close();</span>
+            
+<span class="fc" id="L74">            return ret;</span>
+
+<span class="nc" id="L76">        } catch (Exception e) {</span>
+<span class="nc" id="L77">        	e.printStackTrace();</span>
+<span class="nc" id="L78">            throw new Exception(&quot;Failed in getting benchmark: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    public boolean addBenchmark(Benchmark bench) throws Exception {
+        
+    	try {
+<span class="fc" id="L85">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L86">            ps.setString(1, bench.getBenchmarkID());</span>
+<span class="fc" id="L87">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L91">                return false;</span>
+            }
+            
+<span class="fc" id="L94">            System.out.println(&quot;imp id:     &quot; +  bench.getImplementation().getImplementationID() + &quot;------&quot; );</span>
+<span class="fc" id="L95">            ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,date,runtime,observations,machine_config,implementation,problem_instance,name) values(UUID(),CURDATE(),?,?,?,?,?,?);&quot;);</span>
+<span class="fc" id="L96">            ps.setDouble(1, bench.getRuntime());</span>
+<span class="fc" id="L97">            ps.setString(2, bench.getObservations());</span>
+<span class="fc" id="L98">            ps.setString(3, bench.getConfiguration().getMachineConfigurationID());</span>
+<span class="fc" id="L99">            ps.setString(4, bench.getImplementation().getImplementationID());</span>
+<span class="fc" id="L100">            ps.setString(5, bench.getInstance().getProblemInstanceID());</span>
+<span class="fc" id="L101">            ps.setString(6, bench.getName());</span>
+<span class="fc" id="L102">            ps.execute();</span>
+<span class="fc" id="L103">            return true;</span>
+
+<span class="nc" id="L105">        } catch (Exception e) {</span>
+<span class="nc" id="L106">            throw new Exception(&quot;Failed to create benchmark: &quot; + </span>
+        
+						
+<span class="nc" id="L109">            		 e.getMessage());</span>
+        }
+    }
+
+    public boolean removeBenchmark(String benchID) throws Exception {
+        
+    	try {
+<span class="fc" id="L116">            PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L117">            ps.setString(1, benchID);</span>
+<span class="fc" id="L118">            int rows = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if(rows == 1){</span>
+<span class="fc" id="L121">                return true;</span>
+            }
+
+<span class="nc" id="L124">            return false;</span>
+<span class="nc" id="L125">        } catch (Exception e) {</span>
+<span class="nc" id="L126">            throw new Exception(&quot;Failed to remove benchmark: &quot; + e.getMessage());</span>
+        }
+    }
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

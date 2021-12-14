@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RemoveImplementationHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">RemoveImplementationHandler.java</span></div><h1>RemoveImplementationHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.CreateImplementationResponse;
+import com.amazonaws.http.RemoveImplementationResponse;
+import com.amazonaws.regions.Regions;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+
+
+<span class="fc" id="L41">public class RemoveImplementationHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+<span class="fc" id="L43">	private AmazonS3 s3 = null;</span>
+	public static final String REAL_BUCKET = &quot;implementations/&quot;;
+	
+	
+	
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L51">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L53">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L54">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L55">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L56">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L58">		logger.log(event.toString());</span>
+		
+<span class="fc" id="L60">		ImplementationDAO iDAO = new ImplementationDAO();</span>
+		RemoveImplementationResponse response;
+		
+<span class="fc" id="L63">		UserActionDAO uaDAO =  new UserActionDAO();</span>
+		
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if (event.get(&quot;id&quot;) != null) {</span>
+<span class="fc" id="L66">            String implementationID = new Gson().fromJson(event.get(&quot;id&quot;), String.class);</span>
+            
+<span class="fc" id="L68">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+            
+		
+		try {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">			if(!iDAO.deleteImplementation(implementationID)) {throw new Exception(&quot;Failed to delete implementation&quot;);}</span>
+<span class="fc" id="L73">			logger.log(&quot;Deleting implementation...&quot;);</span>
+			
+<span class="fc" id="L75">			response = new RemoveImplementationResponse(implementationID, 200); </span>
+			
+			
+<span class="fc" id="L78">			Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L79">			UserAction action = new UserAction(userID,&quot;Remove Implementation&quot;,timestamp.toString());</span>
+<span class="fc" id="L80">			uaDAO.addUserAction(action);</span>
+			
+<span class="fc" id="L82">			writer.write(new Gson().toJson(response));</span>
+			
+<span class="fc" id="L84">		} catch (Exception e){</span>
+<span class="fc" id="L85">			logger.log(e.getMessage());</span>
+<span class="fc" id="L86">			e.printStackTrace();</span>
+<span class="fc" id="L87">			response = new RemoveImplementationResponse(500, e.getMessage());</span>
+<span class="fc" id="L88">			writer.write(new Gson().toJson(response));</span>
+			
+		}finally {
+<span class="fc" id="L91">			reader.close();</span>
+<span class="fc" id="L92">			writer.close();</span>
+		}
+		
+		}
+		
+<span class="fc" id="L97">		return;</span>
+	}
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

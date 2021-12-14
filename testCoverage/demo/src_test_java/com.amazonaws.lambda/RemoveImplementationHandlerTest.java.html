@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RemoveImplementationHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">RemoveImplementationHandlerTest.java</span></div><h1>RemoveImplementationHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.util.Arrays;
+
+import org.junit.Test;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.User;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.http.RemoveImplementationResponse;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+<span class="fc" id="L30">public class RemoveImplementationHandlerTest {</span>
+	Context createContext(String apiCall){
+<span class="fc" id="L32">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L33">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L34">        return ctx;</span>
+    }
+	
+	void testDeleteImplementation(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L39">            RemoveImplementationHandler handler  = new RemoveImplementationHandler();</span>
+<span class="fc" id="L40">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L41">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L42">            handler.handleRequest(input, output, createContext(&quot;remove implementation&quot;));</span>
+<span class="fc" id="L43">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L44">            String outputString = outputNode.get(&quot;errorMessage&quot;).asText();</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (!outputString.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L46">            	outputString =  outputString.substring(0,6);</span>
+            }
+<span class="fc" id="L48">            assertEquals(outgoing, outputString);</span>
+<span class="pc" id="L49">        } catch (Exception e) {</span>
+<span class="nc" id="L50">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L51">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L53">    }</span>
+	
+	@Test
+    public void testRemoveImplementation() throws Exception{
+        try {
+<span class="fc" id="L58">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L59">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L60">            ImplementationDAO impdb = new ImplementationDAO();</span>
+<span class="fc" id="L61">            UserDAO userdb = new UserDAO();</span>
+            
+<span class="fc" id="L63">            String className = &quot;testRemoveImplementation&quot;;</span>
+<span class="fc" id="L64">            Classification testClass = new Classification(className, &quot;desc&quot;, null);</span>
+<span class="fc" id="L65">            classdb.addClassification(testClass);</span>
+
+<span class="fc" id="L67">            String testClassID = classdb.getClassification(className).getClassificationID();</span>
+
+<span class="fc" id="L69">            Algorithm algo =  new Algorithm(&quot;testAlg&quot;, &quot;desc&quot;, testClassID);</span>
+<span class="fc" id="L70">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L71">            String algoID = algodb.getAlgorithm(&quot;testAlg&quot;).getAlgorithmID();</span>
+            
+<span class="fc" id="L73">            String testTimeStamp = &quot;testTimeStamp&quot;;</span>
+<span class="fc" id="L74">            Implementation imp = new Implementation(testTimeStamp,&quot;testLanguage&quot;,&quot;testFilename&quot;,algoID);</span>
+<span class="fc" id="L75">            impdb.addImplementation(imp);</span>
+<span class="fc" id="L76">            String impID = impdb.getImplementationByStamp(testTimeStamp).getImplementationID();</span>
+            
+<span class="fc" id="L78">            String username = &quot;testUser&quot;;</span>
+<span class="fc" id="L79">            User user = new User(username, &quot;pass&quot;, false);</span>
+<span class="fc" id="L80">            userdb.addUser(user);</span>
+
+<span class="fc" id="L82">            String input = &quot;{\&quot;id\&quot;: \&quot;&quot;+impID+&quot;\&quot;,\&quot;user\&quot;: \&quot;&quot;+username+&quot;\&quot;}&quot;;</span>
+<span class="fc" id="L83">            String output = &quot;&quot;;</span>
+            
+
+<span class="fc" id="L86">            testDeleteImplementation(input, output);</span>
+            
+<span class="fc" id="L88">            userdb.removeUser(username);</span>
+<span class="fc" id="L89">            algodb.removeAlgorithm(algoID);</span>
+<span class="fc" id="L90">            classdb.removeClassification(testClassID);  </span>
+            
+<span class="fc" id="L92">            RemoveImplementationResponse response = new RemoveImplementationResponse(&quot;id&quot;,200);</span>
+<span class="fc" id="L93">            response.toString();</span>
+            
+<span class="fc" id="L95">            response = new RemoveImplementationResponse(400, &quot;Failed&quot;);</span>
+<span class="fc" id="L96">            response.toString();</span>
+
+<span class="pc" id="L98">        } catch (Exception e) {</span>
+<span class="nc" id="L99">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L100">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L102">    }</span>
+
+
+    @Test
+    public void testBadDeletedImplementation() throws Exception{
+        try {
+
+<span class="fc" id="L109">            String impID = &quot;Not Real ID&quot;;</span>
+
+<span class="fc" id="L111">            String input = &quot;{\&quot;id\&quot;: \&quot;&quot;+impID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L112">            String output = &quot;Failed&quot;;</span>
+
+
+<span class="fc" id="L115">            testDeleteImplementation(input, output);</span>
+
+<span class="pc" id="L117">        } catch (Exception e) {</span>
+<span class="nc" id="L118">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L119">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L121">    }</span>
+    public static byte[] fromHexString(String src) {
+<span class="nc" id="L123">        byte[] biBytes = new BigInteger(&quot;10&quot; + src.replaceAll(&quot;\\s&quot;, &quot;&quot;), 16).toByteArray();</span>
+<span class="nc" id="L124">        return Arrays.copyOfRange(biBytes, 1, biBytes.length);</span>
+    }
+	
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

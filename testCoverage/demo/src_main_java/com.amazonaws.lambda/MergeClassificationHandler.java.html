@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MergeClassificationHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">MergeClassificationHandler.java</span></div><h1>MergeClassificationHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.RemoveClassificationResponse;
+import com.amazonaws.http.MergeClassificationResponse;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
+<span class="fc" id="L29">public class MergeClassificationHandler implements RequestStreamHandler {</span>
+    LambdaLogger logger;
+
+    @Override
+    public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L34">        logger = context.getLogger();</span>
+
+<span class="fc" id="L36">        BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L37">        PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L38">                new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L39">        JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L41">        logger.log(event.toString());</span>
+        MergeClassificationResponse response;
+
+<span class="fc" id="L44">        ClassificationDAO cdb = new ClassificationDAO();</span>
+<span class="fc" id="L45">        AlgorithmDAO adb = new AlgorithmDAO();</span>
+<span class="fc" id="L46">        UserActionDAO uaDAO = new UserActionDAO();</span>
+
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (event.get(&quot;keepID&quot;) != null) {</span>
+<span class="fc" id="L49">            String keepID = new Gson().fromJson(event.get(&quot;keepID&quot;), String.class);</span>
+<span class="fc" id="L50">            String mergeID = new Gson().fromJson(event.get(&quot;mergeID&quot;), String.class);</span>
+<span class="fc" id="L51">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+
+            try {
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">                if(cdb.changeClassificationParentAll(keepID, mergeID)){</span>
+<span class="fc" id="L55">                    int expected = adb.getAlgorithms(mergeID).size();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                    if (adb.changeAlgorithmClassificationAll(keepID, mergeID, expected)) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">                        if (cdb.removeClassification(mergeID)) {</span>
+<span class="fc" id="L58">                            response = new MergeClassificationResponse(200, &quot;&quot;);</span>
+<span class="fc" id="L59">                            Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L60">                            UserAction action = new UserAction(userID, &quot;Merged Classification&quot;,</span>
+<span class="fc" id="L61">                                    timestamp.toString());</span>
+<span class="fc" id="L62">                            uaDAO.addUserAction(action);</span>
+<span class="fc" id="L63">                        } else {</span>
+<span class="fc" id="L64">                            response = new MergeClassificationResponse(400, &quot;Failed to merge classification&quot;);</span>
+                        }
+<span class="fc" id="L66">                        writer.write(new Gson().toJson(response));</span>
+<span class="fc" id="L67">                    } else {</span>
+<span class="nc" id="L68">                        response = new MergeClassificationResponse(400, &quot;Failed to merge classification&quot;);</span>
+                    }
+<span class="nc" id="L70">                } else {</span>
+<span class="nc" id="L71">                    response = new MergeClassificationResponse(400, &quot;Failed to merge classification&quot;);</span>
+                }
+<span class="fc" id="L73">                writer.write(new Gson().toJson(response));</span>
+<span class="pc" id="L74">            } catch (Exception e) {</span>
+<span class="nc" id="L75">                logger.log(e.getMessage());</span>
+<span class="nc" id="L76">                e.printStackTrace();</span>
+<span class="nc" id="L77">                response = new MergeClassificationResponse(500, &quot;Failed to merge classification&quot;);</span>
+<span class="nc" id="L78">                writer.write(new Gson().toJson(response));</span>
+            } finally {
+<span class="fc" id="L80">                reader.close();</span>
+<span class="fc" id="L81">                writer.close();</span>
+            }
+        }
+<span class="fc" id="L84">        return;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

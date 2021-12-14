@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CreateBenchmarkHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">CreateBenchmarkHandler.java</span></div><h1>CreateBenchmarkHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.BenchmarkDAO;
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.MachineConfigurationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.Benchmark;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.MachineConfiguration;
+import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.CreateBenchmarkResponse;
+import com.amazonaws.http.CreateClassificationResponse;
+import com.amazonaws.http.CreateImplementationResponse;
+import com.amazonaws.regions.Regions;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+
+
+<span class="fc" id="L49">public class CreateBenchmarkHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+<span class="fc" id="L51">	private AmazonS3 s3 = null;</span>
+	public static final String REAL_BUCKET = &quot;benchmarks/&quot;;
+	
+	
+	//RDS
+	boolean createBenchmark( Benchmark bench ) throws Exception{
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (logger != null) { logger.log(&quot;in benchmark&quot;); }</span>
+<span class="nc" id="L58">		BenchmarkDAO dao = new BenchmarkDAO();</span>
+<span class="nc" id="L59">		return dao.addBenchmark(bench);</span>
+	}
+	
+	
+	
+
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L68">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L70">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L71">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L72">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L73">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L75">		logger.log(event.toString());</span>
+		
+<span class="fc" id="L77">		BenchmarkDAO db = new BenchmarkDAO();</span>
+		CreateBenchmarkResponse response;
+		
+//		private MachineConfiguration configuration;
+//		private ProblemInstance instance;
+//		private Implementation implementation;
+//		private double runtime;
+//		private String observations;
+//		
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if (event.get(&quot;name&quot;) != null) {</span>
+			
+<span class="fc" id="L88">			String username = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+<span class="fc" id="L89">			String name = new Gson().fromJson(event.get(&quot;name&quot;), String.class);</span>
+            //String MachineConfig = new Gson().fromJson(event.get(&quot;machine_config&quot;), String.class);
+<span class="fc" id="L91">            String ProblemInstance = new Gson().fromJson(event.get(&quot;problem_instance&quot;), String.class);</span>
+<span class="fc" id="L92">            String Implementation = new Gson().fromJson(event.get(&quot;implementation&quot;), String.class);</span>
+<span class="fc" id="L93">            double runtime =  new Gson().fromJson(event.get(&quot;runtime&quot;), double.class);</span>
+<span class="fc" id="L94">            String observations = new Gson().fromJson(event.get(&quot;observations&quot;), String.class);</span>
+<span class="fc" id="L95">            String cpu = new Gson().fromJson(event.get(&quot;cpu&quot;), String.class);;</span>
+<span class="fc" id="L96">            int cores  =  new Gson().fromJson(event.get(&quot;cores&quot;), int.class);;</span>
+<span class="fc" id="L97">            int threads  =  new Gson().fromJson(event.get(&quot;threads&quot;), int.class);;</span>
+<span class="fc" id="L98">            String L1 = new Gson().fromJson(event.get(&quot;l1&quot;), String.class);;</span>
+<span class="fc" id="L99">            String L2 = new Gson().fromJson(event.get(&quot;l2&quot;), String.class);;</span>
+<span class="fc" id="L100">            String L3 = new Gson().fromJson(event.get(&quot;l3&quot;), String.class);;</span>
+
+
+		try {
+<span class="fc" id="L104">			ImplementationDAO idao = new ImplementationDAO();</span>
+<span class="fc" id="L105">        	MachineConfigurationDAO mdao = new MachineConfigurationDAO();</span>
+<span class="fc" id="L106">        	ProblemInstanceDAO pdao = new ProblemInstanceDAO();</span>
+        	
+<span class="fc" id="L108">        	long now = System.currentTimeMillis();</span>
+<span class="fc" id="L109">        	Timestamp sqlTimestamp = new Timestamp(now);</span>
+<span class="fc" id="L110">        	String ID =  &quot;&quot;;</span>
+<span class="fc" id="L111">        	MachineConfiguration mconfig  = new MachineConfiguration(sqlTimestamp.toString(),cpu,cores,threads,L1,L2,L3);</span>
+        	MachineConfiguration mconf;
+        	
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        	if(mdao.addMachineConfig(mconfig)){</span>
+<span class="fc" id="L115">        		mconf = mdao.getMachineConfigByStamp(sqlTimestamp);</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        		if(mconf == null) {</span>
+<span class="nc" id="L117">        			throw new Exception(&quot;Failed to create machine confing because is null&quot; );</span>
+        		}
+        	}
+        	else {
+<span class="nc" id="L121">        		throw new Exception(&quot;Failed to create machine confing&quot;);</span>
+        	}
+<span class="fc" id="L123">        	System.out.println(sqlTimestamp);</span>
+        		 
+        	
+<span class="fc" id="L126">        	Implementation id = idao.getImplementationByID(Implementation);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        	if(id == null) {</span>
+<span class="nc" id="L128">        		throw new Exception(&quot;THIs is null&quot;);</span>
+        	}
+        	else {
+<span class="fc" id="L131">        		System.out.println(id);</span>
+        	}
+<span class="fc" id="L133">			Benchmark newBench = new Benchmark(name,id,mconf,pdao.getProblemInstance(ProblemInstance),runtime,observations);</span>
+<span class="fc" id="L134">			newBench.getImplementation().setImplementationID(Implementation);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if (db.addBenchmark(newBench)){</span>
+<span class="fc" id="L136">				logger.log(&quot;inserting the new benchmark&quot;);</span>
+<span class="fc" id="L137">				Benchmark b = db.getBenchmark(name);</span>
+<span class="fc" id="L138">				response = new CreateBenchmarkResponse(b.getBenchmarkID(),200);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">				if(username != null) {</span>
+<span class="fc" id="L140">					UserActionDAO uaDAO =  new UserActionDAO();</span>
+<span class="fc" id="L141">					Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L142">					UserAction action = new UserAction(username,&quot;Created Benchmark&quot;,timestamp.toString());</span>
+<span class="fc" id="L143">					uaDAO.addUserAction(action);</span>
+				}
+<span class="fc" id="L145">			}</span>
+			else {
+<span class="nc" id="L147">				response = new CreateBenchmarkResponse(400, &quot;Failed to create benchmark&quot;);</span>
+			}
+<span class="fc" id="L149">			writer.write(new Gson().toJson(response));</span>
+
+<span class="pc" id="L151">		} catch (Exception e){</span>
+<span class="nc" id="L152">			logger.log(e.getMessage());</span>
+<span class="nc" id="L153">			e.printStackTrace();</span>
+<span class="nc" id="L154">			response = new CreateBenchmarkResponse(500, &quot;Failed to create benchmark:&quot; + e.getMessage());</span>
+<span class="nc" id="L155">			writer.write(new Gson().toJson(response));</span>
+
+		}finally {
+<span class="fc" id="L158">			reader.close();</span>
+<span class="fc" id="L159">			writer.close();</span>
+		}
+
+		}
+
+<span class="fc" id="L164">		return;</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

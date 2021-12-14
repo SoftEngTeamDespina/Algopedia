@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RemoveAlgorithmHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">RemoveAlgorithmHandler.java</span></div><h1>RemoveAlgorithmHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.RemoveAlgorithmResponse;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
+
+<span class="fc" id="L29">public class RemoveAlgorithmHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+	
+
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L36">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L38">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L39">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L40">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L41">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L43">		logger.log(event.toString());</span>
+		RemoveAlgorithmResponse response;
+		
+<span class="fc" id="L46">		AlgorithmDAO db = new AlgorithmDAO();</span>
+<span class="fc" id="L47">        ProblemInstanceDAO pidb = new ProblemInstanceDAO();</span>
+<span class="fc" id="L48">        UserActionDAO uaDAO =  new UserActionDAO();</span>
+		
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (event.get(&quot;id&quot;) != null) {</span>
+<span class="fc" id="L51">            String algoID = new Gson().fromJson(event.get(&quot;id&quot;), String.class);</span>
+<span class="fc" id="L52">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+		
+            try {
+                // if(!pidb.removeProblemInstancesByAlgorithm(algoID)){
+                //     response = new RemoveAlgorithmResponse(400, &quot;Failed to remove algorithm&quot;);
+                // }
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                if (db.removeAlgorithm(algoID)) {</span>
+<span class="fc" id="L59">                    response = new RemoveAlgorithmResponse(200,&quot;&quot;);</span>
+<span class="fc" id="L60">                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L61">                    UserAction action = new UserAction(userID,&quot;Removed Algorithm&quot;,timestamp.toString());</span>
+<span class="fc" id="L62">                    uaDAO.addUserAction(action);</span>
+<span class="fc" id="L63">                }</span>
+                else {
+<span class="fc" id="L65">                    response = new RemoveAlgorithmResponse(400, &quot;Failed to remove algorithm&quot;);</span>
+                }
+<span class="fc" id="L67">                writer.write(new Gson().toJson(response));</span>
+<span class="pc" id="L68">            } catch (Exception e){</span>
+<span class="nc" id="L69">                logger.log(e.getMessage());</span>
+<span class="nc" id="L70">                e.printStackTrace();</span>
+<span class="nc" id="L71">                response = new RemoveAlgorithmResponse(500, &quot;Failed to remove algorithm&quot;);</span>
+<span class="nc" id="L72">                writer.write(new Gson().toJson(response));</span>
+            }finally {
+<span class="fc" id="L74">                reader.close();</span>
+<span class="fc" id="L75">                writer.close();</span>
+            }
+		}
+<span class="fc" id="L78">		return;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

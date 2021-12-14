@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MachineConfigurationDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">MachineConfigurationDAO.java</span></div><h1>MachineConfigurationDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.MachineConfiguration;
+
+
+
+public class MachineConfigurationDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L15">	final String tblName = &quot;machine_config&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L17">    public MachineConfigurationDAO() {</span>
+    	
+    	try  {
+<span class="fc" id="L20">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L21">    	} catch (Exception e) {</span>
+<span class="nc" id="L22">    		conn = null;</span>
+    	}
+<span class="fc" id="L24">    }</span>
+    
+	   
+    public MachineConfiguration getMachineConfig(String UID) throws Exception {
+        
+        try {
+<span class="fc" id="L30">            MachineConfiguration mc = null;</span>
+<span class="fc" id="L31">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID=?;&quot;);</span>
+<span class="fc" id="L32">            ps.setString(1,  UID);</span>
+<span class="fc" id="L33">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L36">                mc = new MachineConfiguration(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;timestamp&quot;),resultSet.getString(&quot;cpu&quot;),resultSet.getInt(&quot;cores&quot;),resultSet.getInt(&quot;threads&quot;),resultSet.getString(&quot;cacheL1&quot;),resultSet.getString(&quot;cacheL2&quot;),resultSet.getString(&quot;cache_smart&quot;));</span>
+            }
+<span class="fc" id="L38">            resultSet.close();</span>
+<span class="fc" id="L39">            ps.close();</span>
+            
+<span class="fc" id="L41">            return mc;</span>
+
+<span class="nc" id="L43">        } catch (Exception e) {</span>
+<span class="nc" id="L44">        	e.printStackTrace();</span>
+<span class="nc" id="L45">            throw new Exception(&quot;Failed in getting config: &quot; + e.getMessage());</span>
+        }
+    }
+    
+	public MachineConfiguration getMachineConfigByStamp(Timestamp stamp) throws Exception {
+	        
+	        try {
+<span class="fc" id="L52">	            MachineConfiguration mc = null;</span>
+<span class="fc" id="L53">	            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE timestamp=?;&quot;);</span>
+<span class="fc" id="L54">	            ps.setTimestamp(1,  stamp);</span>
+<span class="fc" id="L55">	            ResultSet resultSet = ps.executeQuery();</span>
+	            
+<span class="fc bfc" id="L57" title="All 2 branches covered.">	            while (resultSet.next()) {</span>
+<span class="fc" id="L58">	                mc = new MachineConfiguration(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;timestamp&quot;),resultSet.getString(&quot;cpu&quot;),resultSet.getInt(&quot;cores&quot;),resultSet.getInt(&quot;threads&quot;),resultSet.getString(&quot;cacheL1&quot;),resultSet.getString(&quot;cacheL2&quot;),resultSet.getString(&quot;cache_smart&quot;));</span>
+	            }
+<span class="fc" id="L60">	            resultSet.close();</span>
+<span class="fc" id="L61">	            ps.close();</span>
+	            
+<span class="fc" id="L63">	            return mc;</span>
+	
+<span class="nc" id="L65">	        } catch (Exception e) {</span>
+<span class="nc" id="L66">	        	e.printStackTrace();</span>
+<span class="nc" id="L67">	            throw new Exception(&quot;Failed in getting config: &quot; + e.getMessage());</span>
+	        }
+	}
+    
+    public boolean addMachineConfig(MachineConfiguration m) throws Exception {
+    	
+    	
+    	try {
+<span class="fc" id="L75">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L76">            ps.setString(1, m.getMachineConfigurationID());</span>
+<span class="fc" id="L77">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L81">                return false;</span>
+            }
+
+<span class="fc" id="L84">            ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,cpu,cores,threads,cacheL1,cacheL2,cache_smart,timestamp) values (UUID(),?,?,?,?,?,?,?);&quot;);</span>
+<span class="fc" id="L85">            ps.setString(1, m.getCpu());</span>
+<span class="fc" id="L86">            ps.setInt(2, m.getCores());</span>
+<span class="fc" id="L87">            ps.setInt(3,  m.getThreads());</span>
+<span class="fc" id="L88">            ps.setString(4, m.getL1());</span>
+<span class="fc" id="L89">            ps.setString(5, m.getL2());</span>
+<span class="fc" id="L90">            ps.setString(6, m.getL3());</span>
+<span class="fc" id="L91">            ps.setString(7, m.getStamp());</span>
+<span class="fc" id="L92">            ps.execute();</span>
+<span class="fc" id="L93">            return true;</span>
+
+<span class="nc" id="L95">        } catch (Exception e) {</span>
+<span class="nc" id="L96">            throw new Exception(&quot;Failed to create machineConfig: &quot; + e.getMessage());</span>
+        }
+    }
+
+    	
+    	
+    
+    
+   
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

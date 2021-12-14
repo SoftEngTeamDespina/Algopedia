@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ProblemInstanceDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">ProblemInstanceDAO.java</span></div><h1>ProblemInstanceDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.ProblemInstance;
+
+public class ProblemInstanceDAO {
+
+    java.sql.Connection conn;
+
+<span class="fc" id="L13">    final String tblName = &quot;problem_instance&quot;; // Exact capitalization</span>
+
+<span class="fc" id="L15">    public ProblemInstanceDAO() {</span>
+<span class="fc" id="L16">        System.out.print(&quot;problem_instance DAO here&quot;);</span>
+        try {
+<span class="fc" id="L18">            conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L19">        } catch (Exception e) {</span>
+<span class="nc" id="L20">            conn = null;</span>
+        }
+<span class="fc" id="L22">    }</span>
+
+    public ProblemInstance getProblemInstance(String UID) throws Exception {
+
+        try {
+<span class="fc" id="L27">            ProblemInstance pi = null;</span>
+<span class="fc" id="L28">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID=?;&quot;);</span>
+<span class="fc" id="L29">            ps.setString(1, UID);</span>
+<span class="fc" id="L30">            ResultSet resultSet = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L33">                pi = new ProblemInstance(resultSet.getString(&quot;UID&quot;), resultSet.getString(&quot;name&quot;),</span>
+<span class="fc" id="L34">                        resultSet.getString(&quot;description&quot;), resultSet.getString(&quot;filename&quot;), resultSet.getString(&quot;algorithm&quot;));</span>
+            }
+<span class="fc" id="L36">            resultSet.close();</span>
+<span class="fc" id="L37">            ps.close();</span>
+
+<span class="fc" id="L39">            return pi;</span>
+
+<span class="nc" id="L41">        } catch (Exception e) {</span>
+<span class="nc" id="L42">            e.printStackTrace();</span>
+<span class="nc" id="L43">            throw new Exception(&quot;Failed in getting problem instance: &quot; + e.getMessage());</span>
+        }
+    }
+
+    public ProblemInstance getProblemInstanceNoID(String algoID, String instName) throws Exception {
+
+        try {
+<span class="fc" id="L50">            ProblemInstance pi = null;</span>
+<span class="fc" id="L51">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE algorithm=? AND name=?;&quot;); </span>
+<span class="fc" id="L52">            ps.setString(1, algoID);</span>
+<span class="fc" id="L53">            ps.setString(2, instName);     </span>
+<span class="fc" id="L54">            System.out.println(&quot;Getting the algo:&quot; + algoID + &quot; And name: &quot; + algoID);</span>
+<span class="fc" id="L55">            ResultSet resultSet = ps.executeQuery();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L57">                pi = new ProblemInstance(resultSet.getString(&quot;UID&quot;), resultSet.getString(&quot;name&quot;),</span>
+<span class="fc" id="L58">                        resultSet.getString(&quot;description&quot;), resultSet.getString(&quot;filename&quot;), resultSet.getString(&quot;algorithm&quot;));</span>
+            }
+<span class="fc" id="L60">            resultSet.close();</span>
+<span class="fc" id="L61">            ps.close();</span>
+
+<span class="fc" id="L63">            return pi;</span>
+
+<span class="nc" id="L65">        } catch (Exception e) {</span>
+<span class="nc" id="L66">            e.printStackTrace();</span>
+<span class="nc" id="L67">            throw new Exception(&quot;Failed in getting Problem instance: &quot; + e.getMessage());</span>
+        }
+    }
+
+    public LinkedList&lt;ProblemInstance&gt; getProblemInstanceByAlgorithm(String algorithm) throws Exception {
+<span class="fc" id="L72">        LinkedList&lt;ProblemInstance&gt; ret = new LinkedList&lt;ProblemInstance&gt;();</span>
+        try {
+            // get algorithm id using name
+<span class="fc" id="L75">            PreparedStatement p = conn.prepareStatement(&quot;SELECT * FROM algorithm WHERE name=?;&quot;);</span>
+<span class="fc" id="L76">            p.setString(1, algorithm);</span>
+<span class="fc" id="L77">            ResultSet resultSet2 = p.executeQuery();</span>
+<span class="fc" id="L78">            String algo_id = &quot;&quot;;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            while (resultSet2.next()) {</span>
+<span class="fc" id="L80">                algo_id = resultSet2.getString(&quot;UID&quot;);</span>
+            }
+      
+<span class="fc" id="L83">            resultSet2.close();</span>
+<span class="fc" id="L84">            p.close();</span>
+            
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if(algo_id == &quot;&quot;) {</span>
+<span class="fc" id="L87">            	throw new Exception(&quot;could not find id for name &quot; + algorithm);</span>
+            }
+            
+            //GET PROBLEM INSTANCE BY ALGORITHM ID 
+<span class="fc" id="L91">            ProblemInstance pi = null;</span>
+<span class="fc" id="L92">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE algorithm=?;&quot;);</span>
+<span class="fc" id="L93">            ps.setString(1, algo_id);</span>
+<span class="fc" id="L94">            ResultSet resultSet = ps.executeQuery();</span>
+<span class="fc" id="L95">            int counter = 0;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L97">                pi = new ProblemInstance(resultSet.getString(&quot;UID&quot;), resultSet.getString(&quot;name&quot;),</span>
+<span class="fc" id="L98">                        resultSet.getString(&quot;description&quot;), resultSet.getString(&quot;filename&quot;), resultSet.getString(&quot;algorithm&quot;));</span>
+<span class="fc" id="L99">            	counter ++;</span>
+<span class="fc" id="L100">                ret.add(pi);</span>
+            }
+            
+<span class="fc" id="L103">            resultSet.close();</span>
+<span class="fc" id="L104">            ps.close();</span>
+
+<span class="fc" id="L106">            return ret;</span>
+
+<span class="fc" id="L108">        } catch (Exception e) {</span>
+<span class="fc" id="L109">        	e.printStackTrace();</span>
+<span class="fc" id="L110">            throw new Exception(&quot;Failed in getting problem instance: &quot; + e.getMessage());</span>
+        }
+    }
+
+    public boolean addProblemInstance(ProblemInstance inst) throws Exception {
+
+        try {
+<span class="fc" id="L117">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE algorithm = ?;&quot;);</span>
+<span class="fc" id="L118">            ps.setString(1, inst.getName());</span>
+<span class="fc" id="L119">            ResultSet resultSet = ps.executeQuery();</span>
+
+            // already present?
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L123">                return false;</span>
+            }
+
+<span class="fc" id="L126">            ps = conn.prepareStatement(</span>
+<span class="fc" id="L127">                    &quot;INSERT INTO &quot; + tblName + &quot; (UID,name,description,filename,algorithm) values(UUID(),?,?,?,?);&quot;);</span>
+<span class="fc" id="L128">            ps.setString(1, inst.getName());</span>
+<span class="fc" id="L129">            ps.setString(2, inst.getDescription());</span>
+<span class="fc" id="L130">            ps.setString(3, inst.getDataSet());</span>
+<span class="fc" id="L131">            ps.setString(4, inst.getAlgoID());</span>
+<span class="fc" id="L132">            ps.execute();</span>
+<span class="fc" id="L133">            return true;</span>
+
+<span class="fc" id="L135">        } catch (Exception e) {</span>
+<span class="fc" id="L136">            throw new Exception(&quot;Failed to create Problem Instance: &quot; + e.getMessage());</span>
+        }
+    }
+
+    public boolean removeProblemInstance(String instID) throws Exception {
+        
+    	try {
+<span class="fc" id="L143">            PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L144">            ps.setString(1, instID);</span>
+<span class="fc" id="L145">            int rows = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            if(rows == 1){</span>
+<span class="fc" id="L148">                return true;</span>
+            }
+<span class="nc" id="L150">            return false;</span>
+<span class="nc" id="L151">        } catch (Exception e) {</span>
+<span class="nc" id="L152">            throw new Exception(&quot;Failed to remove problem instance: &quot; + e.getMessage());</span>
+        }
+    }
+
+    // public boolean removeProblemInstancesByAlgorithm(String algoID) throws Exception {
+        
+    // 	try {
+    //         PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE algorithm = ?;&quot;);
+    //         ps.setString(1, algoID);
+    //         int rows = ps.executeUpdate();
+
+    //         if(rows &gt;= 1){
+    //             return true;
+    //         }
+    //         return false;
+    //     } catch (Exception e) {
+    //         throw new Exception(&quot;Failed to remove problem instances: &quot; + e.getMessage());
+    //     }
+    // }
+    
+    public LinkedList&lt;ProblemInstance&gt; getAllProblemInstances(String algoID) throws Exception {
+        
+        try {
+<span class="fc" id="L175">        	ProblemInstance inst = null;</span>
+<span class="fc" id="L176">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE algorithm=?;&quot;);</span>
+<span class="fc" id="L177">            ps.setString(1,  algoID);</span>
+<span class="fc" id="L178">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc" id="L180">            LinkedList&lt;ProblemInstance&gt; insts = new LinkedList&lt;ProblemInstance&gt;();</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L182">                inst = new ProblemInstance(resultSet.getString(&quot;UID&quot;), resultSet.getString(&quot;name&quot;),</span>
+<span class="fc" id="L183">                        resultSet.getString(&quot;description&quot;), resultSet.getString(&quot;filename&quot;), resultSet.getString(&quot;algorithm&quot;));</span>
+<span class="fc" id="L184">                insts.add(inst);</span>
+            }
+            
+<span class="fc" id="L187">            resultSet.close();</span>
+<span class="fc" id="L188">            ps.close();</span>
+            
+<span class="fc" id="L190">            return insts;</span>
+
+<span class="nc" id="L192">        } catch (Exception e) {</span>
+<span class="nc" id="L193">        	e.printStackTrace();</span>
+<span class="nc" id="L194">            throw new Exception(&quot;Failed in getting implementations: &quot; + e.getMessage());</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

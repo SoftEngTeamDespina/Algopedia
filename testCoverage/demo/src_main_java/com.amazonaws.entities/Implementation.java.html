@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Implementation.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.entities</a> &gt; <span class="el_source">Implementation.java</span></div><h1>Implementation.java</h1><pre class="source lang-java linenums">package com.amazonaws.entities;
+
+import java.io.File;
+import java.util.LinkedList;
+
+public class Implementation {
+	private String implementationID;
+	private String language;
+	private LinkedList&lt;Benchmark&gt; benchmarks;
+	private String filename;
+	private String algorithmID;
+	private String stamp;
+	
+<span class="nc" id="L14">	public Implementation() {}</span>
+	
+<span class="fc" id="L16">	public Implementation(String stamp,String language, String filename, String algorithmID) {</span>
+<span class="fc" id="L17">		this.stamp = stamp;</span>
+<span class="fc" id="L18">		this.language = language;</span>
+<span class="fc" id="L19">		this.filename = filename;</span>
+<span class="fc" id="L20">		this.algorithmID = algorithmID;</span>
+		
+<span class="fc" id="L22">	}</span>
+	
+<span class="fc" id="L24">	public Implementation(String implementationID, String stamp,String language, String filename, String algorithmID) {</span>
+<span class="fc" id="L25">		this.stamp = stamp;</span>
+<span class="fc" id="L26">		this.implementationID = implementationID;</span>
+<span class="fc" id="L27">		this.language = language;</span>
+<span class="fc" id="L28">		this.filename = filename;</span>
+<span class="fc" id="L29">		this.algorithmID = algorithmID;</span>
+		
+		
+<span class="fc" id="L32">	}</span>
+	
+	
+	public String getStamp() {
+<span class="fc" id="L36">		return stamp;</span>
+	}
+
+	public void setStamp(String stamp) {
+<span class="nc" id="L40">		this.stamp = stamp;</span>
+<span class="nc" id="L41">	}</span>
+
+	public String getImplementationID() {
+<span class="fc" id="L44">		return implementationID;</span>
+	}
+	public void setImplementationID(String implementationID) {
+<span class="fc" id="L47">		this.implementationID = implementationID;</span>
+<span class="fc" id="L48">	}</span>
+	public String getLanguage() {
+<span class="fc" id="L50">		return language;</span>
+	}
+	public void setLanguage(String language) {
+<span class="nc" id="L53">		this.language = language;</span>
+<span class="nc" id="L54">	}</span>
+	public LinkedList&lt;Benchmark&gt; getBenchmarks() {
+<span class="nc" id="L56">		return benchmarks;</span>
+	}
+	public void setBenchmarks(LinkedList&lt;Benchmark&gt; benchmarks) {
+<span class="nc" id="L59">		this.benchmarks = benchmarks;</span>
+<span class="nc" id="L60">	}</span>
+	public String getFileName() {
+<span class="fc" id="L62">		return filename;</span>
+	}
+	public void setFileName(String filename) {
+<span class="nc" id="L65">		this.filename = filename;</span>
+<span class="nc" id="L66">	}</span>
+	
+	public String getAlgorithmID() {
+<span class="fc" id="L69">		return algorithmID;</span>
+	}
+	public void setAlgorithmID(String algorithmID) {
+<span class="nc" id="L72">		this.algorithmID = algorithmID;</span>
+<span class="nc" id="L73">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

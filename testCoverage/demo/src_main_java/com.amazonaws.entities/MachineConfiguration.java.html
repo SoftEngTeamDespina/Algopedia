@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MachineConfiguration.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.entities</a> &gt; <span class="el_source">MachineConfiguration.java</span></div><h1>MachineConfiguration.java</h1><pre class="source lang-java linenums">package com.amazonaws.entities;
+
+import java.sql.Timestamp;
+
+public class MachineConfiguration {
+
+	private String machineConfigurationID;
+	private String cpu;
+	private int cores;
+	private int threads;
+	private String l1;
+	private String l2;
+	private String l3;
+	private String stamp;
+
+	
+	
+<span class="fc" id="L18">	public MachineConfiguration(String machineConfigurationID, String stamp, String cpu, int cores, int threads, String l1, String l2, String l3) {</span>
+<span class="fc" id="L19">		this.machineConfigurationID = machineConfigurationID;</span>
+<span class="fc" id="L20">		this.stamp = stamp;</span>
+<span class="fc" id="L21">		this.cpu = cpu;</span>
+<span class="fc" id="L22">		this.cores = cores;</span>
+<span class="fc" id="L23">		this.threads = threads;</span>
+<span class="fc" id="L24">		this.l1 = l1;</span>
+<span class="fc" id="L25">		this.l2 = l2;</span>
+<span class="fc" id="L26">		this.l3 = l3;</span>
+<span class="fc" id="L27">	}</span>
+	
+<span class="fc" id="L29">	public MachineConfiguration(  String stamp,String cpu, int cores, int threads, String l1, String l2, String l3) {</span>
+<span class="fc" id="L30">		this.cpu = cpu;</span>
+<span class="fc" id="L31">		this.stamp = stamp;</span>
+<span class="fc" id="L32">		this.cores = cores;</span>
+<span class="fc" id="L33">		this.threads = threads;</span>
+<span class="fc" id="L34">		this.l1 = l1;</span>
+<span class="fc" id="L35">		this.l2 = l2;</span>
+<span class="fc" id="L36">		this.l3 = l3;</span>
+<span class="fc" id="L37">	}</span>
+	
+	
+	public String getStamp() {
+<span class="fc" id="L41">		return stamp;</span>
+	}
+
+	public void setStamp(String stamp) {
+<span class="nc" id="L45">		this.stamp = stamp;</span>
+<span class="nc" id="L46">	}</span>
+
+	public String getMachineConfigurationID() {
+<span class="fc" id="L49">		return machineConfigurationID;</span>
+	}
+	public void setMachineConfigurationID(String machineConfigurationID) {
+<span class="nc" id="L52">		this.machineConfigurationID = machineConfigurationID;</span>
+<span class="nc" id="L53">	}</span>
+	public String getCpu() {
+<span class="fc" id="L55">		return cpu;</span>
+	}
+	public void setCpu(String cpu) {
+<span class="nc" id="L58">		this.cpu = cpu;</span>
+<span class="nc" id="L59">	}</span>
+	public int getCores() {
+<span class="fc" id="L61">		return cores;</span>
+	}
+	public void setCores(int cores) {
+<span class="nc" id="L64">		this.cores = cores;</span>
+<span class="nc" id="L65">	}</span>
+	public int getThreads() {
+<span class="fc" id="L67">		return threads;</span>
+	}
+	public void setThreads(int threads) {
+<span class="nc" id="L70">		this.threads = threads;</span>
+<span class="nc" id="L71">	}</span>
+	public String getL1() {
+<span class="fc" id="L73">		return l1;</span>
+	}
+	public void setL1(String l1) {
+<span class="nc" id="L76">		this.l1 = l1;</span>
+<span class="nc" id="L77">	}</span>
+	public String getL2() {
+<span class="fc" id="L79">		return l2;</span>
+	}
+	public void setL2(String l2) {
+<span class="nc" id="L82">		this.l2 = l2;</span>
+<span class="nc" id="L83">	}</span>
+	public String getL3() {
+<span class="fc" id="L85">		return l3;</span>
+	}
+	public void setL3(String l3) {
+<span class="nc" id="L88">		this.l3 = l3;</span>
+<span class="nc" id="L89">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserActionsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">UserActionsTest.java</span></div><h1>UserActionsTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Timestamp;
+
+import org.junit.Test;
+
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.User;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+<span class="fc" id="L22">public class UserActionsTest {</span>
+	Context createContext(String apiCall){
+<span class="fc" id="L24">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L25">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L26">        return ctx;</span>
+    }
+
+	   @Test
+	    public void GetUserActionsForUserWrong() throws Exception{
+	          
+<span class="fc" id="L32">	    	String incoming = &quot;{username:'-'}&quot;;</span>
+<span class="fc" id="L33">	        String outgoing = &quot;&quot;;</span>
+    		
+	        try {
+	        	
+<span class="fc" id="L37">	            GetUserActions handler  = new GetUserActions();</span>
+<span class="fc" id="L38">	            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L39">	            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L40">	            handler.handleRequest(input, output, createContext(&quot;get users&quot;));</span>
+<span class="fc" id="L41">	            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+	            
+<span class="fc" id="L43">	            assertEquals(outputNode.get(&quot;logMsg&quot;).asText(), &quot;Failed to Get user action data&quot;);</span>
+<span class="pc" id="L44">	        } catch (Exception e) {</span>
+<span class="nc" id="L45">	            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L46">	            System.out.println(&quot;error: &quot; +e);</span>
+	        }
+	          
+<span class="fc" id="L49">	    }</span>
+	   //Failed to Get user action data
+	   @Test
+	    public void GetUserActionsForUser() throws Exception{
+	          
+<span class="fc" id="L54">	    	String incoming = &quot;{username:'test1'}&quot;;</span>
+<span class="fc" id="L55">	        String outgoing = &quot;&quot;;</span>
+<span class="fc" id="L56">	        UserDAO userDB = new UserDAO();</span>
+            
+<span class="fc" id="L58">            User u1 = new User(&quot;test1&quot;,&quot;123&quot;,false);</span>
+<span class="fc" id="L59">            UserActionDAO uaDAO =  new UserActionDAO();</span>
+<span class="fc" id="L60">			Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L61">			UserAction action = new UserAction(&quot;test1&quot;,&quot;Add Classification&quot;,timestamp.toString());</span>
+<span class="fc" id="L62">			action.getTimeStamp();</span>
+<span class="fc" id="L63">			action.setTimeStamp(timestamp.toString());</span>
+<span class="fc" id="L64">			action.getAction();</span>
+<span class="fc" id="L65">			action.getUserActionID();</span>
+<span class="fc" id="L66">			action.setAction(&quot;add classification&quot;);</span>
+			
+	        try {
+<span class="fc" id="L69">	        	userDB.addUser(u1);</span>
+<span class="fc" id="L70">	        	uaDAO.addUserAction(action);</span>
+<span class="fc" id="L71">	            GetUserActions handler  = new GetUserActions();</span>
+<span class="fc" id="L72">	            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L73">	            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L74">	            handler.handleRequest(input, output, createContext(&quot;get users&quot;));</span>
+<span class="fc" id="L75">	            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L76">	            userDB.removeUser(&quot;test1&quot;);</span>
+<span class="fc" id="L77">	            assertEquals(outputNode.get(&quot;logMsg&quot;).asText(), &quot;List Of Users actions for user&quot;);</span>
+<span class="pc" id="L78">	        } catch (Exception e) {</span>
+<span class="nc" id="L79">	            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L80">	            System.out.println(&quot;error: &quot; +e);</span>
+	        }
+	          
+<span class="fc" id="L83">	    }</span>
+	   
+	}
+    
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CreateClassificationHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">CreateClassificationHandlerTest.java</span></div><h1>CreateClassificationHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.User;
+import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Test;
+
+import org.junit.Assert;
+import java.nio.charset.StandardCharsets;
+
+<span class="fc" id="L35">public class CreateClassificationHandlerTest {</span>
+    Context createContext(String apiCall){
+<span class="fc" id="L37">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L38">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L39">        return ctx;</span>
+    }
+
+    void testAddClassification(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L44">            CreateClassificationHandler handler  = new CreateClassificationHandler();</span>
+<span class="fc" id="L45">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L46">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L47">            handler.handleRequest(input, output, createContext(&quot;create classification&quot;));</span>
+<span class="fc" id="L48">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L49">            String outputString = outputNode.get(&quot;errorMessage&quot;).asText();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            if (!outputString.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L51">            	outputString =  outputString.substring(0,6);</span>
+            }
+<span class="fc" id="L53">            assertEquals(outgoing, outputString);</span>
+<span class="pc" id="L54">        } catch (Exception e) {</span>
+<span class="nc" id="L55">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L56">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    @Test
+    public void testCreateClassification() throws Exception{
+        try {
+<span class="fc" id="L63">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L64">            UserDAO userdb = new UserDAO();</span>
+
+<span class="fc" id="L66">            String className = &quot;testClassCCl&quot;;</span>
+
+<span class="fc" id="L68">            String username = &quot;testUserCCl&quot;;</span>
+<span class="fc" id="L69">            User user = new User(username, &quot;pass&quot;, false);</span>
+<span class="fc" id="L70">            userdb.addUser(user);</span>
+
+
+<span class="fc" id="L73">            String input = &quot;{\&quot;name\&quot;:\&quot;&quot;+ className +&quot;\&quot;,\&quot;description\&quot;:\&quot;testDesc\&quot;,\&quot;user\&quot;: \&quot;&quot;+username+&quot;\&quot;}&quot;;</span>
+<span class="fc" id="L74">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L77">            testAddClassification(input, output);</span>
+            
+<span class="fc" id="L79">            userdb.removeUser(username);</span>
+<span class="fc" id="L80">            classdb.removeClassification(classdb.getClassification(className).getClassificationID());  </span>
+
+<span class="pc" id="L82">        } catch (Exception e) {</span>
+<span class="nc" id="L83">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L84">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L86">    }</span>
+
+
+    @Test
+    public void testBadClassification() throws Exception{
+        try {
+
+            
+<span class="fc" id="L94">            String input = &quot;{\&quot;name\&quot;: \&quot;testClassName\&quot;,\&quot;description\&quot;:\&quot;testDesc\&quot;,\&quot;superClassification\&quot;: \&quot;\&quot;,\&quot;user\&quot;: \&quot;user that does not exist\&quot;}&quot;;</span>
+<span class="fc" id="L95">            String output = &quot;Failed&quot;;</span>
+
+
+<span class="fc" id="L98">            testAddClassification(input, output);</span>
+
+<span class="pc" id="L100">        } catch (Exception e) {</span>
+<span class="nc" id="L101">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L102">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L104">    }</span>
+    public static byte[] fromHexString(String src) {
+<span class="nc" id="L106">        byte[] biBytes = new BigInteger(&quot;10&quot; + src.replaceAll(&quot;\\s&quot;, &quot;&quot;), 16).toByteArray();</span>
+<span class="nc" id="L107">        return Arrays.copyOfRange(biBytes, 1, biBytes.length);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

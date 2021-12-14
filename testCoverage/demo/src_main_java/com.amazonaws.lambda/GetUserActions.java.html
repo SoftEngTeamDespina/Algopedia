@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GetUserActions.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">GetUserActions.java</span></div><h1>GetUserActions.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.User;
+import com.amazonaws.http.GetAllUsersResponse;
+import com.amazonaws.http.GetUserActionsResponse;
+import com.amazonaws.http.LoginResponse;
+import com.amazonaws.http.RegisterUserResponse;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
+//aws:states:opt-out	
+
+<span class="fc" id="L29">public class GetUserActions implements RequestStreamHandler {</span>
+
+	LambdaLogger logger;
+	
+	
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+		// TODO Auto-generated method stub
+<span class="fc" id="L37">		logger = context.getLogger();</span>
+<span class="fc" id="L38">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L39">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L40">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L41">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+<span class="fc" id="L42">		UserActionDAO userDao = new UserActionDAO();</span>
+<span class="fc" id="L43">		GetUserActionsResponse response = new GetUserActionsResponse();</span>
+		
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">		if (event.get(&quot;username&quot;) != null) {</span>
+<span class="fc" id="L46">            String username = new Gson().fromJson(event.get(&quot;username&quot;), String.class);</span>
+		
+<span class="fc" id="L48">		logger.log(event.toString());</span>
+            try {
+            	
+<span class="fc" id="L51">            	response.setHttpStatusCode(200);</span>
+<span class="fc" id="L52">        		response.setLogMsg(&quot;List Of Users actions for user&quot;);</span>
+<span class="fc" id="L53">        		response.setUserAction(userDao.getUserActions(username));</span>
+<span class="fc" id="L54">        		writer.write(new Gson().toJson(response));</span>
+    
+            	
+<span class="fc" id="L57">			} catch (Exception e) {</span>
+<span class="fc" id="L58">				logger.log(e.getMessage());</span>
+<span class="fc" id="L59">				e.printStackTrace();</span>
+<span class="fc" id="L60">				response.setLogMsg(&quot;Failed to Get user action data&quot;);</span>
+<span class="fc" id="L61">				response.setHttpStatusCode(500);</span>
+<span class="fc" id="L62">				writer.write(new Gson().toJson(response));</span>
+			} finally {
+<span class="fc" id="L64">				reader.close();</span>
+<span class="fc" id="L65">				writer.close();</span>
+				
+				
+			}
+		}
+		
+		
+<span class="fc" id="L72">		return;</span>
+	}
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

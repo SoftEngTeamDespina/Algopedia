@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ImplementationDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">ImplementationDAO.java</span></div><h1>ImplementationDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.Implementation;
+
+
+
+public class ImplementationDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L15">	final String tblName = &quot;implementation&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L17">    public ImplementationDAO() {</span>
+    	try  {
+<span class="fc" id="L19">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L20">    	} catch (Exception e) {</span>
+<span class="nc" id="L21">    		conn = null;</span>
+    	}
+<span class="fc" id="L23">    }</span>
+    
+
+    public Implementation getImplementation(String filename) throws Exception {
+        
+        try {
+<span class="nc" id="L29">        	Implementation imp = null;</span>
+<span class="nc" id="L30">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE filename=?;&quot;);</span>
+<span class="nc" id="L31">            ps.setString(1,  filename);</span>
+<span class="nc" id="L32">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L35">                imp = new Implementation(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;language&quot;),resultSet.getString(&quot;filename&quot;),resultSet.getString(&quot;algorithm&quot;));</span>
+            }
+<span class="nc" id="L37">            resultSet.close();</span>
+<span class="nc" id="L38">            ps.close();</span>
+            
+<span class="nc" id="L40">            return imp;</span>
+
+<span class="nc" id="L42">        } catch (Exception e) {</span>
+<span class="nc" id="L43">        	e.printStackTrace();</span>
+<span class="nc" id="L44">            throw new Exception(&quot;Failed in getting implementation: &quot; + e.getMessage());</span>
+        }
+    }
+    
+
+ public Implementation getImplementationByID(String UID) throws Exception {
+        
+        try {
+<span class="fc" id="L52">        	System.out.println(UID);</span>
+<span class="fc" id="L53">        	Implementation imp = null;</span>
+<span class="fc" id="L54">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID=?;&quot;);</span>
+<span class="fc" id="L55">            ps.setString(1,  UID);</span>
+<span class="fc" id="L56">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if(resultSet.next()) {</span>
+<span class="fc" id="L59">                imp = new Implementation(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;language&quot;),resultSet.getString(&quot;filename&quot;),resultSet.getString(&quot;algorithm&quot;));</span>
+            }
+<span class="fc" id="L61">            resultSet.close();</span>
+<span class="fc" id="L62">            ps.close();</span>
+            
+<span class="fc" id="L64">            return imp;</span>
+
+<span class="nc" id="L66">        } catch (Exception e) {</span>
+<span class="nc" id="L67">        	e.printStackTrace();</span>
+<span class="nc" id="L68">            throw new Exception(&quot;Failed in getting implementation: &quot; + e.getMessage());</span>
+        }
+    }
+ 
+ public Implementation getImplementationByStamp(String stamp) throws Exception {
+     
+     try {
+<span class="fc" id="L75">     	Implementation imp = null;</span>
+<span class="fc" id="L76">         PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE timestamp=?;&quot;);</span>
+<span class="fc" id="L77">         ps.setString(1,  stamp);</span>
+<span class="fc" id="L78">         ResultSet resultSet = ps.executeQuery();</span>
+         
+<span class="fc bfc" id="L80" title="All 2 branches covered.">         while (resultSet.next()) {</span>
+<span class="fc" id="L81">             imp = new Implementation(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;algorithm&quot;),resultSet.getString(&quot;timestamp&quot;),resultSet.getString(&quot;language&quot;),resultSet.getString(&quot;filename&quot;));</span>
+         }
+<span class="fc" id="L83">         resultSet.close();</span>
+<span class="fc" id="L84">         ps.close();</span>
+         
+<span class="fc" id="L86">         return imp;</span>
+
+<span class="nc" id="L88">     } catch (Exception e) {</span>
+<span class="nc" id="L89">     	e.printStackTrace();</span>
+<span class="nc" id="L90">         throw new Exception(&quot;Failed in getting implementation: &quot; + e.getMessage());</span>
+     }
+ }
+
+
+    
+    public boolean addImplementation(Implementation imp) throws Exception {
+        
+    	try {
+<span class="fc" id="L99">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L100">            ps.setString(1, imp.getImplementationID());</span>
+<span class="fc" id="L101">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+            
+
+<span class="fc" id="L106">            ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,language,filename,algorithm,timestamp) values (UUID(),?,?,?,?);&quot;);</span>
+<span class="fc" id="L107">            ps.setString(1, imp.getLanguage().toString());</span>
+<span class="fc" id="L108">            ps.setString(2, imp.getFileName().toString());</span>
+<span class="fc" id="L109">            ps.setString(3, imp.getAlgorithmID());</span>
+<span class="fc" id="L110">            ps.setString(4,imp.getStamp());</span>
+<span class="fc" id="L111">            ps.execute();</span>
+<span class="fc" id="L112">            ps.close();</span>
+            
+<span class="fc" id="L114">            return true;</span>
+            
+<span class="fc" id="L116">        } catch (Exception e) {</span>
+<span class="fc" id="L117">            throw new Exception(&quot;Failed to create implementation: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    public LinkedList&lt;Implementation&gt; getAllImplementations(String algoID) throws Exception {
+        
+        try {
+<span class="fc" id="L124">        	Implementation imp = null;</span>
+<span class="fc" id="L125">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE algorithm=?;&quot;);</span>
+<span class="fc" id="L126">            ps.setString(1,  algoID);</span>
+<span class="fc" id="L127">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc" id="L129">            LinkedList&lt;Implementation&gt; imps = new LinkedList&lt;Implementation&gt;();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L131">                imp = new Implementation(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;language&quot;),resultSet.getString(&quot;filename&quot;),resultSet.getString(&quot;algorithm&quot;));</span>
+<span class="fc" id="L132">                imps.add(imp);</span>
+            }
+            
+<span class="fc" id="L135">            resultSet.close();</span>
+<span class="fc" id="L136">            ps.close();</span>
+            
+<span class="fc" id="L138">            return imps;</span>
+
+<span class="nc" id="L140">        } catch (Exception e) {</span>
+<span class="nc" id="L141">        	e.printStackTrace();</span>
+<span class="nc" id="L142">            throw new Exception(&quot;Failed in getting implementations: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    
+    public boolean deleteImplementation(String implementationID) throws Exception {
+        
+        try {
+<span class="fc" id="L150">            PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE UID=?;&quot;);</span>
+<span class="fc" id="L151">            ps.setString(1,  implementationID);</span>
+<span class="fc" id="L152">            int result = ps.executeUpdate();</span>
+<span class="fc" id="L153">            ps.close();</span>
+            
+<span class="fc bfc" id="L155" title="All 2 branches covered.">            return (result==1);</span>
+
+<span class="nc" id="L157">        } catch (Exception e) {</span>
+<span class="nc" id="L158">        	e.printStackTrace();</span>
+<span class="nc" id="L159">            throw new Exception(&quot;Failed in deleting implementation: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    
+    
+    
+   
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

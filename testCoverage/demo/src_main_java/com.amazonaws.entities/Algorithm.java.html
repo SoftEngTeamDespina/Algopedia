@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Algorithm.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.entities</a> &gt; <span class="el_source">Algorithm.java</span></div><h1>Algorithm.java</h1><pre class="source lang-java linenums">package com.amazonaws.entities;
+
+import java.util.LinkedList;
+
+public class Algorithm {
+	private String algorithmID;
+	private String name;
+	private String description;
+	private String classificationID;
+	private LinkedList&lt;Implementation&gt; implementations;
+	private LinkedList&lt;ProblemInstance&gt; problemInstances;
+	
+	
+	
+<span class="fc" id="L15">	public Algorithm(String name, String description, String classificationID) {</span>
+<span class="fc" id="L16">		this.name = name;</span>
+<span class="fc" id="L17">		this.description = description;</span>
+<span class="fc" id="L18">		this.classificationID = classificationID;</span>
+		
+<span class="fc" id="L20">	}</span>
+	
+<span class="fc" id="L22">	public Algorithm(String algorithmID, String name, String description, String classificationID) {</span>
+<span class="fc" id="L23">		this.algorithmID = algorithmID;</span>
+<span class="fc" id="L24">		this.name = name;</span>
+<span class="fc" id="L25">		this.description = description;</span>
+<span class="fc" id="L26">		this.classificationID = classificationID;</span>
+		
+<span class="fc" id="L28">	}</span>
+	
+	public String getAlgorithmID() {
+<span class="fc" id="L31">		return algorithmID;</span>
+	}
+	public void setAlgorithmID(String algorithmID) {
+<span class="nc" id="L34">		this.algorithmID = algorithmID;</span>
+<span class="nc" id="L35">	}</span>
+
+	public String getName() {
+<span class="fc" id="L38">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="nc" id="L42">		this.name = name;</span>
+<span class="nc" id="L43">	}</span>
+
+	public String getDescription() {
+<span class="fc" id="L46">		return description;</span>
+	}
+
+	public void setDescription(String description) {
+<span class="nc" id="L50">		this.description = description;</span>
+<span class="nc" id="L51">	}</span>
+	
+	public String getClassificationID() {
+<span class="fc" id="L54">		return classificationID;</span>
+	}
+	public void setClassificationID(String algorithmID) {
+<span class="nc" id="L57">		this.classificationID = algorithmID;</span>
+<span class="nc" id="L58">	}</span>
+
+	public LinkedList&lt;Implementation&gt; getImplementations() {
+<span class="nc" id="L61">		return implementations;</span>
+	}
+
+	public void setImplementations(LinkedList&lt;Implementation&gt; implementations) {
+<span class="fc" id="L65">		this.implementations = implementations;</span>
+<span class="fc" id="L66">	}</span>
+
+	public LinkedList&lt;ProblemInstance&gt; getProblemInstances() {
+<span class="nc" id="L69">		return problemInstances;</span>
+	}
+
+	public void setProblemInstances(LinkedList&lt;ProblemInstance&gt; problemInstances) {
+<span class="nc" id="L73">		this.problemInstances = problemInstances;</span>
+<span class="nc" id="L74">	}</span>
+	
+	
+
+	
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

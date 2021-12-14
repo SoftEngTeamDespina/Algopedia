@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseUtil.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">DatabaseUtil.java</span></div><h1>DatabaseUtil.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+<span class="nc" id="L6">public class DatabaseUtil {</span>
+
+	// These should never be stored directly in code.  I am doing this quickly complete the 
+	// demonstration code. The appropriate solution is to store these values in environment
+	// variables that are accessed by the Lambda function at run time like this
+	//
+<span class="fc" id="L12">	 public final static String  dbUsername = System.getenv(&quot;dbUsername&quot;);</span>
+<span class="fc" id="L13">	 public final static String dbPassword = System.getenv(&quot;dbPassword&quot;);</span>
+<span class="fc" id="L14">	 public final static String rdsMySqlDatabaseUrl = System.getenv(&quot;rdsMySqlDatabaseUrl&quot;);</span>
+	//
+	// https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html
+	//
+//	// The above link shows how to do that.
+		
+	public final static String jdbcTag = &quot;jdbc:mysql://&quot;;
+	public final static String rdsMySqlDatabasePort = &quot;3306&quot;;
+	public final static String multiQueries = &quot;?allowMultiQueries=true&quot;;
+	   
+	public final static String dbName = &quot;algopedia&quot;;           // Whatever Schema you created in tutorial.
+	public final static String testingName = &quot;tmp&quot;;       // used for testing (also default created)
+	
+	// pooled across all usages.
+<span class="fc" id="L28">	static Connection conn;</span>
+ 
+	/**
+	 * Singleton access to DB connection to share resources effectively across multiple accesses.
+	 */
+	protected static Connection connect() throws Exception {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (conn != null) { return conn; }</span>
+		
+<span class="fc" id="L36">		boolean useTestDB = false;</span>
+		
+		// this is resistant to any SQL-injection attack since we choose one of two possible ones.
+<span class="fc" id="L39">		String schemaName = dbName;</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		if (useTestDB) { </span>
+<span class="nc" id="L41">			schemaName = testingName;</span>
+<span class="nc" id="L42">			System.out.println(&quot;USE TEST DB:&quot; + useTestDB);</span>
+		}
+		
+
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		if (dbUsername == null) {</span>
+<span class="nc" id="L47">			System.err.println(&quot;Environment variable dbUsername is not set!&quot;);</span>
+		}
+	
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (dbPassword == null) {</span>
+<span class="nc" id="L51">			System.err.println(&quot;Environment variable dbPassword is not set!&quot;);</span>
+		}
+	
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if (rdsMySqlDatabaseUrl == null) {</span>
+<span class="nc" id="L55">			System.err.println(&quot;Environment variable rdsMySqlDatabaseUrl is not set!&quot;);</span>
+		}
+		
+		try {
+<span class="fc" id="L59">			System.out.println(&quot;start connecting......&quot;);</span>
+<span class="fc" id="L60">			Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;); </span>
+<span class="fc" id="L61">			conn = DriverManager.getConnection(</span>
+<span class="fc" id="L62">					jdbcTag + rdsMySqlDatabaseUrl + &quot;:&quot; + rdsMySqlDatabasePort + &quot;/&quot; + schemaName + multiQueries,</span>
+<span class="fc" id="L63">					dbUsername,</span>
+<span class="fc" id="L64">					dbPassword);</span>
+<span class="fc" id="L65">			System.out.println(&quot;Database has been connected successfully.&quot;);</span>
+<span class="fc" id="L66">			return conn;</span>
+<span class="nc" id="L67">		} catch (Exception ex) {</span>
+<span class="nc" id="L68">			ex.printStackTrace();</span>
+<span class="nc" id="L69">			throw new Exception(&quot;Failed in database connection&quot;);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

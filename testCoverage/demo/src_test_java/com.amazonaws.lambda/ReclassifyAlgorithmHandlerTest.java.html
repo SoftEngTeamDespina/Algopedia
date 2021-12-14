@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReclassifyAlgorithmHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">ReclassifyAlgorithmHandlerTest.java</span></div><h1>ReclassifyAlgorithmHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Test;
+
+import org.junit.Assert;
+
+<span class="fc" id="L24">public class ReclassifyAlgorithmHandlerTest {</span>
+    
+    Context createContext(String apiCall){
+<span class="fc" id="L27">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L28">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L29">        return ctx;</span>
+    }
+
+    void testReclassify(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L34">            ReclassifyAlgorithmHandler handler  = new ReclassifyAlgorithmHandler();</span>
+<span class="fc" id="L35">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L36">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L37">            handler.handleRequest(input, output, createContext(&quot;add&quot;));</span>
+<span class="fc" id="L38">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L39">            assertEquals(outgoing, outputNode.get(&quot;errorMessage&quot;).asText());</span>
+<span class="pc" id="L40">        } catch (Exception e) {</span>
+<span class="nc" id="L41">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L42">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+
+<span class="fc" id="L45">    }</span>
+
+
+    @Test
+    public void testReclassifyEmptyAlgo() throws Exception{
+        try {
+<span class="fc" id="L51">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L52">            ClassificationDAO classdb = new ClassificationDAO();</span>
+
+<span class="fc" id="L54">            Classification oldClass = new Classification(&quot;old&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L55">            Classification newClass = new Classification(&quot;new&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L56">            classdb.addClassification(oldClass);</span>
+<span class="fc" id="L57">            classdb.addClassification(newClass);</span>
+
+<span class="fc" id="L59">            String oldID = classdb.getClassification(&quot;old&quot;).getClassificationID();</span>
+<span class="fc" id="L60">            String newID = classdb.getClassification(&quot;new&quot;).getClassificationID();</span>
+
+<span class="fc" id="L62">            Algorithm algo =  new Algorithm(&quot;testAlgo&quot;, &quot;desc&quot;, oldID);</span>
+<span class="fc" id="L63">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L64">            String algoID = algodb.getAlgorithm(&quot;testAlgo&quot;).getAlgorithmID();</span>
+
+<span class="fc" id="L66">            String input = &quot;{\&quot;algoID\&quot;: \&quot;&quot;+algoID+&quot;\&quot;,\&quot;classID\&quot;: \&quot;&quot;+newID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L67">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L70">            testReclassify(input, output);</span>
+
+<span class="pc" id="L72">        } catch (Exception e) {</span>
+<span class="nc" id="L73">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L74">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L76">    }</span>
+
+
+    @Test
+    public void testReclassifyfakeAlgo() throws Exception{
+        try {
+<span class="fc" id="L82">            ClassificationDAO classdb = new ClassificationDAO();</span>
+
+<span class="fc" id="L84">            Classification newClass = new Classification(&quot;new&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L85">            classdb.addClassification(newClass);</span>
+
+<span class="fc" id="L87">            String newID = classdb.getClassification(&quot;new&quot;).getClassificationID();</span>
+
+<span class="fc" id="L89">            String input = &quot;{\&quot;algoID\&quot;: \&quot; \&quot;,\&quot;classID\&quot;: \&quot;&quot;+newID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L90">            String output = &quot;Failed to Reclassify Algorithm&quot;;</span>
+
+
+<span class="fc" id="L93">            testReclassify(input, output);</span>
+
+<span class="pc" id="L95">        } catch (Exception e) {</span>
+<span class="nc" id="L96">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L97">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L99">    }</span>
+
+    @Test
+    public void testReclassifyMissingClass() throws Exception{
+        try {
+<span class="fc" id="L104">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L105">            ClassificationDAO classdb = new ClassificationDAO();</span>
+
+<span class="fc" id="L107">            Classification oldClass = new Classification(&quot;old&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L108">            Classification newClass = new Classification(&quot;new&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L109">            classdb.addClassification(oldClass);</span>
+<span class="fc" id="L110">            classdb.addClassification(newClass);</span>
+
+<span class="fc" id="L112">            String oldID = classdb.getClassification(&quot;old&quot;).getClassificationID();</span>
+
+<span class="fc" id="L114">            Algorithm algo =  new Algorithm(&quot;testAlgo&quot;, &quot;desc&quot;, oldID);</span>
+<span class="fc" id="L115">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L116">            String algoID = algodb.getAlgorithm(&quot;testAlgo&quot;).getAlgorithmID();</span>
+
+<span class="fc" id="L118">            String input = &quot;{\&quot;algoID\&quot;: \&quot;&quot;+algoID+&quot;\&quot;,\&quot;classID\&quot;: \&quot; \&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L119">            String output = &quot;Failed to Reclassify Algorithm&quot;;</span>
+
+
+<span class="fc" id="L122">            testReclassify(input, output);</span>
+
+<span class="pc" id="L124">        } catch (Exception e) {</span>
+<span class="nc" id="L125">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L126">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L128">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

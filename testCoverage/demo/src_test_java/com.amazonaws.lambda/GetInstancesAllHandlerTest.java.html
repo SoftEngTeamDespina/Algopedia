@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GetInstancesAllHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">GetInstancesAllHandlerTest.java</span></div><h1>GetInstancesAllHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.http.GetImplementationsAllResponse;
+import com.amazonaws.http.GetProblemInstancesAllResponse;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Test;
+
+import org.junit.Assert;
+import java.nio.charset.StandardCharsets;
+
+<span class="fc" id="L40">public class GetInstancesAllHandlerTest {</span>
+    Context createContext(String apiCall){
+<span class="fc" id="L42">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L43">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L44">        return ctx;</span>
+    }
+
+    void testGetInstancesAll(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L49">            GetProblemInstancesAllHandler handler  = new GetProblemInstancesAllHandler();</span>
+<span class="fc" id="L50">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L51">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L52">            handler.handleRequest(input, output, createContext(&quot;get all problem instances&quot;));</span>
+<span class="fc" id="L53">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L54">            String outputString = outputNode.get(&quot;errorMessage&quot;).asText();</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (!outputString.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L56">            	outputString =  outputString.substring(0,6);</span>
+            }
+<span class="fc" id="L58">            assertEquals(outgoing, outputString);</span>
+<span class="pc" id="L59">        } catch (Exception e) {</span>
+<span class="nc" id="L60">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L61">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L63">    }</span>
+
+    @Test
+    public void testGetInstances() throws Exception{
+        try {
+<span class="fc" id="L68">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L69">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L70">            ProblemInstanceDAO instdb = new ProblemInstanceDAO();</span>
+
+<span class="fc" id="L72">            Classification testClass = new Classification(&quot;testClassGI&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L73">            classdb.addClassification(testClass);</span>
+
+<span class="fc" id="L75">            String testClassID = classdb.getClassification(&quot;testClassGI&quot;).getClassificationID();</span>
+
+<span class="fc" id="L77">            Algorithm algo =  new Algorithm(&quot;testAlgoGI&quot;, &quot;desc&quot;, testClassID);</span>
+<span class="fc" id="L78">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L79">            String algoID = algodb.getAlgorithm(&quot;testAlgoGI&quot;).getAlgorithmID();</span>
+            
+<span class="fc" id="L81">            ProblemInstance inst = new ProblemInstance(&quot;testInstGI&quot;,&quot;testDescription&quot;,&quot;testDataset&quot;,algoID);</span>
+<span class="fc" id="L82">            instdb.addProblemInstance(inst);</span>
+            
+<span class="fc" id="L84">            String input = &quot;{\&quot;algorithm\&quot;: \&quot;testAlgoGI\&quot;}&quot;;</span>
+<span class="fc" id="L85">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L88">            testGetInstancesAll(input, output);</span>
+            
+<span class="fc" id="L90">            algodb.removeAlgorithm(algoID);</span>
+<span class="fc" id="L91">            classdb.removeClassification(testClassID);  </span>
+            
+<span class="fc" id="L93">            GetProblemInstancesAllResponse response = new GetProblemInstancesAllResponse(new LinkedList&lt;ProblemInstance&gt;(),200);</span>
+<span class="fc" id="L94">            response.toString();</span>
+            
+<span class="fc" id="L96">            response = new GetProblemInstancesAllResponse(400,&quot;Failed&quot;);</span>
+<span class="fc" id="L97">            response.toString();</span>
+
+
+<span class="pc" id="L100">        } catch (Exception e) {</span>
+<span class="nc" id="L101">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L102">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L104">    }</span>
+
+
+    @Test
+    public void testBadGetInstances() throws Exception{
+        try {
+
+<span class="fc" id="L111">            String algorithm = &quot;Algorithm that does not exist&quot;;</span>
+
+<span class="fc" id="L113">            String input = &quot;{\&quot;algorithm\&quot;: \&quot;&quot;+algorithm+&quot;\&quot;}&quot;;</span>
+<span class="fc" id="L114">            String output = &quot;Failed&quot;;</span>
+
+
+<span class="fc" id="L117">            testGetInstancesAll(input, output);</span>
+
+<span class="pc" id="L119">        } catch (Exception e) {</span>
+<span class="nc" id="L120">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L121">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L123">    }</span>
+    public static byte[] fromHexString(String src) {
+<span class="nc" id="L125">        byte[] biBytes = new BigInteger(&quot;10&quot; + src.replaceAll(&quot;\\s&quot;, &quot;&quot;), 16).toByteArray();</span>
+<span class="nc" id="L126">        return Arrays.copyOfRange(biBytes, 1, biBytes.length);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

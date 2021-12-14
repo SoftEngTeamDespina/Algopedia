@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ClassificationDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">ClassificationDAO.java</span></div><h1>ClassificationDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.Classification;
+
+
+
+public class ClassificationDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L14">	final String tblName = &quot;classification&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L16">    public ClassificationDAO() {</span>
+    	// System.out.println(&quot;classification DAO here&quot;);
+    	try  {
+<span class="fc" id="L19">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L20">    	} catch (Exception e) {</span>
+<span class="nc" id="L21">    		conn = null;</span>
+    	}
+<span class="fc" id="L23">    }</span>
+    
+	 public LinkedList&lt;Classification&gt; getAllClassifications() throws Exception {
+		 
+<span class="fc" id="L27">		 	LinkedList&lt;Classification&gt; returnList = new LinkedList&lt;Classification&gt;();</span>
+	        
+	        try {
+<span class="fc" id="L30">	            Classification cl = null;</span>
+<span class="fc" id="L31">	            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName);</span>
+<span class="fc" id="L32">	            ResultSet resultSet = ps.executeQuery();</span>
+	            
+<span class="fc bfc" id="L34" title="All 2 branches covered.">	            while (resultSet.next()) {</span>
+<span class="fc" id="L35">	                cl = new Classification(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;name&quot;),resultSet.getString(&quot;description&quot;),resultSet.getString(&quot;classificationcol&quot;));</span>
+<span class="fc" id="L36">	                returnList.add(cl);</span>
+	            }
+	            
+<span class="fc" id="L39">	            resultSet.close();</span>
+<span class="fc" id="L40">	            ps.close();</span>
+	            
+<span class="fc" id="L42">	            return  returnList;</span>
+	
+<span class="nc" id="L44">	        } catch (Exception e) {</span>
+<span class="nc" id="L45">	        	e.printStackTrace();</span>
+<span class="nc" id="L46">	            throw new Exception(&quot;Failed in getting classifications: &quot; + e.getMessage());</span>
+	        }
+	    }
+	    
+    
+    public Classification getClassification(String name) throws Exception {
+        
+        try {
+<span class="fc" id="L54">            Classification cl = null;</span>
+<span class="fc" id="L55">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE name=?;&quot;);</span>
+<span class="fc" id="L56">            ps.setString(1,  name);</span>
+<span class="fc" id="L57">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L60">                cl = new Classification(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;name&quot;),resultSet.getString(&quot;description&quot;),resultSet.getString(&quot;classificationcol&quot;));</span>
+            }
+<span class="fc" id="L62">            resultSet.close();</span>
+<span class="fc" id="L63">            ps.close();</span>
+            
+<span class="fc" id="L65">            return cl;</span>
+
+<span class="nc" id="L67">        } catch (Exception e) {</span>
+<span class="nc" id="L68">        	e.printStackTrace();</span>
+<span class="nc" id="L69">            throw new Exception(&quot;Failed in getting classification: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    public boolean changeClassificationParentAll(String keepID, String mergeID) throws Exception {
+        try {
+<span class="fc" id="L75">            PreparedStatement ps = conn</span>
+<span class="fc" id="L76">                    .prepareStatement(&quot;UPDATE &quot; + tblName + &quot; SET classificationcol = ? WHERE classificationcol = ?;&quot;);</span>
+<span class="fc" id="L77">            ps.setString(1, keepID);</span>
+<span class="fc" id="L78">            ps.setString(2, mergeID);</span>
+<span class="fc" id="L79">            ps.executeUpdate();</span>
+
+<span class="fc" id="L81">            return true;</span>
+
+<span class="nc" id="L83">        } catch (Exception e) {</span>
+<span class="nc" id="L84">            throw new Exception(&quot;Failed to update parent classification: &quot; + e.getMessage());</span>
+        }
+    }
+
+    public boolean addClassification(Classification cl) throws Exception {
+        
+    	try {
+<span class="fc" id="L91">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE name = ?;&quot;);</span>
+<span class="fc" id="L92">            ps.setString(1, cl.getName());</span>
+<span class="fc" id="L93">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L97">                return false;</span>
+            }
+            
+<span class="fc" id="L100">            ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,name,description,classificationcol) values(UUID(),?,?,?);&quot;);</span>
+<span class="fc" id="L101">            ps.setString(1, cl.getName());</span>
+<span class="fc" id="L102">            ps.setString(2, cl.getDescription());</span>
+<span class="fc" id="L103">            ps.setString(3, cl.getSuperClassification());</span>
+<span class="fc" id="L104">            ps.execute();</span>
+<span class="fc" id="L105">            return true;</span>
+
+<span class="fc" id="L107">        } catch (Exception e) {</span>
+<span class="fc" id="L108">            throw new Exception(&quot;Failed to create classification: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    public boolean removeClassification(String classID) throws Exception {
+        
+    	try {
+            // PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE UID =&quot;+ classID +&quot; ;&quot;);
+<span class="fc" id="L116">            PreparedStatement ps = conn.prepareStatement(&quot;DELETE FROM &quot; + tblName + &quot; WHERE UID = ?;&quot;);</span>
+<span class="fc" id="L117">            ps.setString(1, classID);</span>
+<span class="fc" id="L118">            int rows = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">            if(rows == 1){</span>
+<span class="fc" id="L121">                return true;</span>
+            }
+
+<span class="fc" id="L124">            return false;</span>
+<span class="nc" id="L125">        } catch (Exception e) {</span>
+<span class="nc" id="L126">            throw new Exception(&quot;Failed to remove classification: &quot; + e.getMessage());</span>
+        }
+    }
+    
+   
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CreateProblemInstanceHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">CreateProblemInstanceHandler.java</span></div><h1>CreateProblemInstanceHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.CreateProblemInstanceResponse;
+import com.amazonaws.regions.Regions;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+
+
+<span class="fc" id="L40">public class CreateProblemInstanceHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+<span class="fc" id="L42">	private AmazonS3 s3 = null;</span>
+	public static final String REAL_BUCKET = &quot;ProblemInstances/&quot;;
+	
+	
+	
+	//S3 bucket
+	boolean createSystemInstance(String filename, byte[] code) throws Exception{
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if (logger != null) { logger.log(&quot;in createSystemInstance&quot;); }</span>
+		
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (s3 == null) {</span>
+<span class="fc" id="L52">			logger.log(&quot;attach to S3 request&quot;);</span>
+<span class="fc" id="L53">			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();</span>
+<span class="fc" id="L54">			logger.log(&quot;attach to S3 succeed&quot;);</span>
+		}
+		
+<span class="fc" id="L57">		String bucket = REAL_BUCKET;</span>
+		
+<span class="fc" id="L59">		ByteArrayInputStream bais = new ByteArrayInputStream(code);</span>
+<span class="fc" id="L60">		ObjectMetadata omd = new ObjectMetadata();</span>
+<span class="fc" id="L61">		omd.setContentLength(code.length);</span>
+		
+		
+<span class="fc" id="L64">		PutObjectResult res = s3.putObject(new PutObjectRequest(&quot;cs509teamdespina&quot;, bucket + filename, bais, omd)</span>
+<span class="fc" id="L65">				.withCannedAcl(CannedAccessControlList.PublicRead));</span>
+		
+<span class="fc" id="L67">		return true;</span>
+		
+		
+	}
+	
+
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L76">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L78">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L79">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L80">		new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L81">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L83">		logger.log(event.toString());</span>
+		CreateProblemInstanceResponse response;
+		
+<span class="fc" id="L86">		ProblemInstanceDAO db = new ProblemInstanceDAO();</span>
+<span class="fc" id="L87">        UserActionDAO uaDAO =  new UserActionDAO();</span>
+		
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		if (event.get(&quot;name&quot;) != null) {</span>
+<span class="fc" id="L90">            String name = new Gson().fromJson(event.get(&quot;name&quot;), String.class);</span>
+<span class="fc" id="L91">            String desc = new Gson().fromJson(event.get(&quot;desc&quot;), String.class);</span>
+<span class="fc" id="L92">            String rawCode = new Gson().fromJson(event.get(&quot;data&quot;), String.class); </span>
+<span class="fc" id="L93">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+<span class="fc" id="L94">            String algoID = new Gson().fromJson(event.get(&quot;algoID&quot;), String.class);</span>
+<span class="fc" id="L95">            String file = name+algoID+&quot;.txt&quot;;</span>
+
+<span class="fc" id="L97">            String[] byteValues = rawCode.substring(1, rawCode.length() - 1).split(&quot;,&quot;);</span>
+<span class="fc" id="L98">            byte[] bytes = new byte[byteValues.length];</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            for (int i=0, len=bytes.length; i&lt;len; i++) {</span>
+<span class="fc" id="L100">               bytes[i] = Byte.parseByte(byteValues[i].trim());     </span>
+            }
+
+<span class="fc" id="L103">            ProblemInstance temp = new ProblemInstance(name, desc, file, algoID);</span>
+<span class="fc" id="L104">            String instID = &quot;tempID&quot;;</span>
+            try {
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">                if (db.addProblemInstance(temp)) {</span>
+<span class="fc" id="L107">                    instID = db.getProblemInstanceNoID(algoID, name).getProblemInstanceID();</span>
+
+<span class="fc" id="L109">                    response = new CreateProblemInstanceResponse(file,200,&quot;&quot;); </span>
+			
+				
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">                    if (!createSystemInstance(file, bytes)){</span>
+
+<span class="nc" id="L114">                        throw new Exception(&quot;Failed to insert to S3 bucket.&quot;);</span>
+                    }
+<span class="fc" id="L116">                    response = new CreateProblemInstanceResponse(instID, 200,&quot;&quot;);</span>
+
+<span class="fc" id="L118">                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L119">                    UserAction action = new UserAction(userID,&quot;Created Problem Instance&quot;,timestamp.toString());</span>
+<span class="fc" id="L120">                    uaDAO.addUserAction(action);</span>
+<span class="fc" id="L121">                }</span>
+                else {
+<span class="nc" id="L123">                    response = new CreateProblemInstanceResponse(instID,400, &quot;Failed to create Problem Instance&quot;);</span>
+                }
+<span class="fc" id="L125">                writer.write(new Gson().toJson(response));</span>
+<span class="fc" id="L126">            } catch (Exception e){</span>
+<span class="fc" id="L127">                logger.log(e.getMessage());</span>
+<span class="fc" id="L128">                e.printStackTrace();</span>
+<span class="fc" id="L129">                response = new CreateProblemInstanceResponse(instID,500, &quot;Failed to create Problem Instance&quot;);</span>
+<span class="fc" id="L130">                writer.write(new Gson().toJson(response));</span>
+            }finally {
+<span class="fc" id="L132">                reader.close();</span>
+<span class="fc" id="L133">                writer.close();</span>
+            }
+		}
+<span class="fc" id="L136">		return;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

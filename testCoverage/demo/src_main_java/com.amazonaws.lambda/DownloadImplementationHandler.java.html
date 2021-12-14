@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DownloadImplementationHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">DownloadImplementationHandler.java</span></div><h1>DownloadImplementationHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.LinkedList;
+
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.DownloadImplementationResponse;
+import com.amazonaws.http.GetImplementationsAllResponse;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.util.StringUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+<span class="fc" id="L32">public class DownloadImplementationHandler implements RequestStreamHandler{</span>
+	LambdaLogger logger;
+	
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L37">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L39">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L40">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L41">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L42">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L44">		logger.log(event.toString());</span>
+		
+		
+<span class="fc" id="L47">		UserActionDAO uaDao = new UserActionDAO();</span>
+		DownloadImplementationResponse response;
+		
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (event.get(&quot;user&quot;) != null) {</span>
+<span class="fc" id="L51">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+            try {
+<span class="fc" id="L53">            	logger.log(&quot;Recording User Action for Implementation Download...&quot;);</span>
+            	
+<span class="fc" id="L55">            	Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L56">    			UserAction action = new UserAction(userID,&quot;Download Implementation&quot;,timestamp.toString());</span>
+<span class="fc" id="L57">    			uaDao.addUserAction(action);</span>
+    			
+            	
+<span class="fc" id="L60">            	response = new DownloadImplementationResponse(200, &quot;&quot;);</span>
+<span class="fc" id="L61">            	writer.write(new Gson().toJson(response));</span>
+            	
+<span class="pc" id="L63">            } catch(Exception e) {</span>
+<span class="nc" id="L64">            	logger.log(e.getMessage());</span>
+<span class="nc" id="L65">    			e.printStackTrace();</span>
+<span class="nc" id="L66">            	response = new DownloadImplementationResponse(500, &quot;Failed: &quot; + e.getMessage());</span>
+<span class="nc" id="L67">            	writer.write(new Gson().toJson(response));</span>
+            }finally {
+<span class="fc" id="L69">    			reader.close();</span>
+<span class="fc" id="L70">    			writer.close();</span>
+    		}
+            
+		
+		}
+		
+		
+<span class="fc" id="L77">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

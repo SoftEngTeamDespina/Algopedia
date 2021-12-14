@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CreateClassificationHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">CreateClassificationHandler.java</span></div><h1>CreateClassificationHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.CreateClassificationResponse;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
+
+<span class="fc" id="L29">public class CreateClassificationHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+
+
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L36">		logger = context.getLogger();</span>
+
+<span class="fc" id="L38">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L39">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L40">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L41">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L43">		ClassificationDAO db = new ClassificationDAO();</span>
+		CreateClassificationResponse response;
+<span class="fc" id="L45">		logger.log(event.toString());</span>
+		
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		if (event.get(&quot;name&quot;) != null) {</span>
+<span class="fc" id="L48">            String username = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+<span class="fc" id="L49">            String name = new Gson().fromJson(event.get(&quot;name&quot;), String.class);</span>
+<span class="fc" id="L50">            String description = new Gson().fromJson(event.get(&quot;description&quot;), String.class);</span>
+<span class="fc" id="L51">            String superClassification = new Gson().fromJson(event.get(&quot;superClassification&quot;), String.class);</span>
+
+		try {
+<span class="fc" id="L54">			Classification newCl = new Classification(name, description, superClassification);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">			if (db.addClassification(newCl)){</span>
+<span class="fc" id="L56">				logger.log(&quot;inserting the new classification&quot;);</span>
+<span class="fc" id="L57">				String classID = db.getClassification(name).getClassificationID();</span>
+<span class="fc" id="L58">				response = new CreateClassificationResponse(classID, 200);</span>
+<span class="fc" id="L59">				UserActionDAO uaDAO =  new UserActionDAO();</span>
+<span class="fc" id="L60">				Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L61">				UserAction action = new UserAction(username,&quot;Add Classification&quot;,timestamp.toString());</span>
+				
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">				if(!uaDAO.addUserAction(action)) {</span>
+<span class="nc" id="L64">					throw new Exception(&quot;Failed to add action&quot;);</span>
+				}
+					
+				
+			}
+			else {
+<span class="nc" id="L70">				response = new CreateClassificationResponse(400, &quot;Failed to create classification&quot;);</span>
+			}
+<span class="fc" id="L72">			writer.write(new Gson().toJson(response));</span>
+
+<span class="fc" id="L74">		} catch (Exception e){</span>
+<span class="fc" id="L75">			logger.log(e.getMessage());</span>
+<span class="fc" id="L76">			e.printStackTrace();</span>
+<span class="fc" id="L77">			response = new CreateClassificationResponse(500, &quot;Failed to create classification&quot;);</span>
+<span class="fc" id="L78">			writer.write(new Gson().toJson(response));</span>
+
+		}finally {
+<span class="fc" id="L81">			reader.close();</span>
+<span class="fc" id="L82">			writer.close();</span>
+		}
+
+		}
+
+<span class="fc" id="L87">		return;</span>
+	}
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

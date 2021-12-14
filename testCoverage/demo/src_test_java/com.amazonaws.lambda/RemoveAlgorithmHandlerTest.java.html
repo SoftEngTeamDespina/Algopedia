@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RemoveAlgorithmHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">RemoveAlgorithmHandlerTest.java</span></div><h1>RemoveAlgorithmHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.User;
+import com.amazonaws.http.RemoveAlgorithmResponse;
+import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Test;
+
+import org.junit.Assert;
+import java.nio.charset.StandardCharsets;
+
+<span class="fc" id="L36">public class RemoveAlgorithmHandlerTest {</span>
+    Context createContext(String apiCall){
+<span class="fc" id="L38">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L39">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L40">        return ctx;</span>
+    }
+
+    void testRemoveAlgorithm(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L45">            RemoveAlgorithmHandler handler  = new RemoveAlgorithmHandler();</span>
+<span class="fc" id="L46">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L47">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L48">            handler.handleRequest(input, output, createContext(&quot;add&quot;));</span>
+<span class="fc" id="L49">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L50">            assertEquals(outgoing, outputNode.get(&quot;errorMessage&quot;).asText());</span>
+<span class="pc" id="L51">        } catch (Exception e) {</span>
+<span class="nc" id="L52">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L53">            System.out.println(&quot;error: &quot; + e);</span>
+        }
+<span class="fc" id="L55">    }</span>
+
+    @Test
+    public void testRemoveAlgorithmReal() throws Exception{
+        try {
+<span class="fc" id="L60">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L61">            ClassificationDAO classdb = new ClassificationDAO();</span>
+
+<span class="fc" id="L63">            Classification testClass = new Classification(&quot;test&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L64">            classdb.addClassification(testClass);</span>
+
+<span class="fc" id="L66">            String testID = classdb.getClassification(&quot;test&quot;).getClassificationID();</span>
+
+<span class="fc" id="L68">            Algorithm algo =  new Algorithm(&quot;testAlgo&quot;, &quot;desc&quot;, testID);</span>
+<span class="fc" id="L69">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L70">            String algoID = algodb.getAlgorithm(&quot;testAlgo&quot;).getAlgorithmID();</span>
+
+
+<span class="fc" id="L73">            String input = &quot;{\&quot;id\&quot;: \&quot;&quot;+algoID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L74">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L77">            testRemoveAlgorithm(input, output);</span>
+            
+<span class="fc" id="L79">            RemoveAlgorithmResponse response = new RemoveAlgorithmResponse(200, &quot;&quot;);</span>
+<span class="fc" id="L80">            response.toString();</span>
+            
+<span class="fc" id="L82">            response = new RemoveAlgorithmResponse(400, &quot;Failed&quot;);</span>
+<span class="fc" id="L83">            response.toString();</span>
+
+<span class="pc" id="L85">        } catch (Exception e) {</span>
+<span class="nc" id="L86">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L87">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+
+    @Test
+    public void testRemoveAlgorithmFake() throws Exception{
+        try {
+<span class="fc" id="L95">            String input = &quot;{\&quot;id\&quot;: \&quot;fakeID\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L96">            String output = &quot;Failed to remove algorithm&quot;;</span>
+
+
+<span class="fc" id="L99">            testRemoveAlgorithm(input, output);</span>
+
+<span class="pc" id="L101">        } catch (Exception e) {</span>
+<span class="nc" id="L102">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L103">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L105">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

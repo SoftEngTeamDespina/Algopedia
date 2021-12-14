@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Benchmark.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.entities</a> &gt; <span class="el_source">Benchmark.java</span></div><h1>Benchmark.java</h1><pre class="source lang-java linenums">package com.amazonaws.entities;
+
+import java.sql.Date;
+
+public class Benchmark {
+	
+	private String benchmarkID;
+	private Date date;
+	private String name;
+	private MachineConfiguration configuration;
+	private ProblemInstance instance;
+	private Implementation implementation;
+	private double runtime;
+	private String observations;
+	
+	
+<span class="fc" id="L17">	public Benchmark(String benchmarkID, Date date, String name,Implementation implementation ,MachineConfiguration configuration, ProblemInstance instance,</span>
+			double runtime, String observations) {
+<span class="fc" id="L19">		this.benchmarkID = benchmarkID;</span>
+<span class="fc" id="L20">		this.date = date;</span>
+<span class="fc" id="L21">		this.name = name;</span>
+<span class="fc" id="L22">		this.implementation = implementation;</span>
+<span class="fc" id="L23">		this.configuration = configuration;</span>
+<span class="fc" id="L24">		this.instance = instance;</span>
+<span class="fc" id="L25">		this.runtime = runtime;</span>
+<span class="fc" id="L26">		this.observations = observations;</span>
+<span class="fc" id="L27">	}</span>
+	
+<span class="fc" id="L29">	public Benchmark(String name, Implementation implementation2 ,MachineConfiguration configuration, ProblemInstance instance,</span>
+			double runtime, String observations) {
+<span class="fc" id="L31">		this.name = name;</span>
+<span class="fc" id="L32">		this.implementation = implementation2;</span>
+<span class="fc" id="L33">		this.configuration = configuration;</span>
+<span class="fc" id="L34">		this.instance = instance;</span>
+<span class="fc" id="L35">		this.runtime = runtime;</span>
+<span class="fc" id="L36">		this.observations = observations;</span>
+<span class="fc" id="L37">	}</span>
+	
+	
+	
+	public String getName() {
+<span class="fc" id="L42">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="nc" id="L46">		this.name = name;</span>
+<span class="nc" id="L47">	}</span>
+
+	public Implementation getImplementation() {
+<span class="fc" id="L50">		return implementation;</span>
+	}
+	public void setImplementation(Implementation implementation) {
+<span class="nc" id="L53">		this.implementation = implementation;</span>
+<span class="nc" id="L54">	}</span>
+	public String getBenchmarkID() {
+<span class="fc" id="L56">		return benchmarkID;</span>
+	}
+	public void setBenchmarkID(String benchmarkID) {
+<span class="nc" id="L59">		this.benchmarkID = benchmarkID;</span>
+<span class="nc" id="L60">	}</span>
+	public Date getDate() {
+<span class="nc" id="L62">		return date;</span>
+	}
+	public void setDate(Date date) {
+<span class="nc" id="L65">		this.date = date;</span>
+<span class="nc" id="L66">	}</span>
+	public MachineConfiguration getConfiguration() {
+<span class="fc" id="L68">		return configuration;</span>
+	}
+	public void setConfiguration(MachineConfiguration configuration) {
+<span class="nc" id="L71">		this.configuration = configuration;</span>
+<span class="nc" id="L72">	}</span>
+	public ProblemInstance getInstance() {
+<span class="fc" id="L74">		return instance;</span>
+	}
+	public void setInstance(ProblemInstance instance) {
+<span class="nc" id="L77">		this.instance = instance;</span>
+<span class="nc" id="L78">	}</span>
+	public double getRuntime() {
+<span class="fc" id="L80">		return runtime;</span>
+	}
+	public void setRuntime(double runtime) {
+<span class="nc" id="L83">		this.runtime = runtime;</span>
+<span class="nc" id="L84">	}</span>
+	public String getObservations() {
+<span class="fc" id="L86">		return observations;</span>
+	}
+	public void setObservations(String observations) {
+<span class="nc" id="L89">		this.observations = observations;</span>
+<span class="nc" id="L90">	}</span>
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

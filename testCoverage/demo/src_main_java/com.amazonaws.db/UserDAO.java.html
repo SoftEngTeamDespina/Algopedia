@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">UserDAO.java</span></div><h1>UserDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.amazonaws.entities.User;
+
+
+
+public class UserDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L16">	final String tblName = &quot;users&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L18">    public UserDAO() {</span>
+    	try  {
+<span class="fc" id="L20">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L21">    	} catch (Exception e) {</span>
+<span class="nc" id="L22">    		conn = null;</span>
+    	}
+<span class="fc" id="L24">    }</span>
+
+    public User getUser(String name) throws Exception {
+        
+        try {
+<span class="fc" id="L29">            User usr = null;</span>
+<span class="fc" id="L30">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE username=?;&quot;);</span>
+<span class="fc" id="L31">            ps.setString(1,  name);</span>
+<span class="fc" id="L32">            ResultSet resultSet = ps.executeQuery();</span>
+            
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            while (resultSet.next()) {</span>
+<span class="fc" id="L35">                usr = new User(resultSet.getString(&quot;username&quot;),resultSet.getString(&quot;passwordHash&quot;),resultSet.getBoolean(&quot;isAdmin&quot;));</span>
+            }
+<span class="fc" id="L37">            resultSet.close();</span>
+<span class="fc" id="L38">            ps.close();</span>
+            
+<span class="fc" id="L40">            return usr;</span>
+
+<span class="nc" id="L42">        } catch (Exception e) {</span>
+<span class="nc" id="L43">        	e.printStackTrace();</span>
+<span class="nc" id="L44">            throw new Exception(&quot;Failed in getting user: &quot; + e.getMessage());</span>
+        }
+    }
+    
+public LinkedList&lt;String&gt; getAllUsers() throws Exception {
+<span class="fc" id="L49">	LinkedList&lt;String&gt; ret = new LinkedList&lt;String&gt;();</span>
+	
+	try {
+<span class="fc" id="L52">        PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName );</span>
+<span class="fc" id="L53">        ResultSet resultSet = ps.executeQuery();</span>
+        
+        
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        while(resultSet.next()) {</span>
+<span class="fc" id="L57">            ret.add(resultSet.getString(&quot;username&quot;));</span>
+        }
+         
+<span class="fc" id="L60">	}</span>
+
+<span class="nc" id="L62">     catch (Exception e) {</span>
+<span class="nc" id="L63">        throw new Exception(&quot;Failed to get Users : &quot; + e.getMessage());</span>
+    }
+	
+<span class="fc" id="L66">	return ret;</span>
+	
+	}
+
+public boolean removeUser(String username) throws Exception {
+	try {
+<span class="fc" id="L72">        PreparedStatement ps = conn.prepareStatement(&quot;DELETE  FROM &quot; + tblName + &quot; WHERE username = ?;&quot;);</span>
+<span class="fc" id="L73">        ps.setString(1, username);</span>
+<span class="fc" id="L74">        int resultSet = ps.executeUpdate();</span>
+        
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if(resultSet == 1) {</span>
+<span class="fc" id="L77">            return true;</span>
+            			
+            }
+        else {
+<span class="fc" id="L81">        	throw new Exception(&quot;Failed to remove user : &quot; + username);</span>
+        	//return false;
+        }
+           
+
+<span class="fc" id="L86">    } catch (Exception e) {</span>
+<span class="fc" id="L87">        throw new Exception(&quot;Failed to remove user : &quot; + e.getMessage());</span>
+    }
+
+	
+	
+}
+    
+public String authenticateUser(User user) throws Exception {
+        
+    	try {
+<span class="fc" id="L97">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE username = ?;&quot;);</span>
+<span class="fc" id="L98">            ps.setString(1, user.getUsername());</span>
+<span class="fc" id="L99">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if(resultSet.next()) {</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                if(user.getPasswordHash().equals(resultSet.getString(&quot;passwordHash&quot;))) {</span>
+<span class="fc" id="L104">                	return &quot;SUCCESS&quot;;</span>
+                			
+                }
+                else {
+<span class="fc" id="L108">                	return &quot;WRONG PASSWORD&quot;;</span>
+                }
+            }
+            else {
+<span class="fc" id="L112">            	return &quot;INVALID USER&quot;;</span>
+            }
+
+  
+<span class="nc" id="L116">        } catch (Exception e) {</span>
+<span class="nc" id="L117">            throw new Exception(&quot;Failed to authenticate user : &quot; + e.getMessage());</span>
+        }
+
+    }
+    
+    
+    
+    public boolean addUser(User user) throws Exception {
+        
+    	try {
+<span class="fc" id="L127">    		System.out.print(user.getUsername());</span>
+<span class="fc" id="L128">            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM &quot; + tblName + &quot; WHERE username = ?;&quot;);</span>
+<span class="fc" id="L129">            ps.setString(1, user.getUsername());</span>
+<span class="fc" id="L130">            ResultSet resultSet = ps.executeQuery();</span>
+            
+            // already present?
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">            while (resultSet.next()) {</span>
+<span class="nc" id="L134">                return false;</span>
+            }
+
+<span class="fc" id="L137">            ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,username,passwordHash,isAdmin) values(UUID(),?,?,?);&quot;);</span>
+<span class="fc" id="L138">            ps.setString(1, user.getUsername());</span>
+<span class="fc" id="L139">            ps.setString(2, user.getPasswordHash());</span>
+<span class="fc" id="L140">            ps.setBoolean(3, user.getIsAdmin());</span>
+<span class="fc" id="L141">            ps.execute();</span>
+<span class="fc" id="L142">            return true;</span>
+
+<span class="nc" id="L144">        } catch (Exception e) {</span>
+<span class="nc" id="L145">            throw new Exception(&quot;Failed to insert User: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    
+    
+   
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

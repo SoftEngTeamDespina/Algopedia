@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MergeClassificationTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">MergeClassificationTest.java</span></div><h1>MergeClassificationTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.junit.Test;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.http.RemoveAlgorithmResponse;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+<span class="fc" id="L23">public class MergeClassificationTest {</span>
+
+    Context createContext(String apiCall){
+<span class="fc" id="L26">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L27">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L28">        return ctx;</span>
+    }
+
+    void testMerge(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L33">            MergeClassificationHandler handler  = new MergeClassificationHandler();</span>
+<span class="fc" id="L34">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L35">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L36">            handler.handleRequest(input, output, createContext(&quot;add&quot;));</span>
+<span class="fc" id="L37">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L38">            assertEquals(outgoing, outputNode.get(&quot;errorMessage&quot;).asText());</span>
+<span class="pc" id="L39">        } catch (Exception e) {</span>
+<span class="nc" id="L40">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L41">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L43">    }</span>
+	
+	@Test
+	public void testEmpty() throws Exception {
+        try {
+<span class="fc" id="L48">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L49">            Classification keepClass = new Classification(&quot;keep&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L50">            Classification mergeClass = new Classification(&quot;merge&quot;, &quot;desc&quot;, null);</span>
+
+<span class="fc" id="L52">            classdb.addClassification(keepClass);</span>
+<span class="fc" id="L53">            classdb.addClassification(mergeClass);</span>
+
+<span class="fc" id="L55">            String keepID = classdb.getClassification(&quot;keep&quot;).getClassificationID();</span>
+<span class="fc" id="L56">            String mergeID = classdb.getClassification(&quot;merge&quot;).getClassificationID();</span>
+
+<span class="fc" id="L58">            String input = &quot;{\&quot;keepID\&quot;: \&quot;&quot;+keepID+&quot;\&quot;,\&quot;mergeID\&quot;:\&quot;&quot;+mergeID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L59">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L62">            testMerge(input, output);</span>
+            
+<span class="fc" id="L64">            MergeClassificationResponse response = new MergeClassificationResponse(200,&quot;&quot;);</span>
+<span class="fc" id="L65">            response.toString();</span>
+            
+<span class="fc" id="L67">            response = new MergeClassificationResponse(400, &quot;Failed&quot;);</span>
+<span class="fc" id="L68">            response.toString();</span>
+
+<span class="pc" id="L70">        } catch (Exception e) {</span>
+<span class="nc" id="L71">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L72">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L74">	}</span>
+
+    @Test
+	public void testChild() throws Exception {
+        try {
+<span class="fc" id="L79">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L80">            Classification keepClass = new Classification(&quot;keep&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L81">            Classification mergeClass = new Classification(&quot;merge&quot;, &quot;desc&quot;, null);</span>
+
+<span class="fc" id="L83">            classdb.addClassification(keepClass);</span>
+<span class="fc" id="L84">            classdb.addClassification(mergeClass);</span>
+
+<span class="fc" id="L86">            String keepID = classdb.getClassification(&quot;keep&quot;).getClassificationID();</span>
+<span class="fc" id="L87">            String mergeID = classdb.getClassification(&quot;merge&quot;).getClassificationID();</span>
+
+<span class="fc" id="L89">            Classification childClass = new Classification(&quot;child&quot;, &quot;desc&quot;, mergeID);</span>
+<span class="fc" id="L90">            classdb.addClassification(childClass);</span>
+
+
+<span class="fc" id="L93">            String input = &quot;{\&quot;keepID\&quot;: \&quot;&quot;+keepID+&quot;\&quot;,\&quot;mergeID\&quot;:\&quot;&quot;+mergeID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L94">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L97">            testMerge(input, output);</span>
+
+<span class="pc" id="L99">        } catch (Exception e) {</span>
+<span class="nc" id="L100">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L101">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L103">	}</span>
+
+    @Test
+	public void testWithAlgo() {
+        try {
+<span class="fc" id="L108">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L109">            Classification keepClass = new Classification(&quot;keep&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L110">            Classification mergeClass = new Classification(&quot;merge&quot;, &quot;desc&quot;, null);</span>
+
+<span class="fc" id="L112">            classdb.addClassification(keepClass);</span>
+<span class="fc" id="L113">            classdb.addClassification(mergeClass);</span>
+
+<span class="fc" id="L115">            String keepID = classdb.getClassification(&quot;keep&quot;).getClassificationID();</span>
+<span class="fc" id="L116">            String mergeID = classdb.getClassification(&quot;merge&quot;).getClassificationID();</span>
+
+<span class="fc" id="L118">            AlgorithmDAO algobd = new AlgorithmDAO();</span>
+<span class="fc" id="L119">            Algorithm algo = new Algorithm(&quot;test&quot;, &quot;description&quot;, mergeID);</span>
+<span class="fc" id="L120">            algobd.addAlgorithm(algo);</span>
+
+<span class="fc" id="L122">            String input = &quot;{\&quot;keepID\&quot;: \&quot;&quot;+keepID+&quot;\&quot;,\&quot;mergeID\&quot;:\&quot;&quot;+mergeID+&quot;\&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L123">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L126">            testMerge(input, output);</span>
+
+<span class="pc" id="L128">        } catch (Exception e) {</span>
+<span class="nc" id="L129">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L130">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L132">	}</span>
+	
+	@Test
+	public void testMissingClass() throws Exception {
+        try {
+<span class="fc" id="L137">            ClassificationDAO classdb = new ClassificationDAO();</span>
+<span class="fc" id="L138">            Classification keepClass = new Classification(&quot;keep&quot;, &quot;desc&quot;, null);</span>
+
+<span class="fc" id="L140">            classdb.addClassification(keepClass);</span>
+
+<span class="fc" id="L142">            String keepID = classdb.getClassification(&quot;keep&quot;).getClassificationID();</span>
+
+<span class="fc" id="L144">            String input = &quot;{\&quot;keepID\&quot;: \&quot;&quot;+keepID+&quot;\&quot;,\&quot;mergeID\&quot;:\&quot; \&quot;,\&quot;user\&quot;: \&quot;testUser\&quot;}&quot;;</span>
+<span class="fc" id="L145">            String output = &quot;Failed to merge classification&quot;;</span>
+
+
+<span class="fc" id="L148">            testMerge(input, output);</span>
+
+<span class="pc" id="L150">        } catch (Exception e) {</span>
+<span class="nc" id="L151">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L152">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L154">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

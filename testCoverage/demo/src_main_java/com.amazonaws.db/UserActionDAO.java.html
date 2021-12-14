@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UserActionDAO.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.db</a> &gt; <span class="el_source">UserActionDAO.java</span></div><h1>UserActionDAO.java</h1><pre class="source lang-java linenums">package com.amazonaws.db;
+
+import java.sql.*;
+import java.util.LinkedList;
+
+import com.amazonaws.entities.UserAction;
+
+
+
+public class UserActionDAO{ 
+
+	java.sql.Connection conn;
+	
+<span class="fc" id="L14">	final String tblName = &quot;userAction&quot;;   // Exact capitalization</span>
+
+<span class="fc" id="L16">    public UserActionDAO() {</span>
+    	// System.out.println(&quot;user action DAO here&quot;);
+    	try  {
+<span class="fc" id="L19">    		conn = DatabaseUtil.connect();</span>
+<span class="pc" id="L20">    	} catch (Exception e) {</span>
+<span class="nc" id="L21">    		conn = null;</span>
+    	}
+<span class="fc" id="L23">    }</span>
+    
+	 public LinkedList&lt;UserAction&gt; getUserActions(String username) throws Exception {
+		 
+<span class="fc" id="L27">		 	LinkedList&lt;UserAction&gt; returnList = new LinkedList&lt;UserAction&gt;();</span>
+	        
+	        try {
+<span class="fc" id="L30">	        	UserAction ua = null;</span>
+<span class="fc" id="L31">	            PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM  userAction  WHERE author=?;&quot;);</span>
+<span class="fc" id="L32">	            ps.setString(1, username);</span>
+<span class="fc" id="L33">	            ResultSet resultSet = ps.executeQuery();</span>
+	            
+<span class="fc" id="L35">	            int i =0;</span>
+	            
+<span class="fc bfc" id="L37" title="All 2 branches covered.">	            while (resultSet.next()) {</span>
+<span class="fc" id="L38">	            	i++;</span>
+<span class="fc" id="L39">	                ua = new UserAction(resultSet.getString(&quot;UID&quot;),resultSet.getString(&quot;author&quot;),resultSet.getString(&quot;action&quot;),resultSet.getString(&quot;timestamp&quot;));</span>
+<span class="fc" id="L40">	                returnList.add(ua);</span>
+	            }
+<span class="fc bfc" id="L42" title="All 2 branches covered.">	            if(i == 0) {</span>
+<span class="fc" id="L43">	            	 throw new Exception(&quot;No actions to get&quot;);</span>
+	            }
+	            
+<span class="fc" id="L46">	            resultSet.close();</span>
+<span class="fc" id="L47">	            ps.close();</span>
+	            
+<span class="fc" id="L49">	            return  returnList;</span>
+	
+<span class="fc" id="L51">	        } catch (Exception e) {</span>
+<span class="fc" id="L52">	        	e.printStackTrace();</span>
+<span class="fc" id="L53">	            throw new Exception(&quot;Failed in getting user actions: &quot; + e.getMessage());</span>
+	        }
+	    }
+	    
+    
+   
+    
+    public boolean addUserAction(UserAction ua) throws Exception {
+        
+    	try {
+           
+<span class="fc" id="L64">    		PreparedStatement ps = conn.prepareStatement(&quot;INSERT INTO &quot; + tblName + &quot; (UID,author,action,timestamp) values(UUID(),?,?,?);&quot;);</span>
+<span class="fc" id="L65">            ps.setString(1, ua.getAuthorID());</span>
+<span class="fc" id="L66">            ps.setString(2, ua.getAction());</span>
+<span class="fc" id="L67">            ps.setString(3, ua.getTimeStamp());</span>
+<span class="fc" id="L68">            ps.execute();</span>
+<span class="fc" id="L69">            return true;</span>
+
+<span class="nc" id="L71">        } catch (Exception e) {</span>
+<span class="nc" id="L72">            throw new Exception(&quot;Failed to add user action: &quot; + e.getMessage());</span>
+        }
+    }
+    
+    
+    
+   
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

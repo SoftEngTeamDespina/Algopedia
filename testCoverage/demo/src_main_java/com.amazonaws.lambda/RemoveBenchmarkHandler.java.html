@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RemoveBenchmarkHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">RemoveBenchmarkHandler.java</span></div><h1>RemoveBenchmarkHandler.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.BenchmarkDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.UserAction;
+import com.amazonaws.http.RemoveBenchmarkResponse;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
+
+<span class="fc" id="L30">public class RemoveBenchmarkHandler implements RequestStreamHandler {</span>
+	LambdaLogger logger;
+	
+
+
+	@Override
+	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+<span class="fc" id="L37">		logger = context.getLogger();</span>
+		
+<span class="fc" id="L39">		BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName(&quot;US-ASCII&quot;)));</span>
+<span class="fc" id="L40">		PrintWriter writer = new PrintWriter(</span>
+<span class="fc" id="L41">				new BufferedWriter(new OutputStreamWriter(output, Charset.forName(&quot;US-ASCII&quot;))));</span>
+<span class="fc" id="L42">		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);</span>
+
+<span class="fc" id="L44">		logger.log(event.toString());</span>
+		RemoveBenchmarkResponse response;
+		
+<span class="fc" id="L47">		BenchmarkDAO db = new BenchmarkDAO();</span>
+<span class="fc" id="L48">        UserActionDAO uaDAO =  new UserActionDAO();</span>
+		
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (event.get(&quot;id&quot;) != null) {</span>
+<span class="fc" id="L51">            String benchID = new Gson().fromJson(event.get(&quot;id&quot;), String.class);</span>
+<span class="fc" id="L52">            String userID = new Gson().fromJson(event.get(&quot;user&quot;), String.class);</span>
+		
+            try {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                if (db.removeBenchmark(benchID)) {</span>
+<span class="fc" id="L56">                    response = new RemoveBenchmarkResponse(200,&quot;&quot;);</span>
+<span class="fc" id="L57">                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+<span class="fc" id="L58">                    UserAction action = new UserAction(userID,&quot;Removed Benchmark&quot;,timestamp.toString());</span>
+<span class="fc" id="L59">                    uaDAO.addUserAction(action);</span>
+<span class="fc" id="L60">                }</span>
+                else {
+<span class="nc" id="L62">                    response = new RemoveBenchmarkResponse(400, &quot;Failed to remove benchmark&quot;);</span>
+                }
+<span class="fc" id="L64">                writer.write(new Gson().toJson(response));</span>
+<span class="pc" id="L65">            } catch (Exception e){</span>
+<span class="nc" id="L66">                logger.log(e.getMessage());</span>
+<span class="nc" id="L67">                e.printStackTrace();</span>
+<span class="nc" id="L68">                response = new RemoveBenchmarkResponse(500, &quot;Failed to remove benchmark&quot;);</span>
+<span class="nc" id="L69">                writer.write(new Gson().toJson(response));</span>
+            }finally {
+<span class="fc" id="L71">                reader.close();</span>
+<span class="fc" id="L72">                writer.close();</span>
+            }
+		}
+<span class="fc" id="L75">		return;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>

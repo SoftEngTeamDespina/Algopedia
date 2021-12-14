@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GetClassificationHandlerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">demo (Dec 14, 2021 6:14:14 PM)</a> &gt; <a href="../../index.html" class="el_group">demo</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.amazonaws.lambda</a> &gt; <span class="el_source">GetClassificationHandlerTest.java</span></div><h1>GetClassificationHandlerTest.java</h1><pre class="source lang-java linenums">package com.amazonaws.lambda;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+
+import com.amazonaws.db.AlgorithmDAO;
+import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.entities.Algorithm;
+import com.amazonaws.entities.Classification;
+import com.amazonaws.entities.Implementation;
+import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.Test;
+
+import org.junit.Assert;
+import java.nio.charset.StandardCharsets;
+
+<span class="fc" id="L35">public class GetClassificationHandlerTest {</span>
+    Context createContext(String apiCall){
+<span class="fc" id="L37">        TestContext ctx = new TestContext();</span>
+<span class="fc" id="L38">        ctx.setFunctionName(apiCall);</span>
+<span class="fc" id="L39">        return ctx;</span>
+    }
+
+    void testGetClassificationsAll(String incoming, String outgoing) throws IOException{
+        try {
+<span class="fc" id="L44">            GetClassificationHandler handler  = new GetClassificationHandler();</span>
+<span class="fc" id="L45">            InputStream input = new ByteArrayInputStream(incoming.getBytes());</span>
+<span class="fc" id="L46">            OutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L47">            handler.handleRequest(input, output, createContext(&quot;get classification, alorithm, and hierarchy&quot;));</span>
+<span class="fc" id="L48">            JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);</span>
+<span class="fc" id="L49">            String outputString = outputNode.get(&quot;errorMessage&quot;).asText();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">            if (!outputString.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L51">            	outputString =  outputString.substring(0,6);</span>
+            }
+<span class="fc" id="L53">            assertEquals(outgoing, outputString);</span>
+<span class="pc" id="L54">        } catch (Exception e) {</span>
+<span class="nc" id="L55">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L56">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    @Test
+    public void testGetClassification() throws Exception{
+        try {
+<span class="fc" id="L63">            AlgorithmDAO algodb = new AlgorithmDAO();</span>
+<span class="fc" id="L64">            ClassificationDAO classdb = new ClassificationDAO();</span>
+
+<span class="fc" id="L66">            Classification testClass = new Classification(&quot;testClassGC&quot;, &quot;desc&quot;, null);</span>
+<span class="fc" id="L67">            classdb.addClassification(testClass);</span>
+
+<span class="fc" id="L69">            String testClassID = classdb.getClassification(&quot;testClassGC&quot;).getClassificationID();</span>
+
+<span class="fc" id="L71">            Algorithm algo =  new Algorithm(&quot;testAlgoGC&quot;, &quot;desc&quot;, testClassID);</span>
+<span class="fc" id="L72">            algodb.addAlgorithm(algo);</span>
+<span class="fc" id="L73">            String algoID = algodb.getAlgorithm(&quot;testAlgoGC&quot;).getAlgorithmID();</span>
+            
+            
+<span class="fc" id="L76">            String input = &quot;{}&quot;;</span>
+<span class="fc" id="L77">            String output = &quot;&quot;;</span>
+
+
+<span class="fc" id="L80">            testGetClassificationsAll(input, output);</span>
+            
+<span class="fc" id="L82">            algodb.removeAlgorithm(algoID);</span>
+<span class="fc" id="L83">            classdb.removeClassification(testClassID);  </span>
+
+<span class="pc" id="L85">        } catch (Exception e) {</span>
+<span class="nc" id="L86">            fail(&quot;Invalid&quot;+ e);</span>
+<span class="nc" id="L87">            System.out.println(&quot;error: &quot; +e);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+
+    
+    public static byte[] fromHexString(String src) {
+<span class="nc" id="L94">        byte[] biBytes = new BigInteger(&quot;10&quot; + src.replaceAll(&quot;\\s&quot;, &quot;&quot;), 16).toByteArray();</span>
+<span class="nc" id="L95">        return Arrays.copyOfRange(biBytes, 1, biBytes.length);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span>demo (Dec 14, 2021 6:14:14 PM)</div></body></html>
