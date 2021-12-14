@@ -70,7 +70,7 @@ public class CreateClassificationHandlerTest {
             userdb.addUser(user);
 
 
-            String input = "{\"name\":\""+ className +"\",\"description\":\"testDesc\",\"superClassification\":\"\",\"user\": \""+username+"\"}";
+            String input = "{\"name\":\""+ className +"\",\"description\":\"testDesc\",\"user\": \""+username+"\"}";
             String output = "";
 
 

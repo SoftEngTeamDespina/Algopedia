@@ -51,18 +51,22 @@ public class MergeClassificationHandler implements RequestStreamHandler {
             String userID = new Gson().fromJson(event.get("user"), String.class);
 
             try {
-                int expected = adb.getAlgorithms(mergeID).size();
-                if (adb.changeAlgorithmClassificationAll(keepID, mergeID, expected)) {
-                    if (cdb.removeClassification(mergeID)) {
-                        response = new MergeClassificationResponse(200, "");
-                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        UserAction action = new UserAction(userID, "Merged Classification",
-                                timestamp.toString());
-                        uaDAO.addUserAction(action);
+                if(cdb.changeClassificationParentAll(keepID, mergeID)){
+                    int expected = adb.getAlgorithms(mergeID).size();
+                    if (adb.changeAlgorithmClassificationAll(keepID, mergeID, expected)) {
+                        if (cdb.removeClassification(mergeID)) {
+                            response = new MergeClassificationResponse(200, "");
+                            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                            UserAction action = new UserAction(userID, "Merged Classification",
+                                    timestamp.toString());
+                            uaDAO.addUserAction(action);
+                        } else {
+                            response = new MergeClassificationResponse(400, "Failed to merge classification");
+                        }
+                        writer.write(new Gson().toJson(response));
                     } else {
                         response = new MergeClassificationResponse(400, "Failed to merge classification");
                     }
-                    writer.write(new Gson().toJson(response));
                 } else {
                     response = new MergeClassificationResponse(400, "Failed to merge classification");
                 }
