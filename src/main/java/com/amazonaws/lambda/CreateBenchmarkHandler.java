@@ -59,32 +59,7 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 		return dao.addBenchmark(bench);
 	}
 	
-	//S3 bucket
-	boolean createSystemImplementation(String filename, byte[] code) throws Exception{
-		if (logger != null) { logger.log("in createSystemImplementation"); }
-		
-		if (s3 == null) {
-			logger.log("attach to S3 request");
-			s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
-			logger.log("attach to S3 succeed");
-		}
-		
-		String bucket = REAL_BUCKET;
-		
-//		byte[] file = new code.toByteArray();
-		ByteArrayInputStream bais = new ByteArrayInputStream(code);
-		ObjectMetadata omd = new ObjectMetadata();
-		omd.setContentLength(code.length);
-		
-		
-		
-		PutObjectResult res = s3.putObject(new PutObjectRequest("cs509teamdespina", filename, bais, omd)
-				.withCannedAcl(CannedAccessControlList.PublicRead));
-		
-		return true;
-		
-		
-	}
+	
 	
 
 
@@ -161,10 +136,12 @@ public class CreateBenchmarkHandler implements RequestStreamHandler {
 				logger.log("inserting the new benchmark");
 				Benchmark b = db.getBenchmark(name);
 				response = new CreateBenchmarkResponse(b.getBenchmarkID(),200);
-				UserActionDAO uaDAO =  new UserActionDAO();
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				UserAction action = new UserAction(username,"Created Benchmark",timestamp.toString());
-				uaDAO.addUserAction(action);
+				if(username != null) {
+					UserActionDAO uaDAO =  new UserActionDAO();
+					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+					UserAction action = new UserAction(username,"Created Benchmark",timestamp.toString());
+					uaDAO.addUserAction(action);
+				}
 			}
 			else {
 				response = new CreateBenchmarkResponse(400, "Failed to create benchmark");
