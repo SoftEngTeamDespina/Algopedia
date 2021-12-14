@@ -1,32 +1,33 @@
 package com.amazonaws.http;
 
+import java.util.LinkedList;
+
 import com.amazonaws.entities.User;
 
-public class LoginResponse {
-	User username;
+public class GetAllUsersResponse {
+	LinkedList<String> username;
 	int httpStatusCode;
 	String logMsg;
 	
-	public LoginResponse() {}
+	public GetAllUsersResponse() {}
 	
-	public LoginResponse(User username, int httpStatusCode, String logMsg) {
+	public GetAllUsersResponse(LinkedList<String> username, int httpStatusCode, String logMsg) {
 		this.username = username;
 		this.httpStatusCode = httpStatusCode;
 		this.logMsg = logMsg;
 	}
 	
 	
-	public User getUsername() {
+	public LinkedList<String> getUsername() {
 		return username;
 	}
-	
 
-	public void setUsername(User username) {
+	public void setUsername(LinkedList<String> username) {
 		this.username = username;
 	}
 
-	public void User(User username) {
-		this.username = username;
+	public String getLogMsg() {
+		return logMsg;
 	}
 
 	public void setHttpStatusCode(int httpStatusCode) {

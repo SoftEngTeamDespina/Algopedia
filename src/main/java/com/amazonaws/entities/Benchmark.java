@@ -26,10 +26,10 @@ public class Benchmark {
 		this.observations = observations;
 	}
 	
-	public Benchmark(String name, Implementation implementation ,MachineConfiguration configuration, ProblemInstance instance,
+	public Benchmark(String name, Implementation implementation2 ,MachineConfiguration configuration, ProblemInstance instance,
 			double runtime, String observations) {
 		this.name = name;
-		this.implementation = implementation;
+		this.implementation = implementation2;
 		this.configuration = configuration;
 		this.instance = instance;
 		this.runtime = runtime;

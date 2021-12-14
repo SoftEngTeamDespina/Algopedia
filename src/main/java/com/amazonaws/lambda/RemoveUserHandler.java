@@ -19,13 +19,14 @@ import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.User;
 import com.amazonaws.http.LoginResponse;
 import com.amazonaws.http.RegisterUserResponse;
+import com.amazonaws.http.RemoveUserResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 //aws:states:opt-out	
 
-public class HandleLogin implements RequestStreamHandler {
+public class RemoveUserHandler implements RequestStreamHandler {
 
 	LambdaLogger logger;
 	
@@ -39,41 +40,31 @@ public class HandleLogin implements RequestStreamHandler {
 				new BufferedWriter(new OutputStreamWriter(output, Charset.forName("US-ASCII"))));
 		JsonObject event = new GsonBuilder().create().fromJson(reader, JsonObject.class);
 		UserDAO userDao = new UserDAO();
-		LoginResponse response = new LoginResponse();
+		RemoveUserResponse response = new RemoveUserResponse();
 		
 		logger.log(event.toString());
 		if (event.get("username") != null) {
             String username = new Gson().fromJson(event.get("username"), String.class);
-            String password = new Gson().fromJson(event.get("password"), String.class);
+           
             try {
-            	User usr = new User(username,password);
-            	String res = userDao.authenticateUser(usr);
-            	User user = userDao.getUser(username);
             	
-            	
-            	if(res == "SUCCESS") {
+            	if(userDao.removeUser(username)) {
+            		response.setUsername(username);
             		response.setHttpStatusCode(200);
-            		response.setLogMsg("User authenticated");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
-            	}
-            	else if(res == "WRONG PASSWORD") {
-            		response.setHttpStatusCode(400);
-            		response.setLogMsg("Wrong Password");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
+            		response.setLogMsg("remove user with username");
             	}
             	else {
+            		response.setUsername(username);
             		response.setHttpStatusCode(400);
-            		response.setLogMsg("Invalid User");
-            		response.setUsername(user);
-            		writer.write(new Gson().toJson(response));
+            		response.setLogMsg("Failed to remove user with Username");
             	}
+            	writer.write(new Gson().toJson(response));
+    
             	
 			} catch (Exception e) {
 				logger.log(e.getMessage());
 				e.printStackTrace();
-				response.setLogMsg("Failed to login user");
+				response.setLogMsg("Failed to remove user");
 				response.setHttpStatusCode(500);
 				writer.write(new Gson().toJson(response));
 			} finally {

@@ -14,9 +14,12 @@ import java.util.LinkedList;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.ProblemInstanceDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.ProblemInstance;
 import com.amazonaws.http.GetImplementationsAllResponse;
+import com.amazonaws.http.GetProblemInstancesAllResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -24,7 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-public class GetImplementationsAllHandler implements RequestStreamHandler{
+public class GetProblemInstancesAllHandler implements RequestStreamHandler{
 	LambdaLogger logger;
 
 	@Override
@@ -38,9 +41,9 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
 
 		logger.log(event.toString());
 		
-		ImplementationDAO db = new ImplementationDAO();
+		ProblemInstanceDAO pDao = new ProblemInstanceDAO();
 		AlgorithmDAO aDao = new AlgorithmDAO();
-		GetImplementationsAllResponse response;
+		GetProblemInstancesAllResponse response;
 		
 		if (event.get("algorithm") != null) {
             String algorithmName = new Gson().fromJson(event.get("algorithm"), String.class);
@@ -49,19 +52,21 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
             	Algorithm algorithm = aDao.getAlgorithm(algorithmName);
             	String algorithmID = algorithm.getAlgorithmID();
             	try {
-            		logger.log("Getting implementations...");
-                	LinkedList<Implementation> implementations = db.getAllImplementations(algorithmID);
-                	response = new GetImplementationsAllResponse(implementations,200);
+            		logger.log("Getting problem instances...");
+            		LinkedList<ProblemInstance> instances = pDao.getAllProblemInstances(algorithmID);
+            		response = new GetProblemInstancesAllResponse(instances,200);
+            		writer.write(new Gson().toJson(response));
+            	} catch(Exception e) {
+            		logger.log(e.getMessage());
+            		e.printStackTrace();
+            		response = new GetProblemInstancesAllResponse(400, "Failed to get problem instances from database");
+            		writer.write(new Gson().toJson(response));
+            	}
+            }catch(Exception e) {
+                	logger.log(e.getMessage());
+        			e.printStackTrace();
+                	response = new GetProblemInstancesAllResponse(500, e.getMessage());
                 	writer.write(new Gson().toJson(response));
-                } catch(Exception e) {
-                	response = new GetImplementationsAllResponse(400, "Failed to get implemenations from database");
-                	writer.write(new Gson().toJson(response));
-                }
-            } catch(Exception e) {
-            	logger.log(e.getMessage());
-    			e.printStackTrace();
-            	response = new GetImplementationsAllResponse(500, e.getMessage());
-            	writer.write(new Gson().toJson(response));
             }finally {
     			reader.close();
     			writer.close();
