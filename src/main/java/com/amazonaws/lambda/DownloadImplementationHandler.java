@@ -57,13 +57,13 @@ public class DownloadImplementationHandler implements RequestStreamHandler{
     			uaDao.addUserAction(action);
     			
             	
-            	response = new DownloadImplementationResponse(200, "Success");
+            	response = new DownloadImplementationResponse(200, "");
             	writer.write(new Gson().toJson(response));
             	
             } catch(Exception e) {
             	logger.log(e.getMessage());
     			e.printStackTrace();
-            	response = new DownloadImplementationResponse(500, e.getMessage());
+            	response = new DownloadImplementationResponse(500, "Failed: " + e.getMessage());
             	writer.write(new Gson().toJson(response));
             }finally {
     			reader.close();

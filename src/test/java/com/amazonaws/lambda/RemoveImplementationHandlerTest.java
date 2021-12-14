@@ -41,7 +41,7 @@ public class RemoveImplementationHandlerTest {
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
-            	outputString =  outputString.substring(0,5);
+            	outputString =  outputString.substring(0,6);
             }
             assertEquals(outgoing, outputString);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class RemoveImplementationHandlerTest {
             UserDAO userdb = new UserDAO();
             
             String className = "testRemoveImplementation";
-            Classification testClass = new Classification(className, "desc", "test");
+            Classification testClass = new Classification(className, "desc", null);
             classdb.addClassification(testClass);
 
             String testClassID = classdb.getClassification(className).getClassificationID();

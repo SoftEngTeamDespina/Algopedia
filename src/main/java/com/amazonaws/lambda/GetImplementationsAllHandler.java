@@ -60,7 +60,7 @@ public class GetImplementationsAllHandler implements RequestStreamHandler{
             } catch(Exception e) {
             	logger.log(e.getMessage());
     			e.printStackTrace();
-            	response = new GetImplementationsAllResponse(500, e.getMessage());
+            	response = new GetImplementationsAllResponse(500, "Failed" + e.getMessage());
             	writer.write(new Gson().toJson(response));
             }finally {
     			reader.close();

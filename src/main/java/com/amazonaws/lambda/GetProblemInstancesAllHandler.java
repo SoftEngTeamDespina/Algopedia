@@ -65,7 +65,7 @@ public class GetProblemInstancesAllHandler implements RequestStreamHandler{
             }catch(Exception e) {
                 	logger.log(e.getMessage());
         			e.printStackTrace();
-                	response = new GetProblemInstancesAllResponse(500, e.getMessage());
+                	response = new GetProblemInstancesAllResponse(500, "Failed" + e.getMessage());
                 	writer.write(new Gson().toJson(response));
             }finally {
     			reader.close();

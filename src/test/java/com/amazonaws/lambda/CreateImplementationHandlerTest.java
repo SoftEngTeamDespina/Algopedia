@@ -48,7 +48,7 @@ public class CreateImplementationHandlerTest {
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
-            	outputString =  outputString.substring(0,5);
+            	outputString =  outputString.substring(0,6);
             }
             assertEquals(outgoing, outputString);
         } catch (Exception e) {

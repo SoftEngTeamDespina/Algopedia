@@ -17,12 +17,11 @@ import java.util.Arrays;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
-import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.db.ProblemInstanceDAO;
+import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
-import com.amazonaws.entities.Implementation;
-import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.entities.User;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -33,19 +32,19 @@ import org.junit.Test;
 import org.junit.Assert;
 import java.nio.charset.StandardCharsets;
 
-public class GetInstancesAllHandlerTest {
+public class CreateAlgorithmHandlerTest {
     Context createContext(String apiCall){
         TestContext ctx = new TestContext();
         ctx.setFunctionName(apiCall);
         return ctx;
     }
 
-    void testGetInstancesAll(String incoming, String outgoing) throws IOException{
+    void testAddAlgorithm(String incoming, String outgoing) throws IOException{
         try {
-            GetProblemInstancesAllHandler handler  = new GetProblemInstancesAllHandler();
+            CreateAlgorithmHandler handler  = new CreateAlgorithmHandler();
             InputStream input = new ByteArrayInputStream(incoming.getBytes());
             OutputStream output = new ByteArrayOutputStream();
-            handler.handleRequest(input, output, createContext("get all problem instances"));
+            handler.handleRequest(input, output, createContext("create algorithm"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
@@ -59,31 +58,29 @@ public class GetInstancesAllHandlerTest {
     }
 
     @Test
-    public void testGetInstances() throws Exception{
+    public void testCreateImplementation() throws Exception{
         try {
-            AlgorithmDAO algodb = new AlgorithmDAO();
             ClassificationDAO classdb = new ClassificationDAO();
-            ProblemInstanceDAO instdb = new ProblemInstanceDAO();
+            UserDAO userdb = new UserDAO();
 
-            Classification testClass = new Classification("testClassGI", "desc", null);
+            Classification testClass = new Classification("testClassCA", "desc", null);
             classdb.addClassification(testClass);
 
-            String testClassID = classdb.getClassification("testClassGI").getClassificationID();
+            String testClassID = classdb.getClassification("testClassCA").getClassificationID();
 
-            Algorithm algo =  new Algorithm("testAlgoGI", "desc", testClassID);
-            algodb.addAlgorithm(algo);
-            String algoID = algodb.getAlgorithm("testAlgoGI").getAlgorithmID();
+            String algoName= "testAlgoCA";
             
-            ProblemInstance inst = new ProblemInstance("testInstGI","testDescription","testDataset",algoID);
-            instdb.addProblemInstance(inst);
+            String username = "testUser";
+            User user = new User(username, "pass", false);
+            userdb.addUser(user);
             
-            String input = "{\"algorithm\": \"testAlgoGI\"}";
+            String input = "{\"name\": \""+algoName+"\",\"description\":\"testDescription\",\"id\": \""+testClassID+"\",\"user\": \""+username+"\"}";
             String output = "";
 
 
-            testGetInstancesAll(input, output);
+            testAddAlgorithm(input, output);
             
-            algodb.removeAlgorithm(algoID);
+            userdb.removeUser(username);
             classdb.removeClassification(testClassID);  
 
         } catch (Exception e) {
@@ -94,16 +91,14 @@ public class GetInstancesAllHandlerTest {
 
 
     @Test
-    public void testBadGetInstances() throws Exception{
+    public void testBadImplementation() throws Exception{
         try {
 
-            String algorithm = "Algorithm that does not exist";
-
-            String input = "{\"algorithm\": \""+algorithm+"\"}";
+            String input = "{\"name\": \"testAlgo\",\"description\":\"testDescription\",\"id\": \"classification does not exist\",\"user\": \"user does not exist\"}";
             String output = "Failed";
 
 
-            testGetInstancesAll(input, output);
+            testAddAlgorithm(input, output);
 
         } catch (Exception e) {
             fail("Invalid"+ e);
