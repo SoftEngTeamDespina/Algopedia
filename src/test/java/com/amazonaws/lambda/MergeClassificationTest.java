@@ -66,6 +66,35 @@ public class MergeClassificationTest {
 	}
 
     @Test
+	public void testChild() throws Exception {
+        try {
+            ClassificationDAO classdb = new ClassificationDAO();
+            Classification keepClass = new Classification("keep", "desc", null);
+            Classification mergeClass = new Classification("merge", "desc", null);
+
+            classdb.addClassification(keepClass);
+            classdb.addClassification(mergeClass);
+
+            String keepID = classdb.getClassification("keep").getClassificationID();
+            String mergeID = classdb.getClassification("merge").getClassificationID();
+
+            Classification childClass = new Classification("child", "desc", mergeID);
+            classdb.addClassification(childClass);
+
+
+            String input = "{\"keepID\": \""+keepID+"\",\"mergeID\":\""+mergeID+"\",\"user\": \"testUser\"}";
+            String output = "";
+
+
+            testMerge(input, output);
+
+        } catch (Exception e) {
+            fail("Invalid"+ e);
+            System.out.println("error: " +e);
+        }
+	}
+
+    @Test
 	public void testWithAlgo() {
         try {
             ClassificationDAO classdb = new ClassificationDAO();

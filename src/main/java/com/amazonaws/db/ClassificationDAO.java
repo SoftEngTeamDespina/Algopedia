@@ -70,6 +70,21 @@ public class ClassificationDAO{
         }
     }
     
+    public boolean changeClassificationParentAll(String keepID, String mergeID) throws Exception {
+        try {
+            PreparedStatement ps = conn
+                    .prepareStatement("UPDATE " + tblName + " SET classificationcol = ? WHERE classificationcol = ?;");
+            ps.setString(1, keepID);
+            ps.setString(2, mergeID);
+            ps.executeUpdate();
+
+            return true;
+
+        } catch (Exception e) {
+            throw new Exception("Failed to update parent classification: " + e.getMessage());
+        }
+    }
+
     public boolean addClassification(Classification cl) throws Exception {
         
     	try {
