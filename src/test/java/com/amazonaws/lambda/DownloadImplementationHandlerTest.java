@@ -16,9 +16,11 @@ import org.junit.Test;
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.User;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,10 +34,10 @@ public class DownloadImplementationHandlerTest {
 	
 	void testDownloadImp(String incoming, String outgoing) throws IOException{
         try {
-            RemoveImplementationHandler handler  = new RemoveImplementationHandler();
+            DownloadImplementationHandler handler  = new DownloadImplementationHandler();
             InputStream input = new ByteArrayInputStream(incoming.getBytes());
             OutputStream output = new ByteArrayOutputStream();
-            handler.handleRequest(input, output, createContext("add"));
+            handler.handleRequest(input, output, createContext("download implementation"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
@@ -51,13 +53,20 @@ public class DownloadImplementationHandlerTest {
 	@Test
     public void testDownloadImplementation() throws Exception{
         try {
+        	UserDAO userdb = new UserDAO();
+        	
+        	String username = "testUser";
+            User user = new User(username, "pass", false);
+            userdb.addUser(user);
 
 
-            String input = "{\"user\": \"testUser\"}";
+            String input = "{\"user\": \""+username+"\"}";
             String output = "";
             
 
             testDownloadImp(input, output);
+            
+            userdb.removeUser(username);
              
 
         } catch (Exception e) {

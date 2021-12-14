@@ -22,6 +22,7 @@ import com.amazonaws.db.ProblemInstanceDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.ProblemInstance;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -32,19 +33,19 @@ import org.junit.Test;
 import org.junit.Assert;
 import java.nio.charset.StandardCharsets;
 
-public class GetImplementationAllHandlerTest {
+public class GetInstancesAllHandlerTest {
     Context createContext(String apiCall){
         TestContext ctx = new TestContext();
         ctx.setFunctionName(apiCall);
         return ctx;
     }
 
-    void testGetImplementationsAll(String incoming, String outgoing) throws IOException{
+    void testGetInstancesAll(String incoming, String outgoing) throws IOException{
         try {
-            GetImplementationsAllHandler handler  = new GetImplementationsAllHandler();
+            GetProblemInstancesAllHandler handler  = new GetProblemInstancesAllHandler();
             InputStream input = new ByteArrayInputStream(incoming.getBytes());
             OutputStream output = new ByteArrayOutputStream();
-            handler.handleRequest(input, output, createContext("get all implementations"));
+            handler.handleRequest(input, output, createContext("get all problem instances"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
@@ -58,11 +59,11 @@ public class GetImplementationAllHandlerTest {
     }
 
     @Test
-    public void testGetImplementations() throws Exception{
+    public void testGetInstances() throws Exception{
         try {
             AlgorithmDAO algodb = new AlgorithmDAO();
             ClassificationDAO classdb = new ClassificationDAO();
-            ImplementationDAO impdb = new ImplementationDAO();
+            ProblemInstanceDAO instdb = new ProblemInstanceDAO();
 
             Classification testClass = new Classification("testClassGI", "desc", null);
             classdb.addClassification(testClass);
@@ -73,18 +74,15 @@ public class GetImplementationAllHandlerTest {
             algodb.addAlgorithm(algo);
             String algoID = algodb.getAlgorithm("testAlgoGI").getAlgorithmID();
             
-            String testTimeStamp = "testTimeStamp";
-            Implementation imp = new Implementation(testTimeStamp,"testLanguage","testFilename",algoID);
-            impdb.addImplementation(imp);
-            String impID = impdb.getImplementationByStamp(testTimeStamp).getImplementationID();
+            ProblemInstance inst = new ProblemInstance("testInstGI","testDescription","testDataset",algoID);
+            instdb.addProblemInstance(inst);
             
             String input = "{\"algorithm\": \""+algoID+"\"}";
             String output = "";
 
 
-            testGetImplementationsAll(input, output);
+            testGetInstancesAll(input, output);
             
-            impdb.deleteImplementation(impID);
             algodb.removeAlgorithm(algoID);
             classdb.removeClassification(testClassID);  
 
@@ -96,7 +94,7 @@ public class GetImplementationAllHandlerTest {
 
 
     @Test
-    public void testBadGetImplementations() throws Exception{
+    public void testBadGetInstances() throws Exception{
         try {
 
             String algorithm = "Algorithm that does not exist";
@@ -105,7 +103,7 @@ public class GetImplementationAllHandlerTest {
             String output = "Failed";
 
 
-            testGetImplementationsAll(input, output);
+            testGetInstancesAll(input, output);
 
         } catch (Exception e) {
             fail("Invalid"+ e);

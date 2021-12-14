@@ -16,9 +16,11 @@ import org.junit.Test;
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.ImplementationDAO;
+import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
+import com.amazonaws.entities.User;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,7 +37,7 @@ public class RemoveImplementationHandlerTest {
             RemoveImplementationHandler handler  = new RemoveImplementationHandler();
             InputStream input = new ByteArrayInputStream(incoming.getBytes());
             OutputStream output = new ByteArrayOutputStream();
-            handler.handleRequest(input, output, createContext("add"));
+            handler.handleRequest(input, output, createContext("remove implementation"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
@@ -54,6 +56,7 @@ public class RemoveImplementationHandlerTest {
             AlgorithmDAO algodb = new AlgorithmDAO();
             ClassificationDAO classdb = new ClassificationDAO();
             ImplementationDAO impdb = new ImplementationDAO();
+            UserDAO userdb = new UserDAO();
             
             String className = "testRemoveImplementation";
             Classification testClass = new Classification(className, "desc", "test");
@@ -69,14 +72,18 @@ public class RemoveImplementationHandlerTest {
             Implementation imp = new Implementation(testTimeStamp,"testLanguage","testFilename",algoID);
             impdb.addImplementation(imp);
             String impID = impdb.getImplementationByStamp(testTimeStamp).getImplementationID();
+            
+            String username = "testUser";
+            User user = new User(username, "pass", false);
+            userdb.addUser(user);
 
-
-            String input = "{\"id\": \""+impID+"\",\"user\": \"testUser\"}";
+            String input = "{\"id\": \""+impID+"\",\"user\": \""+username+"\"}";
             String output = "";
             
 
             testDeleteImplementation(input, output);
             
+            userdb.removeUser(username);
             algodb.removeAlgorithm(algoID);
             classdb.removeClassification(testClassID);  
 
