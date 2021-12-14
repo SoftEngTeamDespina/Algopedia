@@ -17,11 +17,11 @@ import java.util.Arrays;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
+import com.amazonaws.db.ImplementationDAO;
 import com.amazonaws.db.ProblemInstanceDAO;
-import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
-import com.amazonaws.entities.User;
+import com.amazonaws.entities.Implementation;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -32,19 +32,19 @@ import org.junit.Test;
 import org.junit.Assert;
 import java.nio.charset.StandardCharsets;
 
-public class CreateClassificationHandlerTest {
+public class GetClassificationHandlerTest {
     Context createContext(String apiCall){
         TestContext ctx = new TestContext();
         ctx.setFunctionName(apiCall);
         return ctx;
     }
 
-    void testAddClassification(String incoming, String outgoing) throws IOException{
+    void testGetImplementationsAll(String incoming, String outgoing) throws IOException{
         try {
-            CreateClassificationHandler handler  = new CreateClassificationHandler();
+            GetImplementationsAllHandler handler  = new GetImplementationsAllHandler();
             InputStream input = new ByteArrayInputStream(incoming.getBytes());
             OutputStream output = new ByteArrayOutputStream();
-            handler.handleRequest(input, output, createContext("create classification"));
+            handler.handleRequest(input, output, createContext("get all implementations"));
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
             String outputString = outputNode.get("errorMessage").asText();
             if (!outputString.equals("")) {
@@ -58,26 +58,35 @@ public class CreateClassificationHandlerTest {
     }
 
     @Test
-    public void testCreateClassification() throws Exception{
+    public void testGetImplementations() throws Exception{
         try {
+            AlgorithmDAO algodb = new AlgorithmDAO();
             ClassificationDAO classdb = new ClassificationDAO();
-            UserDAO userdb = new UserDAO();
+            ImplementationDAO impdb = new ImplementationDAO();
 
-            String className = "testClassCCl";
+            Classification testClass = new Classification("testClassGI", "desc", null);
+            classdb.addClassification(testClass);
 
-            String username = "testUserCCl";
-            User user = new User(username, "pass", false);
-            userdb.addUser(user);
+            String testClassID = classdb.getClassification("testClassGI").getClassificationID();
 
-
-            String input = "{\"name\":\""+ className +"\",\"description\":\"testDesc\",\"superClassification\":\"\",\"user\": \""+username+"\"}";
+            Algorithm algo =  new Algorithm("testAlgoGI", "desc", testClassID);
+            algodb.addAlgorithm(algo);
+            String algoID = algodb.getAlgorithm("testAlgoGI").getAlgorithmID();
+            
+            String testTimeStamp = "testTimeStamp";
+            Implementation imp = new Implementation(testTimeStamp,"testLanguage","testFilename",algoID);
+            impdb.addImplementation(imp);
+            String impID = impdb.getImplementationByStamp(testTimeStamp).getImplementationID();
+            
+            String input = "{\"algorithm\": \"testAlgoGI\"}";
             String output = "";
 
 
-            testAddClassification(input, output);
+            testGetImplementationsAll(input, output);
             
-            userdb.removeUser(username);
-            classdb.removeClassification(classdb.getClassification(className).getClassificationID());  
+            impdb.deleteImplementation(impID);
+            algodb.removeAlgorithm(algoID);
+            classdb.removeClassification(testClassID);  
 
         } catch (Exception e) {
             fail("Invalid"+ e);
@@ -87,15 +96,16 @@ public class CreateClassificationHandlerTest {
 
 
     @Test
-    public void testBadClassification() throws Exception{
+    public void testBadGetImplementations() throws Exception{
         try {
 
-            
-            String input = "{\"name\": \"testClassName\",\"description\":\"testDesc\",\"superClassification\": \"\",\"user\": \"user that does not exist\"}";
+            String algorithm = "Algorithm that does not exist";
+
+            String input = "{\"algorithm\": \""+algorithm+"\"}";
             String output = "Failed";
 
 
-            testAddClassification(input, output);
+            testGetImplementationsAll(input, output);
 
         } catch (Exception e) {
             fail("Invalid"+ e);
