@@ -33,7 +33,4 @@ public class User {
 	public Boolean getIsAdmin() {
 		return isAdmin;
 	}
-	public void setIsAdmin(Boolean isAdmin) {
-		this.isAdmin = isAdmin;
-	}
 }

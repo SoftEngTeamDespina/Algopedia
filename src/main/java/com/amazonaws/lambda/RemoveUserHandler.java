@@ -53,11 +53,7 @@ public class RemoveUserHandler implements RequestStreamHandler {
             		response.setHttpStatusCode(200);
             		response.setLogMsg("remove user with username");
             	}
-            	else {
-            		response.setUsername(username);
-            		response.setHttpStatusCode(400);
-            		response.setLogMsg("Failed to remove user with Username");
-            	}
+     
             	writer.write(new Gson().toJson(response));
     
             	
