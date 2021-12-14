@@ -22,6 +22,8 @@ import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.User;
+import com.amazonaws.http.CreateProblemInstanceResponse;
+import com.amazonaws.http.MergeClassificationResponse;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -75,6 +77,12 @@ public class CreateProblemInstanceHandlerTest {
 
 
             testAddInstance(input, output);
+            
+            CreateProblemInstanceResponse response = new CreateProblemInstanceResponse("id",200,"");
+            response.toString();
+            
+            response = new CreateProblemInstanceResponse("id",400, "Failed");
+            response.toString();
 
         } catch (Exception e) {
             fail("Invalid"+ e);

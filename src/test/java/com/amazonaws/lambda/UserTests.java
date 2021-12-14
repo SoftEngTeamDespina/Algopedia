@@ -22,6 +22,9 @@ import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.User;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.http.RegisterUserResponse;
+import com.amazonaws.http.RemoveUserResponse;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -49,6 +52,14 @@ public class UserTests {
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
 
             assertEquals(outputNode.get("logMsg").asText(), "Registration succesful");
+            
+            RegisterUserResponse response = new RegisterUserResponse(new User("test","pass",false),200,"");
+            response.toString();
+            
+            response = new RegisterUserResponse(new User("test","pass",false),400, "Failed");
+            response.toString();
+
+            
         } catch (Exception e) {
             fail("Invalid"+ e);
             System.out.println("error: " +e);
@@ -67,6 +78,13 @@ public class UserTests {
             JsonNode outputNode = Jackson.fromJsonString(output.toString(), JsonNode.class);
 
             assertEquals(outputNode.get("logMsg").asText(), "remove user with username");
+            
+            RemoveUserResponse response = new RemoveUserResponse("user",200,"");
+            response.toString();
+            
+            response = new RemoveUserResponse("user",400, "Failed");
+            response.toString();
+            
         } catch (Exception e) {
             fail("Invalid"+ e);
             System.out.println("error: " +e);

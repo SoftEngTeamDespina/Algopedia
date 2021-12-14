@@ -22,6 +22,7 @@ import com.amazonaws.db.UserDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.User;
+import com.amazonaws.http.RemoveAlgorithmResponse;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -74,6 +75,12 @@ public class RemoveAlgorithmHandlerTest {
 
 
             testRemoveAlgorithm(input, output);
+            
+            RemoveAlgorithmResponse response = new RemoveAlgorithmResponse(200, "");
+            response.toString();
+            
+            response = new RemoveAlgorithmResponse(400, "Failed");
+            response.toString();
 
         } catch (Exception e) {
             fail("Invalid"+ e);

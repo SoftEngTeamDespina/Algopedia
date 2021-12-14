@@ -14,6 +14,8 @@ import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.http.RemoveAlgorithmResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,6 +60,12 @@ public class MergeClassificationTest {
 
 
             testMerge(input, output);
+            
+            MergeClassificationResponse response = new MergeClassificationResponse(200,"");
+            response.toString();
+            
+            response = new MergeClassificationResponse(400, "Failed");
+            response.toString();
 
         } catch (Exception e) {
             fail("Invalid"+ e);

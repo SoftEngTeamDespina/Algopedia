@@ -21,6 +21,8 @@ import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.User;
+import com.amazonaws.http.MergeClassificationResponse;
+import com.amazonaws.http.RemoveImplementationResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,6 +88,12 @@ public class RemoveImplementationHandlerTest {
             userdb.removeUser(username);
             algodb.removeAlgorithm(algoID);
             classdb.removeClassification(testClassID);  
+            
+            RemoveImplementationResponse response = new RemoveImplementationResponse("id",200);
+            response.toString();
+            
+            response = new RemoveImplementationResponse(400, "Failed");
+            response.toString();
 
         } catch (Exception e) {
             fail("Invalid"+ e);

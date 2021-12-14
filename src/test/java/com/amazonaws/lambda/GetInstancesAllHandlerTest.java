@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
@@ -23,6 +24,9 @@ import com.amazonaws.entities.Algorithm;
 import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.Implementation;
 import com.amazonaws.entities.ProblemInstance;
+import com.amazonaws.http.GetImplementationsAllResponse;
+import com.amazonaws.http.GetProblemInstancesAllResponse;
+import com.amazonaws.http.MergeClassificationResponse;
 import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.util.json.Jackson;
@@ -85,6 +89,13 @@ public class GetInstancesAllHandlerTest {
             
             algodb.removeAlgorithm(algoID);
             classdb.removeClassification(testClassID);  
+            
+            GetProblemInstancesAllResponse response = new GetProblemInstancesAllResponse(new LinkedList<ProblemInstance>(),200);
+            response.toString();
+            
+            response = new GetProblemInstancesAllResponse(400,"Failed");
+            response.toString();
+
 
         } catch (Exception e) {
             fail("Invalid"+ e);
