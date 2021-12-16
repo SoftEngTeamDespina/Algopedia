@@ -69,6 +69,28 @@ public class ClassificationDAO{
             throw new Exception("Failed in getting classification: " + e.getMessage());
         }
     }
+
+    public Classification getClassificationByID(String id) throws Exception {
+        
+        try {
+            Classification cl = null;
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + tblName + " WHERE UID=?;");
+            ps.setString(1,  id);
+            ResultSet resultSet = ps.executeQuery();
+            
+            while (resultSet.next()) {
+                cl = new Classification(resultSet.getString("UID"),resultSet.getString("name"),resultSet.getString("description"),resultSet.getString("classificationcol"));
+            }
+            resultSet.close();
+            ps.close();
+            
+            return cl;
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new Exception("Failed in getting classification: " + e.getMessage());
+        }
+    }
     
     public boolean changeClassificationParentAll(String keepID, String mergeID) throws Exception {
         try {

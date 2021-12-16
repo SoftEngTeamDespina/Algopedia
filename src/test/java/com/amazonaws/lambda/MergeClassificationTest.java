@@ -152,4 +152,34 @@ public class MergeClassificationTest {
             System.out.println("error: " +e);
         }
 	}
+
+    @Test
+	public void testNonSibling() throws Exception {
+        try {
+            ClassificationDAO classdb = new ClassificationDAO();
+            Classification mergeClass = new Classification("merge", "desc", null);
+
+            classdb.addClassification(mergeClass);
+
+            String mergeID = classdb.getClassification("merge").getClassificationID();
+
+            Classification childClass = new Classification("child", "desc", mergeID);
+
+            classdb.addClassification(childClass);
+
+            String childID = classdb.getClassification("child").getClassificationID();
+
+
+
+            String input = "{\"keepID\": \""+mergeClass+"\",\"mergeID\":\""+childID+"\",\"user\": \"testUser\"}";
+            String output = "Failed to merge classification";
+
+
+            testMerge(input, output);
+
+        } catch (Exception e) {
+            fail("Invalid"+ e);
+            System.out.println("error: " +e);
+        }
+	}
 }

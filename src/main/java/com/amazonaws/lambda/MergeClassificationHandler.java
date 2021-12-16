@@ -3,6 +3,7 @@ package com.amazonaws.lambda;
 import com.amazonaws.db.AlgorithmDAO;
 import com.amazonaws.db.ClassificationDAO;
 import com.amazonaws.db.UserActionDAO;
+import com.amazonaws.entities.Classification;
 import com.amazonaws.entities.UserAction;
 import com.amazonaws.http.RemoveClassificationResponse;
 import com.amazonaws.http.MergeClassificationResponse;
@@ -51,7 +52,10 @@ public class MergeClassificationHandler implements RequestStreamHandler {
             String userID = new Gson().fromJson(event.get("user"), String.class);
 
             try {
-                if(cdb.changeClassificationParentAll(keepID, mergeID)){
+                Classification keepClass = cdb.getClassificationByID(keepID);
+                Classification mergeClass = cdb.getClassificationByID(mergeID);
+                if(keepClass.getSuperClassification() == mergeClass.getSuperClassification()){
+                    if(cdb.changeClassificationParentAll(keepID, mergeID)){
                     int expected = adb.getAlgorithms(mergeID).size();
                     if (adb.changeAlgorithmClassificationAll(keepID, mergeID, expected)) {
                         if (cdb.removeClassification(mergeID)) {
@@ -70,6 +74,9 @@ public class MergeClassificationHandler implements RequestStreamHandler {
                 } else {
                     response = new MergeClassificationResponse(400, "Failed to merge classification");
                 }
+            } else {
+                response = new MergeClassificationResponse(400, "Failed to merge classification");
+            }
                 writer.write(new Gson().toJson(response));
             } catch (Exception e) {
                 logger.log(e.getMessage());
